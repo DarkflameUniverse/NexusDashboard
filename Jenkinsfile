@@ -37,12 +37,12 @@ node('worker'){
         } else {
             tag = params.BRANCH.replace('\\', '-')
         }
-        sh "docker build -t aronwk/dlu-account_manager:${tag} ."
+        sh "docker build -t aronwk/nexus-dashboard:${tag} ."
     }
     stage("Push Container"){
         withCredentials([usernamePassword(credentialsId: 'docker-hub-token', passwordVariable: 'password', usernameVariable: 'username')]) {
             sh "docker login -u ${username} -p ${password}"
-            sh "docker push aronwk/dlu-account_manager:${tag}"
+            sh "docker push aronwk/nexus-dashboard:${tag}"
             sh 'docker logout'
         }
     }
