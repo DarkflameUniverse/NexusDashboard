@@ -1,0 +1,22 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Bulk Play Key Creation
+{% endblock title %}
+
+{% block content_before %}
+  Bulk Play Key Creation
+{% endblock content_before %}
+
+{% block content %}
+  <form method=post>
+    {{ form.csrf_token }}
+    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 20rem;">
+      <div class="card-body">
+        {{ helper.render_field(form.count) }}
+        {{ helper.render_field(form.uses) }}
+        {{ helper.render_submit_field(form.submit) }}
+      </div>
+    </div>
+  </form>
+{% endblock content %}

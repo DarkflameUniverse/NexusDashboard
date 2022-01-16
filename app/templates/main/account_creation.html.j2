@@ -1,0 +1,82 @@
+{% extends "base.html.j2" %}
+{% block title %}Account Creation{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 50px">
+
+    {# Display DLU.png #}
+    <div style="margin-bottom: 50px">
+        <img
+                src="{{ url_for('static', filename=logo/logo.png) }}"
+                class="center-block img-responsive mx-auto d-block"
+                alt="DLU Logo"
+        >
+    </div>
+
+    <div class="col-lg-3">
+    </div>
+    <div class="col-lg-6">
+
+    {# If the error value is set, display the error in red text #}
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {# If the message value is set, display the message in green text #}
+    {% if message %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    {# Form which takes in Play Key, Account Name, and Account Password #}
+    <form action="{{ url_for('account_creation') }}" method="post">
+        {# Play Key input #}
+        <div class="form-group">
+            <label for="play_key">Play Key</label>
+            <input type="text" class="form-control" name="play_key" aria-describedby="emailHelp" placeholder="AAAA-BBBB-CCCC-DDDD" value="{{ key }}">
+            <small class="form-text text-muted">In the format: AAAA-BBBB-CCCC-DDDD</small>
+        </div>
+
+        {# Account Name input #}
+        <div class="form-group">
+            <label for="account_name">Username</label>
+            <input type="text" class="form-control" name="account_name" placeholder="Enter username...">
+            <small class="form-text text-muted">Limited to a-z, A-Z, and 0-9. No spaces or special characters. Max 32 characters.</small>
+        </div>
+
+        {# Account Password input #}
+        <div class="form-group">
+            <label for="account_password">Password</label>
+            <input type="password" class="form-control" name="account_password" placeholder="Enter password...">
+            <small class="form-text text-muted"></small>
+        </div>
+
+        {# Account Repeat Password input #}
+        <div class="form-group">
+            <label for="account_repeat_password">Repeat Password</label>
+            <input type="password" class="form-control" name="account_repeat_password" placeholder="Repeat password...">
+            <small class="form-text text-muted"></small>
+        </div>
+
+        {# Agree to the Privacy Policy and Terms of Service #}
+        <div class="form-group">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="agree">
+                I agree to the <a href="{{ url_for('static', filename=resources.PRIVACY_POLICY) }}" target="_blank">Privacy Policy</a> and <a href="{{ url_for('static', filename=resources.TERMS_OF_USE) }}" target="_blank">Terms of Service</a>
+            </label>
+        </div>
+
+        {# Submit button #}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+    </form>
+    </div>
+    <div class="col-lg-3">
+    </div>
+    </div>
+</div>
+{% endblock %}

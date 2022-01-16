@@ -1,0 +1,92 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Moderation of {{ status|capitalize }} Items
+{% endblock title %}
+
+{% block content_before %}
+  Moderation of {{ status|capitalize }} Items
+{% endblock content_before %}
+
+{% block content %}
+  <h4> Characters </h4>
+  <hr class="bg-primary"/>
+  <table class="table" id="character_table">
+    <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Account</th>
+          <th>Name</th>
+          <th>Pending Name</th>
+          <th>Needs Rename</th>
+          <th>Last Login</th>
+          <th>Permission Map</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <br/>
+  <h4> Pets </h4>
+  <hr class="bg-primary"/>
+  <table class="table" id="pet_table">
+    <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <br/>
+  <h4> Properties </h4>
+  <hr class="bg-primary"/>
+  <table class="table" id="property_table">
+    <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Owner</th>
+          <th>Template ID</th>
+          <th>Clone ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Privacy</th>
+          <th>Approved</th>
+          <th>Updated</th>
+          <th>Claimed</th>
+          <th>Rejection Reason</th>
+          <th>Reputation</th>
+          <th>Location</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+{% endblock %}
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let character_table = $('#character_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('characters.get', status=status) }}",
+          });
+        });
+
+    $(document).ready(function(){
+        let pet_table = $('#pet_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('moderation.get_pets', status=status) }}",
+          });
+        });
+    $(document).ready(function(){
+        let property_table = $('#property_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('properties.get', status=status) }}",
+          });
+        });
+  </script>
+{% endblock %}

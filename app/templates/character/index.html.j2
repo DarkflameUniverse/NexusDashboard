@@ -1,0 +1,52 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Account Management
+{% endblock title %}
+
+{% block content_before %}
+  Account Management
+{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <table class="table" id="characters_table">
+    <thead>
+        <tr>
+            <th>Actions</th>
+            <th>Account</th>
+            <th>Name</th>
+            <th>Pending Name</th>
+            <th>Needs Rename</th>
+            <th>Last Login</th>
+            <th>Permission Map</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let characters_table = $('#characters_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('characters.get', status='all') }}",
+            "columnDefs": [
+              { "searchable": false, "targets": [0,5] },
+              { "orderable": false, "targets": [0] }
+            ]
+          });
+        });
+  </script>
+{% endblock %}

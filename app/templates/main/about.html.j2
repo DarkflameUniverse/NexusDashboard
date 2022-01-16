@@ -1,0 +1,73 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}About{% endblock %}
+
+{% block content_before %}
+ About {{ config.APP_NAME }}
+{% endblock %}
+
+{% block content %}
+  <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
+    <div class="card-body">
+      <h4 class="text-center">Contributors</h4>
+
+      <div class="row">
+        <div class="col text-right">
+          Developer:
+        </div>
+        <div class="col">
+          Aronwk (Aaron Kimbrell)
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col text-right">
+          Developer:
+        </div>
+        <div class="col">
+          Wincent
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col text-right">
+          Logo Designer:
+        </div>
+        <div class="col">
+          BlasterBuilder
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col text-right">
+          LDD/LXFML Rendering:
+        </div>
+        <div class="col">
+          m2m/sttng
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col text-right">
+          TODO: add more Contributors
+        </div>
+        <div class="col">
+          Add more
+        </div>
+      </div>
+
+      <hr>
+      <div class="row">
+        <div class="col text-right">
+          Source
+        </div>
+        <div class="col">
+          <a href="https://github.com/DarkflameUniverse/AccountManager">
+            Github
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

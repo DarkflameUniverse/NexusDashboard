@@ -1,0 +1,33 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Reports
+{% endblock title %}
+
+{% block content_before %}
+  Reports
+{% endblock content_before %}
+
+{% block content %}
+  <div class="row">
+    <div class="col">
+      Items: <br/>
+      {% for item in items  %}
+        <a role="button" class="btn btn-primary btn btn-block"
+          href='{{url_for('reports.items_by_date', date=item.date)}}'>
+          {{item.date}}
+        </a>
+      {% endfor %}
+    </div>
+    <div class="col">
+    </div>
+    <div class="col">
+    </div>
+  </div>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+
+{% endblock %}

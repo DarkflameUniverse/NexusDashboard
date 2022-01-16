@@ -1,0 +1,58 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Property Management
+{% endblock title %}
+
+{% block content_before %}
+  Property Management
+{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <table class="table" id="properties_table">
+    <thead>
+        <tr>
+            <th>Actions</th>
+            <th>Owner</th>
+            <th>Template ID</th>
+            <th>Clone ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Privacy</th>
+            <th>Approved</th>
+            <th>Updated</th>
+            <th>Claimed</th>
+            <th>Rejection Reason</th>
+            <th>Reputation</th>
+            <th>Location</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let properties_table = $('#properties_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('properties.get', status='all') }}",
+            "columnDefs": [
+              { "searchable": false, "targets": [0] },
+              { "orderable": false, "targets": [0] }
+            ]
+          });
+        });
+  </script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Viewing {{ account_data.username }}
+{% endblock %}
+
+{% block content_before %}
+  Viewing {{ account_data.username }}
+  {% if current_user.id == account_data.id %}
+    <br/>
+     Hey, this is you!
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% include 'partials/_account.html.j2' %}
+{% endblock content %}
+
+
+{% block content_after %}
+  <br/>
+  <br/>
+  <h3 class="text-center">Characters</h3>
+  <hr class="bg-primary"/>
+  <div class="card-columns">
+    {% for character in account_data.charinfo %}
+      {% include 'partials/_character.html.j2' %}
+    {% endfor %}
+  </div>
+{% endblock content_after %}

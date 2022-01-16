@@ -1,0 +1,94 @@
+{# Navigation brand, nav toggle bar #}
+<nav class='navbar navbar-expand-sm navbar-dark bg-primary flex-row pb-3'>
+  <div class='container md-0 flex-nowrap'>
+
+    {# Logo and App Name #}
+    <nav class="navbar">
+      <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        <img src="{{ url_for('static', filename='logo/logo.png') }}" width="30" height="30" class="d-inline-block align-top" alt="">
+        {{ config.APP_NAME }}
+      </a>
+    </nav>
+
+
+    {# Visible only on large devices #}
+    <nav class='navbar-nav'>
+      <div class='collapse navbar-collapse'>
+        {% if current_user.is_authenticated %}
+          {% if config.USER_ENABLE_INVITE_USER %}
+            <a class='btn-nav-dashboard mr-2' href='{{ url_for('user.invite_user') }}'>Invite</a>
+          {% endif %}
+          <a class='btn-nav-dashboard' href='{{ url_for('user.logout') }}'><i
+            class='fas fa-sign-out-alt mr-1'></i>Logout</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarSupportedContent'
+        aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'>
+      <span class='navbar-toggler-icon'></span>
+    </button>
+
+  </div>
+</nav>
+
+{# Navigation menu / links bar #}
+<nav class='navbar navbar-expand-sm navbar-dark bg-primary p-sm-0 py-0 {% if navbar_shadow %}shadow-sm{% endif %}'>
+  <div class='container mt-0 pt-0'>
+    <div class='collapse navbar-collapse' id='navbarSupportedContent' style='margin-top: -16px;'>
+      <nav class='navbar-nav mr-auto'>
+        <a id='main-index' class='nav-link' href='{{ url_for('main.index') }}'>Home</a>
+
+        {% if current_user.is_authenticated and current_user.gm_level >= 3 %}
+          {# General Moderation Links #}
+          <a id='accounts-index' class='nav-link' href='{{ url_for('accounts.index') }}'>Accounts</a>
+          <a id='character-index' class='nav-link' href='{{ url_for('characters.index') }}'>Characters</a>
+          <a id='property-index' class='nav-link' href='{{ url_for('properties.index') }}'>Properties</a>
+        {% endif %}
+
+        {% if current_user.is_authenticated and current_user.gm_level >= 2 %}
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+            <div class="dropdown-menu">
+
+              <a class="dropdown-item" href='{{ url_for('mail.send') }}'>Send Mail</a>
+              <hr/>
+              <h6 class="text-center">Moderation</h6>
+              <a class="dropdown-item" href='{{ url_for('moderation.index', status='unapproved') }}'>View Unapproved Items</a>
+              <a class="dropdown-item" href='{{ url_for('moderation.index', status='approved') }}'>View Approved Items</a>
+              <a class="dropdown-item" href='{{ url_for('moderation.index', status='all') }}'>View All Items</a>
+              <hr/>
+              <h6 class="text-center">Bug Reports</h6>
+              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='unresolved') }}'>View Unresolved Reports</a>
+              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='resolved') }}'>View Resolved Reports</a>
+              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='all') }}'>View All Reports</a>
+              {% if current_user.is_authenticated and current_user.gm_level >= 8 %}
+                <hr/>
+                <h6 class="text-center">Logs</h6>
+                <a class="dropdown-item" href='{{ url_for('log.activity') }}'>Command Log</a>
+                <a class="dropdown-item" href='{{ url_for('log.command') }}'>Activity Log</a>
+              {% endif %}
+            </div>
+          </li>
+        {% endif %}
+
+
+
+        {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
+          {# Play Keys #}
+          <a id='play_keys-index' class='nav-link' href='{{ url_for('play_keys.index') }}'>Play Keys</a>
+        {% endif %}
+
+        {# About always right most #}
+        <a id='main-about' class='nav-link' href='{{ url_for('main.about') }}'>About</a>
+
+        {# Only show logout if unauthenticated #}
+        {% if current_user.is_authenticated %}
+          <a class='nav-link d-sm-none' href='{{ url_for('user.logout') }}'><i
+            class='fas fa-sign-out-alt mr-1'></i>Logout</a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</nav>

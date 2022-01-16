@@ -1,0 +1,24 @@
+<div class="inventory-item">
+  <img
+    src="{{url_for('luclient.get_icon_lot', id=inv_item.attr_l)}}"
+    alt="{{ inv_item.attr_l|get_lot_name }}"
+    class="border p-1 border-primary rounded m-1"
+    width="60"
+    {% if inv_item.attr_eq == "true" %}style="background-color:#d16f05;"{% endif %}
+    height="60"
+    data-html="true"
+    data-toggle="tooltip"
+    data-placement="left"
+    title="{% include 'partials/charxml/_item_tooltip.html.j2' %}"
+  >
+  {% if inv_item.attr_c != "1" %}
+    <span class="inventory-count text-bold">
+      {{ inv_item.attr_c }}
+    </span>
+  {% endif %}
+  {% if inv_item.attr_b == "true" %}
+    <span class="inventory-lock">
+      <i class='fas fa-lock'></i>
+    </span>
+  {% endif %}
+</div>

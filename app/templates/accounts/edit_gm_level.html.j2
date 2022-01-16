@@ -1,0 +1,21 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Edit GM Level for User {{ username }}
+{% endblock title %}
+
+{% block content_before %}
+  Edit GM Level for User {{ username }}
+{% endblock content_before %}
+
+{% block content %}
+  <form method=post>
+    {{ form.csrf_token }}
+    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 20rem;">
+      <div class="card-body">
+        {{ helper.render_field(form.gm_level) }}
+        {{ helper.render_submit_field(form.submit) }}
+      </div>
+    </div>
+  </form>
+{% endblock content %}

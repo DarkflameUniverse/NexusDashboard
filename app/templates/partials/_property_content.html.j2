@@ -1,0 +1,71 @@
+<div class="card shadow-sm bg-dark border-primary">
+  <div class="card-body">
+    <div class="row">
+      <div class="col text-center">
+        <h4>
+          {% if not item.ugc_id %}
+            {{ item.lot|get_lot_name }}
+          {% else %}
+            UGC: {{ item.ugc.filename.split('.')[0] }}
+          {% endif %}
+        </h4>
+      </div>
+    </div>
+    <br/>
+    {% if item.lot == 14 %}
+      {# Do nothing for now#}
+    {% else %}
+      <div class="row">
+        <div class="col text-center">
+           <img src="{{url_for('luclient.get_icon_lot', id=item.lot)}}" alt="{{ item.lot|get_lot_name }}" width="64" height="64">
+        </div>
+      </div>
+      <br/>
+      <div class="row">
+        <div class="col text-right">
+          LOT:
+        </div>
+        <br/>
+        <div class="col">
+          {{ item.lot }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col text-right">
+          Description:
+        </div>
+        <br/>
+        <div class="col">
+          {{ item.lot|get_lot_desc }}
+        </div>
+      </div>
+      <br/>
+    {% endif %}
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('properties.get_model', id=item.id, file_format="lxfml") }}'>
+            View Model XML
+          </a>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('properties.view_model', id=item.id) }}'>
+            Render Model
+          </a>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('properties.download_model', id=item.id) }}'>
+            Download Model
+          </a>
+      </div>
+    </div>
+  </div>
+</div>

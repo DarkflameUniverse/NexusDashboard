@@ -1,0 +1,49 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content_before %}
+  {% if current_user.is_authenticated %}
+    Welcome back {{ current_user.username }}!
+  {% else %}
+    Welcome Explorer!
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if current_user.is_authenticated %}
+    {% include 'partials/_account.html.j2' %}
+  {% else %}
+    <div class="row">
+      <div class="col">
+        <a role="button" class="btn btn-primary btn-lg btn-block"
+          href='{{ url_for('user.login') }}'>
+          Login
+        </a>
+      </div>
+      {% if config.USER_ENABLE_REGISTER %}
+        <div class="col">
+          <a role="button" class="btn btn-primary btn-lg btn-block"
+            href='{{ url_for('user.register') }}'>
+            Register
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock content %}
+
+{% block content_after %}
+  {% if current_user.is_authenticated %}
+    <br/>
+    <br/>
+    <h3 class="text-center">Characters</h3>
+    <hr class="bg-primary"/>
+    <div class="card-columns">
+      {% for character in account_data.charinfo %}
+        {% include 'partials/_character.html.j2' %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock content_after %}
+

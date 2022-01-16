@@ -1,0 +1,45 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Activity Log
+{% endblock title %}
+
+{% block content_before %}
+  Activity Log
+{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <table class="table" id="command_table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Account:Character</th>
+            <th>Command</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let command_table = $('#command_table').DataTable({
+            "order": [[0, "desc"]],
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('log.get_commands') }}",
+          });
+        });
+  </script>
+{% endblock %}

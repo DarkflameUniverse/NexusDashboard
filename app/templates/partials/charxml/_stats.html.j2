@@ -1,0 +1,38 @@
+{% if stat.life > 0 %}
+  + {{ stat.life }}
+  <img src='{{ url_for('luclient.get_icon_iconid', id=3262) }}'
+    alt='Health: '
+    width='20'
+    height='20'>
+{% endif %}
+
+{% if stat.armor > 0 %}
+  + {{ stat.armor }}
+  <img src='{{ url_for('luclient.get_icon_iconid', id=3263) }}'
+    alt='Armor: '
+    width='20'
+    height='20'>
+{% endif %}
+
+{% if stat.im > 0 %}
+  + {{ stat.im }}
+  <img src='{{ url_for('luclient.get_icon_iconid', id=1032) }}'
+    alt='Imagination: '
+    width='20'
+    height='20'>
+{% endif %}
+
+{% if stat.skill|length > 0 %}
+  {% for skill in stat.skill %}
+    {% set skill_desc = skill[0]|get_skill_desc %}
+    {% if "IP" not in skill_desc and "AP" not in skill_desc and "LP" not in skill_desc and skill[0]|string not in skill_desc %}
+      <br/>
+      <img src='{{ url_for('luclient.get_icon_iconid', id=skill[1]) }}'
+        alt='Skill: '
+        width='32'
+        height='32'>
+      {{ skill[0]|get_skill_desc }}
+      <br/>
+    {% endif %}
+  {% endfor %}
+{% endif %}

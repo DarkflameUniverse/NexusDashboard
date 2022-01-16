@@ -1,0 +1,101 @@
+<div class="card shadow-sm bg-dark border-primary">
+  <div class="card-body">
+    <div class="row">
+      <div class="col text-center">
+        <h4>
+          {% if property.name %}
+            {{ property.name }}
+          {% else %}
+            {{ property.zone_id|get_zone_name }}
+          {% endif %}
+        </h4>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-center">
+          {{ property.description }}
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-right">
+        Approved:
+      </div>
+      <br/>
+      <div class="col">
+        {% if property.mod_approved %}
+          <h5 class="far fa-check-square text-success"></h5>
+        {% else %}
+          <h5 class="far fa-times-circle text-danger"></h5>
+        {% endif %}
+      </div>
+    </div>
+    {# Never get's updated currenlty #}
+    <div class="row">
+      <div class="col text-right">
+        Updated:
+      </div>
+      <div class="col">
+          {{ property.last_updated|ctime }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Claimed:
+      </div>
+      <div class="col">
+          {{ property.time_claimed|ctime }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Visibility:
+      </div>
+      <div class="col">
+        {% if property.privacy_option == 0 %}
+          Private
+        {% elif property.privacy_option == 1 %}
+          Best Friends
+        {% else %}
+          Public
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Reputation:
+      </div>
+      <div class="col">
+          {{ property.reputation }}
+      </div>
+    </div>
+    {% if request.endpoint != "properties.view" %}
+      <br/>
+      <div class="row">
+        <div class="col text-center">
+            <a role="button" class="btn btn-primary btn-block"
+              href='{{ url_for('properties.view', id=property.id) }}'>
+              View Property
+            </a>
+        </div>
+      </div>
+    {% else %}
+      <br/>
+      <div class="row">
+        <div class="col text-center">
+            <a role="button" class="btn btn-primary btn-block"
+              href='{{ url_for('properties.view_models', id=property.id) }}'>
+              Render Property
+            </a>
+        </div>
+      </div>
+    {% endif %}
+    {% if current_user.gm_level > 2 %}
+      <br/>
+      <a role="button" class="btn btn-{% if property.mod_approved %}danger{% else %}success{% endif %} btn-block"
+        href='{{url_for('properties.approve', id=property.id)}}'>
+        {% if property.mod_approved %} Unapprove {% else %} Approve {% endif %}
+      </a>
+    {% endif %}
+  </div>
+</div>

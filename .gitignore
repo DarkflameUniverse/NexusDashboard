@@ -1,0 +1,15 @@
+credentials.py
+resources.py
+.idea/
+__pycache__/
+venv/
+static/policy/
+app/static/site.css
+app/static/.webassets-cache/**/*
+app/static/brickdb/*
+locale.json
+app/static/ldddb/*
+.vscode/settings.json
+locale.xml
+app/luclient/*
+app/cache/*

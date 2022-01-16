@@ -1,0 +1,67 @@
+{% set base_stat = inv_item.attr_l|get_lot_stats %}
+{% set desc = inv_item.attr_l|get_lot_desc %}
+{% set item_set = inv_item.attr_l|get_item_set %}
+
+{{ inv_item.attr_l|get_lot_name }}
+
+{% if item_set and item_set[0 != 49]%}
+  <br/>
+  --------------------------------
+  <br/>
+  {{ ("ItemSets_" ~ item_set[0] ~ "_kitName")|lu_translate }}: Rank {{ item_set[4] }}<br/>
+  {% if item_set[5] %}
+    <img src='/luclient/get_icon_iconid/{{item_set[5]}}'
+          alt='Kit Image'
+          width='128'
+          height='128'>
+    <br/>
+    Multi-Item Bonus:<br/>
+    {% if item_set[6] %}
+      <b>2 Items:</b><br/>
+      {% with stat = item_set[6]|get_set_stats %}
+        {% include 'partials/charxml/_stats.html.j2' %}
+      {% endwith %}
+      <br/><br/>
+    {% endif %}
+    {% if item_set[7] %}
+      <b>3 Items:</b><br/>
+      {% with stat = item_set[7]|get_set_stats %}
+        {% include 'partials/charxml/_stats.html.j2' %}
+      {% endwith %}
+      <br/><br/>
+    {% endif %}
+    {% if item_set[8] %}
+      <b>4 Items:</b><br/>
+      {% with stat = item_set[8]|get_set_stats %}
+        {% include 'partials/charxml/_stats.html.j2' %}
+      {% endwith %}
+      <br/><br/>
+    {% endif %}
+    {% if item_set[9] %}
+      <b>5 Items:</b><br/>
+      {% with stat = item_set[9]|get_set_stats %}
+        {% include 'partials/charxml/_stats.html.j2' %}
+      {% endwith %}
+      <br/><br/>
+    {% endif %}
+    {% if item_set[10] %}
+      <b>6 Items:</b><br/>
+      {% with stat = item_set[10]|get_set_stats %}
+        {% include 'partials/charxml/_stats.html.j2' %}
+      {% endwith %}
+      <br/><br/>
+    {% endif %}
+  {% endif %}
+  --------------------------------
+{% endif %}
+
+{% if desc %}
+  <br/>{{ desc }}
+{% endif %}
+{% if base_stat %}
+  <br/>
+  {% with stat = base_stat %}
+    {% include 'partials/charxml/_stats.html.j2' %}
+  {% endwith %}
+{% endif %}
+

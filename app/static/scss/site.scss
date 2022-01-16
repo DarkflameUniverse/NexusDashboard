@@ -1,0 +1,94 @@
+
+$theme-colors: (
+        "primary": #005ac2,
+        "secondary": #ffd100,
+        "white": #FFFFFF
+);
+
+$link-color: #005ac2;
+
+@import "../bootstrap-4.2.1/scss/bootstrap";
+@import url(http://fonts.googleapis.com/css?family=Nunito:700);
+
+body { font-family:'Nunito', Helvetica, Arial, sans-serif; }
+
+// responsive font
+@include media-breakpoint-down(sm) {
+  html {
+    font-size: 14px;
+  }
+}
+
+.inventory-item {
+  display: inline-block;
+  position: relative;
+  text-align: right;
+  vertical-align: bottom;
+}
+
+.inventory-count {
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  font-size: 20px;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.inventory-lock {
+  position: absolute;
+  bottom: 8px;
+  right: 48px;
+  font-size: 13px;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+
+
+.select2-results ul li {
+  background-color: grey;
+}
+
+
+.card-columns {
+  @include media-breakpoint-only(lg) {
+    column-count: 4;
+  }
+  @include media-breakpoint-only(xl) {
+    column-count: 4;
+  }
+}
+
+// theming
+.sandstone {
+  font-size: 12px;
+}
+
+// nav link padding
+.nav-link {
+  @extend .p-sm-3;
+}
+
+// latex style formatting
+.latex sub {
+  vertical-align: -0.1ex;
+  margin-left: -0.1667em;
+  margin-right: -0.025em;
+}
+
+.latex sub, .latex sup {
+  font-size: 0.9em;
+  text-transform:uppercase;
+
+}
+.latex sup {
+  font-size: 0.85em;
+  vertical-align: -0.2em;
+  margin-left: -0.26em;
+  margin-right: -0.05em;
+}
+
+.btn-nav-dashboard {
+  @extend .btn, .btn-outline-white, .p-2, .px-3, .ml-auto;
+  color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+}

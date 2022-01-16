@@ -1,0 +1,14 @@
+{% extends 'base.html.j2' %}
+
+{% block content_override %}
+<div class='container mt-4'>
+    <div class="card shadow rounded border-0 h-100 my-5 bg-dark">
+        <div class="card-body d-flex flex-column m-2">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

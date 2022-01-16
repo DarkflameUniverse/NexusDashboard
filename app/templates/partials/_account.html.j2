@@ -1,0 +1,196 @@
+<div class="card shadow-sm bg-dark border-primary">
+  <div class="card-body">
+    <div class="row">
+      <div class="col text-center">
+        <h4>Account Info</h4>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-right">
+        Username:
+      </div>
+      <br/>
+      <div class="col">
+        {{ account_data.username}}
+      </div>
+    </div>
+    {% if config.USER_ENABLE_EMAIL %}
+      <div class="row">
+        <div class="col text-right">
+          E-mail:
+        </div>
+        <br/>
+        <div class="col">
+          {{ account_data.email }}
+        </div>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div class="col text-right">
+        Role:
+      </div>
+      <div class="col">
+        {% with gm_level=account_data.gm_level %}
+          {% include 'partials/_gm_level.html.j2' %}
+        {% endwith %}
+        {% if current_user.id != account_data.id %}
+          {% if current_user.gm_level >= 8  and not(current_user.gm_level == 8 and account_data.gm_level == 8)%}
+            <a role="button" class="btn btn-primary"
+              href='{{ url_for('accounts.edit_gm_level', id=account_data.id) }}'>
+              Edit
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Account Lock Status:
+      </div>
+      <br/>
+      <div class="col">
+        {% if account_data.locked %}
+          <h5 class="far fa-times-circle text-danger"></h5> Locked
+        {% else %}
+          <h5 class="far fa-check-square text-success"></h5> Not Locked
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Ban Status:
+      </div>
+      <div class="col">
+        {% if account_data.banned %}
+          <h5 class="far fa-times-circle text-danger"></h5> Banned
+        {% else %}
+          <h5 class="far fa-check-square text-success"></h5> Not Banned
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Mute Status:
+      </div>
+      <div class="col">
+        {% if account_data.mute_expire != 0 %}
+          <h5 class="far fa-times-circle text-danger"></h5> Muted Until: <br/>
+          {{ account_data.mute_expire|ctime }}
+        {% else %}
+          <h5 class="far fa-check-square text-success"></h5> Not Muted
+        {% endif %}
+      </div>
+    </div>
+    <br/>
+    {% if current_user.id == account_data.id %}
+      <div class="row">
+        {% if config.USER_ENABLE_CHANGE_PASSWORD %}
+          <div class="col">
+            <a role="button" class="btn btn-primary btn btn-block"
+              href='{{ url_for('user.change_password') }}'>
+              Change Password
+            </a>
+          </div>
+        {% endif %}
+        {% if config.USER_ENABLE_CHANGE_USERNAME%}
+          <div class="col">
+            <a role="button" class="btn btn-primary btn btn-block"
+              href='{{ url_for('user.change_username') }}'>
+              Change Username
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if account_data.play_key and current_user.gm_level > 3 and config.REQUIRE_PLAY_KEY %}
+      <hr class="bg-primary"/>
+      <div class="row">
+        <div class="col text-center">
+          <h4>Key Info</h4>
+        </div>
+      </div>
+      <br/>
+      <div class="row">
+        <div class="col text-right">
+          Play Key:
+        </div>
+        <br/>
+        <div class="col">
+          {{ account_data.play_key.key_string }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col text-right">
+          Uses Left:
+        </div>
+        <div class="col">
+          {{ account_data.play_key.key_uses }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col text-right">
+          Active:
+        </div>
+        <div class="col">
+          {% if account_data.active %}
+            <h5 class="far fa-check-square text-success"></h5>
+          {% else %}
+            <h5 class="far fa-times-circle text-danger"></h5>
+          {% endif %}
+        </div>
+      </div>
+   {% endif %}
+
+   {% if current_user.id != account_data.id and current_user.gm_level > 3 %}
+      <hr class="bg-primary"/>
+      <div class="row">
+        <div class="col text-center">
+          <h4>Actions</h4>
+        </div>
+      </div>
+      <br/>
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('accounts.lock', id=account_data.id) }}'>
+        {% if account_data.locked %}
+          Unlock
+        {% else %}
+          Lock
+        {% endif %}
+      </a>
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('accounts.ban', id=account_data.id) }}'>
+        {% if account_data.banned %}
+          Unban
+        {% else %}
+          Ban
+        {% endif %}
+      </a>
+      <br/>
+      {% if account_data.mute_expire %}
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('accounts.mute', id=account_data.id, days=0) }}'>
+          Unmute
+        </a>
+      {% else %}
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('accounts.mute', id=account_data.id, days=1) }}'>
+          Mute for 1 days
+        </a>
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('accounts.mute', id=account_data.id, days=7) }}'>
+          Mute for 7 days
+        </a>
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('accounts.mute', id=account_data.id, days=31) }}'>
+          Mute for 1 month
+        </a>
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('accounts.mute', id=account_data.id, days=365) }}'>
+          Mute for 1 year
+        </a>
+      {% endif %}
+      </div>
+   {% endif %}
+</div>

@@ -1,0 +1,56 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Play Key Management
+{% endblock title %}
+
+{% block content_before %}
+  Play Key Management
+{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <a role="button" class="btn btn-primary btn btn-block"
+    href='{{ url_for('play_keys.create') }}'>
+    Create one Play Key with one use
+  </a>
+  <a role="button" class="btn btn-primary btn btn-block"
+    href='{{ url_for('play_keys.bulk_create') }}'>
+    Bulk Create Play Keys
+  </a>
+  <hr class="bg-primary"/>
+  <table class="table" id="play_key_table">
+    <thead>
+        <tr>
+            <th>Actions</th>
+            <th>Key</th>
+            <th>Uses Left</th>
+            <th>Times Used</th>
+            <th>Created</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let play_key_table = $('#play_key_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('play_keys.get') }}",
+          });
+        });
+  </script>
+{% endblock %}

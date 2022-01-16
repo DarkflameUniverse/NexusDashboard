@@ -1,0 +1,46 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Send Mail
+{% endblock title %}
+
+{% block content_before %}
+  Send Mail
+{% endblock content_before %}
+
+{% block content %}
+  <form method=post>
+    {{ form.csrf_token }}
+    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 20rem;">
+      <div class="card-body">
+        {{ helper.render_field(form.recipient) }}
+        {{ helper.render_field(form.subject) }}
+        {{ helper.render_field(form.body) }}
+        {{ helper.render_field(form.attachment) }}
+        {{ helper.render_field(form.attachment_count) }}
+        {{ helper.render_submit_field(form.submit) }}
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block js %}
+  {{ super() }}
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
+  <script>
+    $(document).ready(function() {
+        $('#recipient').select2({  // init Select2 on form's name field
+            placeholder: "{{ form.recipient.label.text }}",
+            allowClear: true,
+        });
+    });
+    $(document).ready(function() {
+        $('#attachment').select2({  // init Select2 on form's name field
+            placeholder: "{{ form.attachment.label.text }}",
+            allowClear: true,
+        });
+    });
+  </script>
+{% endblock js %}

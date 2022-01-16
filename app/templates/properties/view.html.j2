@@ -1,0 +1,39 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Viewing {{property_data.owner.name}}'s
+  {% if property_data.name %}
+    {{ property_data.name }}
+  {% else %}
+    {{ property_data.zone_id|get_zone_name }}
+  {% endif %}
+{% endblock %}
+
+{% block content_before %}
+  Viewing {{property_data.owner.name}}'s
+  {% if property_data.name %}
+    {{ property_data.name }}
+  {% else %}
+    {{ property_data.zone_id|get_zone_name }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% with property=property_data%}
+      {% include 'partials/_property.html.j2' %}
+    {% endwith %}
+{% endblock content %}
+
+{% block content_after %}
+  <br/>
+  <br/>
+  <h3 class="text-center">Property Content</h3>
+  <hr class="bg-primary"/>
+  <div class="card-columns">
+    {% for item in property_data.properties_contents %}
+      {% include 'partials/_property_content.html.j2' %}
+    {% endfor %}
+  </div>
+
+{% endblock content_after %}
+

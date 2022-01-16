@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>LDD Webviewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='lddviewer/main.css')}}">
+    <style>
+      body {
+        color: #444;
+      }
+      a {
+        color: #08f;
+      }
+    </style>
+	</head>
+  <body>
+  <div id="info">
+    LDD (lxfml) Webviewer
+    <a href="https://github.com/sttng/LDD-Webviewer">
+    Credit to sttng
+    </a>
+    <br/>
+    {% if property_data %}
+      <a role="button" class="btn text-{% if property_data.mod_approved %}danger{% else %}success{% endif %} btn-block"
+        href='{{url_for('properties.approve', id=property_data.id)}}'>
+        {% if property_data.mod_approved %} Unapprove {% else %} Approve {% endif %}
+      </a>
+    {% endif %}
+  </div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/super-three@0.116.0/build/three.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/super-three@0.116.0/examples/js/controls/OrbitControls.js"></script>
+
+<script type="text/javascript" src="{{ url_for('static', filename='lddviewer/base64-binary.js') }}"></script>
+
+<script type='module'>
+  import {MTLLoader} from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/jsm/loaders/MTLLoader.js'
+  import {OBJLoader} from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/jsm/loaders/OBJLoader.js'
+  //Three.js stuff
+  const scene = new THREE.Scene();
+  let cammatr = new THREE.Matrix4();
+  {% if center %}
+    let brick_pos = new THREE.Vector3{{center}};
+  {% else %}
+    let brick_pos = new THREE.Vector3();
+  {% endif %}
+
+
+  class Matrix3D{
+    //done
+    constructor(n11=1,n12=0,n13=0,n14=0,n21=0,n22=1,n23=0,n24=0,n31=0,n32=0,n33=1,n34=0,n41=0,n42=0,n43=0,n44=1){
+      this.n11 = n11
+      this.n12 = n12
+      this.n13 = n13
+      this.n14 = n14
+      this.n21 = n21
+      this.n22 = n22
+      this.n23 = n23
+      this.n24 = n24
+      this.n31 = n31
+      this.n32 = n32
+      this.n33 = n33
+      this.n34 = n34
+      this.n41 = n41
+      this.n42 = n42
+      this.n43 = n43
+      this.n44 = n44
+    }
+
+    toString(){
+      return `[${this.n11}, ${this.n12}, ${this.n13}, ${this.n14}, ${this.n21}, ${this.n22}, ${this.n23}, ${this.n24}, ${this.n31}, ${this.n32}, ${this.n33}, ${this.n34}, ${this.n41}, ${this.n42}, ${this.n43}, ${this.n44}]`
+    }
+
+    rotate(angle, axis){
+      let c = Math.cos(angle)
+      let s = Math.sin(angle)
+      let t = 1 - c
+
+      let tx = t * axis.x
+      let ty = t * axis.y
+      let tz = t * axis.z
+
+      let sx = s * axis.x
+      let sy = s * axis.y
+      let sz = s * axis.z
+
+      this.n11 = c + axis.x * tx
+      this.n12 = axis.y * tx + sz
+      this.n13 = axis.z * tx - sy
+      this.n14 = 0
+
+      this.n21 = axis.x * ty - sz
+      this.n22 = c + axis.y * ty
+      this.n23 = axis.z * ty + sx
+      this.n24 = 0
+
+      this.n31 = axis.x * tz + sy
+      this.n32 = axis.y * tz - sx
+      this.n33 = c + axis.z * tz
+      this.n34 = 0
+
+      this.n41 = 0
+      this.n42 = 0
+      this.n43 = 0
+      this.n44 = 1
+    }
+
+    mul(other){
+      return new Matrix3D(this.n11 * other.n11 + this.n21 * other.n12 + this.n31 * other.n13 + this.n41 * other.n14,
+        this.n12 * other.n11 + this.n22 * other.n12 + this.n32 * other.n13 + this.n42 * other.n14,
+        this.n13 * other.n11 + this.n23 * other.n12 + this.n33 * other.n13 + this.n43 * other.n14,
+        this.n14 * other.n11 + this.n24 * other.n12 + this.n34 * other.n13 + this.n44 * other.n14,
+        this.n11 * other.n21 + this.n21 * other.n22 + this.n31 * other.n23 + this.n41 * other.n24,
+        this.n12 * other.n21 + this.n22 * other.n22 + this.n32 * other.n23 + this.n42 * other.n24,
+        this.n13 * other.n21 + this.n23 * other.n22 + this.n33 * other.n23 + this.n43 * other.n24,
+        this.n14 * other.n21 + this.n24 * other.n22 + this.n34 * other.n23 + this.n44 * other.n24,
+        this.n11 * other.n31 + this.n21 * other.n32 + this.n31 * other.n33 + this.n41 * other.n34,
+        this.n12 * other.n31 + this.n22 * other.n32 + this.n32 * other.n33 + this.n42 * other.n34,
+        this.n13 * other.n31 + this.n23 * other.n32 + this.n33 * other.n33 + this.n43 * other.n34,
+        this.n14 * other.n31 + this.n24 * other.n32 + this.n34 * other.n33 + this.n44 * other.n34,
+        this.n11 * other.n41 + this.n21 * other.n42 + this.n31 * other.n43 + this.n41 * other.n44,
+        this.n12 * other.n41 + this.n22 * other.n42 + this.n32 * other.n43 + this.n42 * other.n44,
+        this.n13 * other.n41 + this.n23 * other.n42 + this.n33 * other.n43 + this.n43 * other.n44,
+        this.n14 * other.n41 + this.n24 * other.n42 + this.n34 * other.n43 + this.n44 * other.n44)
+    }
+  }
+
+
+  class Point3D{
+    //done
+    constructor(x=0,y=0,z=0){
+      this.x = x
+      this.y = y
+      this.z = z
+    }
+
+    toString(){
+      return `[${this.x}, ${this.y}, ${this.z}]`
+    }
+
+    transformW(matrix){
+      let x = matrix.n11 * this.x + matrix.n21 * this.y + matrix.n31 * this.z
+      let y = matrix.n12 * this.x + matrix.n22 * this.y + matrix.n32 * this.z
+      let z = matrix.n13 * this.x + matrix.n23 * this.y + matrix.n33 * this.z
+      this.x = x
+      this.y = y
+      this.z = z
+    }
+
+    transform(matrix){
+      let x = matrix.n11 * this.x + matrix.n21 * this.y + matrix.n31 * this.z + matrix.n41
+      let y = matrix.n12 * this.x + matrix.n22 * this.y + matrix.n32 * this.z + matrix.n42
+      let z = matrix.n13 * this.x + matrix.n23 * this.y + matrix.n33 * this.z + matrix.n43
+      this.x = x
+      this.y = y
+      this.z = z
+    }
+
+    copy(){
+      return new Point3D(this.x, this.y, this.z)
+    }
+  }
+
+
+  class Point2D{
+    //done
+    constructor(x=0,y=0){
+      this.x = x
+      this.y = y
+    }
+
+    toString(){
+      return `[${this.x}, ${this.y}]`
+    }
+
+    copy(){
+      return new Point2D(this.x, this.y)
+    }
+  }
+
+
+  class Face{
+    //done
+    constructor(a=0,b=0,c=0){
+      this.a = a
+      this.b = b
+      this.c = c
+    }
+
+    toString(){
+      return `[${this.a}, ${this.b}, ${this.c}]`
+    }
+  }
+
+
+  class Group{
+    //done
+    constructor(node){
+      this.partRefs =  node.getAttribute('partRefs').split(',')
+    }
+  }
+
+
+  class Bone{
+    //done
+    constructor(node){
+      this.refID = node.getAttribute('refID')
+      //console.log(node.getAttribute('transformation').split(',').map(parseFloat))
+      let [a, b, c, d, e, f, g, h, i, x, y, z] = node.getAttribute('transformation').split(',').map(parseFloat);
+      this.matrix = new Matrix3D(a,b,c,0,d,e,f,0,g,h,i,0,x,y,z,1);
+      //console.log(this.refID)
+      //console.log(this.matrix)
+    }
+  }
+
+
+  class Part{
+    //done
+    constructor(node){
+      this.isGrouped = false
+      this.GroupIDX = 0
+      this.Bones = []
+      this.refID = node.getAttribute('refID')
+      this.designID = node.getAttribute('designID')
+      this.materials =  node.getAttribute('materials').split(',')
+
+      let lastm = '0'
+      for (const [i, m] of this.materials.entries()) {
+        if (m == '0'){
+          //this.materials[i] = lastm
+          this.materials[i] = this.materials[0]
+        }
+        else {
+          lastm = m
+        }
+      }
+
+      if (node.hasAttribute('decoration')){
+        this.decoration = node.getAttribute('decoration').split(',')
+      }
+      let childnodes = node.childNodes
+      for (let j = 0; j < childnodes.length ;j++) {
+        let childnode = childnodes[j]
+        if (childnode.nodeName == 'Bone'){
+          this.Bones.push(new Bone(childnode))
+        }
+      }
+    }
+  }
+
+
+  class Brick{
+    //done
+    constructor(node){
+      this.refID = node.getAttribute('refID')
+      this.designID = node.getAttribute('designID')
+      this.Parts = []
+      let childnodes = node.childNodes
+      for (let j = 0; j < childnodes.length ;j++) {
+        let childnode = childnodes[j]
+        if (childnode.nodeName == 'Part'){
+          this.Parts.push(new Part(childnode))
+        }
+      }
+    }
+  }
+
+
+  class Scene{
+    //partially done - need zip file handling
+    constructor(){
+      this.Bricks = []
+      this.Scenecamera = []
+      this.Groups = []
+      this.SceneBuildingInstructions = []
+      this.xmldata = ''
+    }
+
+    AddScene(file){
+      let lxfmlfile = new DBURLFile(file,file)
+      this.xmldata = lxfmlfile.read()
+
+      if (this.xmldata === ""){
+        alert(this.xmldata)
+      }
+
+      let parser = new DOMParser();
+      let xml = parser.parseFromString(this.xmldata, "text/xml");
+
+      let nodes = xml.firstChild.childNodes;
+      for (let i = 0; i < nodes.length ;i++) {
+        let node = nodes[i]
+        if (node.nodeName == 'Meta'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'BrickSet'){
+              this.Version = childnode.getAttribute('version')
+            }
+          }
+        }
+        else if (node.nodeName == 'Bricks'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'Brick'){
+              this.Bricks.push(new Brick(childnode))
+            }
+          }
+        }
+        else if (node.nodeName == 'GroupSystems'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'GroupSystem'){
+              let subchildnodes = childnode.childNodes
+              for (let k = 0; k < subchildnodes.length ;k++) {
+                let subchildnode = subchildnodes[k]
+                if (subchildnode.nodeName == 'Group'){
+                  this.Groups.push(new Group(subchildnode))
+                }
+              }
+            }
+          }
+        }
+      }
+      for (const [i, m] of this.Groups.entries()) {
+        for (const brick of this.Bricks){
+          for (const part of brick.Parts){
+            if (m.partRefs.indexOf(part.refID) !== -1) {
+              part.isGrouped = true
+              part.GroupIDX = i
+            }
+          }
+        }
+      }
+      console.log('Scene Loaded Brickversion: ' + this.Version)
+    }
+  }
+
+
+  class GeometryReader{
+    //done
+    constructor(data){
+      this.offset = 0
+      this.data = data
+      this.positions = []
+      this.normals = []
+      this.textures = []
+      this.faces = []
+      this.bonemap = []
+      this.texCount = 0
+      this.outpositions = []
+      this.outnormals = []
+
+      this.binary = "";
+
+      for (let i = 0; i < data.length; i++ ) {
+        this.binary += String.fromCharCode(data.charCodeAt(i) & 255)
+      }
+      this.data = Base64Binary.decodeArrayBuffer(btoa(this.binary));
+      this.view = new Uint8Array(this.data);
+
+      if (this.readInt() == 1111961649){
+        this.valueCount = this.readInt()
+        this.indexCount = this.readInt()
+        this.faceCount = this.indexCount / 3
+        let options = this.readInt()
+
+        for (let i = 0; i < this.valueCount ;i++) {
+          this.positions.push(new Point3D(this.readFloat(), this.readFloat(), this.readFloat()))
+        }
+        for (let i = 0; i < this.valueCount ;i++) {
+          this.normals.push(new Point3D(this.readFloat(), this.readFloat(), this.readFloat()))
+        }
+        if ((options & 3) == 3){
+          this.texCount = this.valueCount
+          for (let i = 0; i < this.valueCount ;i++) {
+            this.textures.push(new Point2D(this.readFloat(), this.readFloat()))
+          }
+        }
+        for (let i = 0; i < this.faceCount ;i++) {
+          this.faces.push(new Face(this.readInt(), this.readInt(), this.readInt()))
+        }
+        if ((options & 48) == 48){
+          let num = this.readInt()
+          this.offset += (num * 4) + (this.indexCount * 4)
+          num = this.readInt()
+          this.offset += (3 * num * 4) + (this.indexCount * 4)
+        }
+
+        let bonelength = this.readInt()
+        this.bonemap.length = this.valueCount
+        this.bonemap.fill(0);
+
+        if ((bonelength > this.valueCount) || (bonelength > this.faceCount)){
+          let datastart = this.offset
+          this.offset += bonelength
+          for (let i = 0; i < this.valueCount ;i++) {
+            let boneoffset = this.readInt() + 4
+            this.bonemap[i] = this.read_Int(datastart + boneoffset)
+          }
+        }
+      }
+    }
+
+    read_Int(_offset){
+      //console.log(_offset)
+      let ret = (this.view[_offset+0]) + (this.view[_offset+1]<<8)+ (this.view[_offset+2]<<16) + (this.view[_offset+3]<<24)
+      //console.log(ret)
+      return ret
+    }
+
+    readInt(){
+      //let ret = (this.view[this.offset+0]<<24) + (this.view[this.offset+1]<<16)+ (this.view[this.offset+2]<<8) + (this.view[this.offset+3])
+      let ret = (this.view[this.offset+0]) + (this.view[this.offset+1]<<8)+ (this.view[this.offset+2]<<16) + (this.view[this.offset+3]<<24)
+      this.offset += 4
+      //console.log(ret)
+      return ret
+    }
+
+    readFloat(){
+      let tempdata = [(this.view[this.offset+3]), (this.view[this.offset+2]), (this.view[this.offset+1]), (this.view[this.offset+0])];
+      // Create a buffer and a data view of it
+      let buf = new ArrayBuffer(4);
+      let view = new DataView(buf);
+
+      // set bytes
+      tempdata.forEach(function (b, i) {
+        view.setInt8(i, b);
+      });
+
+      // Read the bits as a float; note that by doing this, we're implicitly converting it from a 32-bit float into JavaScript's native 64-bit double
+      let number = view.getFloat32(0);
+      this.offset += 4
+      return number
+    }
+  }
+
+
+  class Geometry {
+    //done
+    constructor(designID, database){
+      this.designID = designID
+      this.Parts = []
+
+      this.studsFields2D = []
+      let GeometryLocation = `${designID}.g`
+      let PrimitiveLocation = `${designID}.xml`
+
+      let GeometryCount = 0
+      while (GeometryLocation in database.filelist) {
+        this.Parts[GeometryCount] = new GeometryReader(database.filelist[GeometryLocation].read())
+        GeometryCount = GeometryCount + 1
+        GeometryLocation = `${designID}.g${GeometryCount}`
+      }
+      let primitive = new Primitive(database.filelist[PrimitiveLocation].read())
+      this.Partname = primitive.Designname
+      this.studsFields2D = primitive.Fields2D
+
+      //preflex
+      for (const [h, part] of this.Parts.entries()) {
+        //transform
+        for (const [i, b] of primitive.Bones.entries()) {
+          //positions
+          for (const [j, p] of this.Parts[h].positions.entries()) {
+            if (this.Parts[h].bonemap[j] == i){
+              this.Parts[h].positions[j].transform(b.matrix)
+            }
+          }
+          //normals
+          for (const [k, n] of this.Parts[h].normals.entries()) {
+            if (this.Parts[h].bonemap[k] == i){
+              this.Parts[h].normals[k].transform(b.matrix)
+            }
+          }
+        }
+      }
+    }
+
+    valuecount(){
+      let count = 0
+      for (const part of this.Parts) {
+        count += part.valueCount
+      }
+      return count
+    }
+
+    facecount(){
+      let count = 0
+      for (const part of this.Parts) {
+        count += part.facecount
+      }
+      return count
+    }
+
+    texcount(){
+      let count = 0
+      for (const part of this.Parts) {
+        count += part.texCount
+      }
+      return count
+    }
+  }
+
+
+  class DBinfo {
+    //done
+    constructor(data) {
+      let parser = new DOMParser();
+      let xml = parser.parseFromString(data, "text/xml");
+      let Version = xml.getElementsByTagName('Bricks')[0].attributes['version'].value
+      console.log('DB Version: ' + Version);
+      return ('DB Version: ' + Version);
+    }
+  }
+
+
+  class Converter {
+
+    constructor(){
+      this.allMaterials = ''
+      this.scene = new Scene()
+    }
+
+    LoadDBURL(dbURLlocation){
+      this.database = new DBURLReader(dbURLlocation)
+      if(this.database.initok && this.database.fileexist('Materials.xml') && this.database.fileexist('localizedStrings.loc')){
+        this.allMaterials = new Materials(this.database.filelist['Materials.xml'].read())
+      }
+    }
+
+    LoadScene(filename){
+      if(this.database.initok){
+        this.scene.AddScene(filename)
+      }
+    }
+
+    Export(filename){
+      let allMaterials = new Materials(this.database.filelist['Materials.xml'].read())
+      let invert = new Matrix3D()
+      //invert.n33 = -1 //uncomment to invert the Z-Axis
+
+      let indexOffset = 1
+      let textOffset = 1
+      let usedmaterials = []
+      let geometriecache = {}
+
+      let total = this.scene.Bricks.length
+      let current = 0
+
+      for (const cam of this.scene.Scenecamera){
+        let camm = new THREE.Matrix4();
+
+        camm.set(
+          cam.matrix.n11, cam.matrix.n21, cam.matrix.n31, cam.matrix.n41,
+          cam.matrix.n12, cam.matrix.n22, cam.matrix.n32, cam.matrix.n42,
+          cam.matrix.n13, cam.matrix.n23, cam.matrix.n33, cam.matrix.n43,
+          cam.matrix.n14, cam.matrix.n24+30.0, cam.matrix.n34+24.0, cam.matrix.n44
+        );
+
+        cammatr.getInverse(camm)
+      }
+
+      for (const bri of this.scene.Bricks){
+        current += 1
+        for (const pa of bri.Parts){
+          let geo = new Geometry(pa.designID, this.database)
+          if (!(pa.designID in geometriecache)) {
+            let geo = new Geometry(pa.designID, this.database)
+            geometriecache[pa.designID] = geo
+          }
+          else {
+            geo = geometriecache[pa.designID]
+          }
+
+          let ind = 0
+          let n11 = pa.Bones[ind].matrix.n11
+          let n12 = pa.Bones[ind].matrix.n12
+          let n13 = pa.Bones[ind].matrix.n13
+          let n14 = pa.Bones[ind].matrix.n14
+          let n21 = pa.Bones[ind].matrix.n21
+          let n22 = pa.Bones[ind].matrix.n22
+          let n23 = pa.Bones[ind].matrix.n23
+          let n24 = pa.Bones[ind].matrix.n24
+          let n31 = pa.Bones[ind].matrix.n31
+          let n32 = pa.Bones[ind].matrix.n32
+          let n33 = pa.Bones[ind].matrix.n33
+          let n34 = pa.Bones[ind].matrix.n34
+          let n41 = pa.Bones[ind].matrix.n41
+          let n42 = pa.Bones[ind].matrix.n42
+          let n43 = pa.Bones[ind].matrix.n43
+          let n44 = pa.Bones[ind].matrix.n44
+
+          let m = new THREE.Matrix4();
+
+          // Only parts with more then 1 bone are flex parts
+          let flexflag = 1
+
+
+          if (!(pa.Bones.length > flexflag)){
+            m.set(  n11, n21, n31, n41,
+                n12, n22, n32, n42,
+                n13, n23, n33, n43,
+                n14, n24 ,n34, n44);
+          }
+
+          let decoCount = 0
+
+          for (const [partindex, part] of geo.Parts.entries()){
+            part.outpositions = Array.from(part.positions);
+            part.outnormals = Array.from(part.normals);
+
+            // translate / rotate only parts with more then 1 bone. This are flex parts.
+            if (pa.Bones.length > flexflag){
+              for (const [i, b] of pa.Bones.entries()) {
+                //positions
+                for (const [j, p] of part.outpositions.entries()){
+                  if (part.bonemap[j] == i){
+                    p.transform(invert.mul(b.matrix))
+                  }
+                }
+                //normals
+                for (const [k, n] of part.outnormals.entries()){
+                  if (part.bonemap[k] == i){
+                    n.transformW(invert.mul(b.matrix))
+                  }
+                }
+              }
+            }
+            let parr = []
+            for (const point of part.outpositions){
+              parr.push(point.x)
+              parr.push(point.y)
+              parr.push(point.z)
+            }
+            let threevertices = new Float32Array(parr)
+
+            let narr = []
+            for (const normal of part.outnormals){
+              narr.push(normal.x)
+              narr.push(normal.y)
+              narr.push(normal.z)
+            }
+            let threenormals = new Float32Array(narr)
+
+            let tarr = []
+            for (const text of part.textures){
+              tarr.push(text.x)
+              // NOTE Three.js maps Textures in from top to bottom so we calculate 1.0 - t so the image will map properly
+              tarr.push(1 - text.y)
+              //console.log(text.toString())
+            }
+            let threeuvs = new Float32Array(tarr)
+
+            let farr =[]
+            for (const face of part.faces){
+              farr.push(face.a)
+              farr.push(face.b)
+              farr.push(face.c)
+              //console.log(face.toString())
+            }
+
+            let materialCurrentPart = pa.materials[partindex]
+            let lddmat = allMaterials.getMaterialbyId(materialCurrentPart)
+
+            if (typeof lddmat !== 'undefined'){
+              //nothing. Everything ok.
+            }
+            else {
+              //lddmat undefined
+              console.log('partindex: ' + partindex)
+              console.log(pa.materials)
+
+              let lddmat = allMaterials.getMaterialbyId(21)
+            }
+
+            let deco = '0'
+            if (pa.hasOwnProperty('decoration') && geo.Parts[partindex].textures.length > 0 ){
+              if (decoCount < pa.decoration.length){
+                deco = pa.decoration[decoCount]
+              }
+              decoCount += 1
+            }
+
+            let material = new THREE.MeshPhongMaterial();
+            material.color.set(lddmat.toString());
+            material.transparent = true
+            material.opacity = (lddmat.a / 255)
+            let material1 = new THREE.MeshPhongMaterial();
+            let materials = [];
+            materials.push(material)
+
+            let geometry = new THREE.BufferGeometry();
+            geometry.addGroup( 0, Infinity, 0 );
+
+            if (!(deco == '0')){
+              let DECORATIONPATH = 'Decorations/'
+              let decofilename = DECORATIONPATH + deco + '.png'
+              let extfile = this.database.filelist[decofilename].urlHandle
+              let texture = new THREE.TextureLoader().load( extfile );
+              material1 = new THREE.MeshPhongMaterial( { map: texture } );
+              material1.transparent = true
+              materials.push(material1)
+              geometry.addGroup( 0, Infinity, 1 );
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(threevertices, 3));
+            geometry.setAttribute('normal', new THREE.BufferAttribute(threenormals, 3));
+            geometry.setAttribute('uv', new THREE.BufferAttribute(threeuvs, 2));
+            geometry.setIndex(farr);
+
+
+            let mesh = new THREE.Mesh(geometry, materials);
+            mesh.matrixAutoUpdate = false
+            mesh.matrix = m
+            {% if not center %}
+              brick_pos.setFromMatrixPosition( m );
+            {% endif %}
+            scene.add(mesh);
+            // let vnh = new VertexNormalsHelper( mesh, 5 );
+            // scene.add( vnh );
+          }
+
+
+        }
+      }
+
+    }
+  }
+
+
+  class LOCReader {
+    //done
+    constructor(data) {
+      this.offset = 0
+      this.values = {}
+      this.data = data
+      if (this.data[0].charCodeAt() == 50 && this.data[1].charCodeAt() == 0){
+
+        this.offset += 2
+        while (this.offset < this.data.length){
+          let key = this.NextString().replace('Material', '')
+          let value = this.NextString()
+          this.values[key] = value
+        }
+      }
+    }
+
+    NextString(){
+      let out =''
+      let t = this.data[this.offset].charCodeAt()
+      this.offset += 1
+      while (t != 0){
+        out = out + String.fromCharCode(t)
+        t = this.data[this.offset].charCodeAt()
+        this.offset += 1
+      }
+      return out;
+    }
+  }
+
+
+  class Flex {
+    //done
+    constructor(boneId=0, angle=0, ax=0, ay=0, az=0, tx=0, ty=0, tz=0){
+      this.boneId = boneId
+      let rotationMatrix = new Matrix3D()
+      rotationMatrix.rotate(-angle * Math.PI / 180.0, new Point3D(ax, ay, az))
+      let p = new Point3D(tx, ty, tz)
+      p.transformW(rotationMatrix)
+      rotationMatrix.n41 -= p.x
+      rotationMatrix.n42 -= p.y
+      rotationMatrix.n43 -= p.z
+      this.matrix = rotationMatrix
+    }
+  }
+
+
+  class Field2D{
+    //done
+    constructor(type=0, width=0, height=0, angle=0, ax=0, ay=0, az=0, tx=0, ty=0, tz=0, field2DRawData='none'){
+      this.type = type
+      this.field2DRawData = field2DRawData
+      let rotationMatrix = new Matrix3D()
+      rotationMatrix.rotate(-angle * Math.PI / 180.0, new Point3D(ax, ay, az))
+      let p = new Point3D(tx, ty, tz)
+      p.transformW(rotationMatrix)
+      rotationMatrix.n41 -= p.x
+      rotationMatrix.n42 -= p.y
+      rotationMatrix.n43 -= p.z
+      this.matrix = rotationMatrix
+      this.custom2DField = []
+
+      let rows_count = height + 1
+      let cols_count = width + 1
+      this.custom2DField = new Array(rows_count).fill(new Array(cols_count).fill(0));
+      let custom2DFieldString = field2DRawData.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, '').replace(/\s/g, '')
+      let custom2DFieldArr = custom2DFieldString.split(',')
+
+      let k = 0
+      for (let i = 0; i < rows_count ;i++) {
+        for (let j = 0; j < cols_count ;j++){
+          this.custom2DField[i][j] = custom2DFieldArr[k]
+          k += 1
+        }
+      }
+    }
+  }
+
+
+  class Primitive {
+    //done
+    constructor(data){
+      this.Designname = ''
+      this.Bones = []
+      this.Fields2D = []
+      this.PhysicsAttributes = {}
+      this.Bounding = {}
+      this.GeometryBounding = {}
+      let parser = new DOMParser();
+      let xml = parser.parseFromString(data,"text/xml");
+
+      let nodes = xml.firstChild.childNodes;
+      for (let i = 0; i < nodes.length ;i++) {
+        let node = nodes[i]
+        if (node.nodeName == 'Flex'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'Bone'){
+              this.Bones.push(new Flex(parseInt(childnode.getAttribute('boneId')), parseFloat(childnode.getAttribute('angle')), parseFloat(childnode.getAttribute('ax')), parseFloat(childnode.getAttribute('ay')), parseFloat(childnode.getAttribute('az')), parseFloat(childnode.getAttribute('tx')), parseFloat(childnode.getAttribute('ty')), parseFloat(childnode.getAttribute('tz'))))
+            }
+          }
+        }
+        else if (node.nodeName == 'Annotations'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'Annotation' && childnode.hasAttribute('designname')){
+              this.Designname = childnode.getAttribute('designname')
+            }
+          }
+
+        }
+        else if (node.nodeName == 'Connectivity'){
+          let childnodes = node.childNodes
+          for (let j = 0; j < childnodes.length ;j++) {
+            let childnode = childnodes[j]
+            if (childnode.nodeName == 'Custom2DField'){
+              this.Fields2D.push(new Field2D(parseInt(childnode.getAttribute('type')), parseInt(childnode.getAttribute('width')), parseInt(childnode.getAttribute('height')), parseFloat(childnode.getAttribute('angle')), parseFloat(childnode.getAttribute('ax')), parseFloat(childnode.getAttribute('ay')), parseFloat(childnode.getAttribute('az')), parseFloat(childnode.getAttribute('tx')), parseFloat(childnode.getAttribute('ty')), parseFloat(childnode.getAttribute('tz')), (childnode.firstChild.data)))
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  class Materials {
+    //done
+    constructor(data) {
+      this.Materials = {}
+      let parser = new DOMParser();
+      let xml = parser.parseFromString(data,"text/xml");
+
+      let nodes = xml.firstChild.childNodes;
+      for (let i = 0; i < nodes.length ;i++) {
+        let node = nodes[i]
+        if (node.nodeName == 'Material') {
+          this.Materials[node.getAttribute('MatID')] = new Material(node.getAttribute('MatID'), parseInt(node.getAttribute('Red')), parseInt(node.getAttribute('Green')), parseInt(node.getAttribute('Blue')), parseInt(node.getAttribute('Alpha')), node.getAttribute('MaterialType'))
+        }
+
+      }
+    }
+
+    getMaterialbyId(mid) {
+      return this.Materials[mid]
+    }
+  }
+
+
+  class Material {
+    //done
+    constructor(id, r, g, b, a, mtype) {
+      this.id = id
+      this.name = id
+      this.mattype = mtype
+      this.r = parseFloat(r)
+      this.g = parseFloat(g)
+      this.b = parseFloat(b)
+      this.a = parseFloat(a)
+    }
+
+    string(){
+      let out = ('Red: ' + this.r + ' Green: ' + this.g + ' Blue: '+ this.b + ' Aplha: ' + this.a)
+      return out;
+    }
+
+    toString(){
+      let out = `rgb(${this.r}, ${this.g}, ${this.b})`
+      return out;
+    }
+  }
+
+
+  function FindDBURL(){
+    let dburl = 'https://json.aronwk.com/LDD-DB/'
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', dburl, false);  // `false` makes the request synchronous
+
+    // request state change event
+    xhr.onreadystatechange = function() {
+
+      // request completed?
+      if (xhr.readyState !== 4) {//return;
+        dburl = false;
+        console.log('readyState error in FindDBURL:', xhr.status, xhr.statusText);
+      }
+      if (xhr.status === 200) {
+        // request successful - show response
+        //console.log(xhr.responseText);
+      }
+      else {
+        // request error
+        dburl = false;
+        console.log('HTTP error in FindDBURL:', xhr.status, xhr.statusText);
+      }
+    };
+
+    // start request
+    xhr.send();
+    return dburl
+  }
+
+
+  class DBURLFile {
+    constructor(urlHandle, name) {
+      this.urlHandle = urlHandle
+      this.name = name
+    }
+
+    read() {
+      let fileContent
+      let self = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', self.urlHandle, false);
+      // Hack to pass bytes through unprocessed.
+      xhr.overrideMimeType('text/plain; charset=x-user-defined');
+
+      // request state change event
+      xhr.onreadystatechange = function() {
+
+        // request completed?
+        if (xhr.readyState !== 4) {//return;
+          console.log('readyState error in DBURLFile:', xhr.status, xhr.statusText);
+        }
+        if (xhr.status === 200) {
+          // request successful - show response
+          fileContent = xhr.responseText;
+        }
+        else {
+          // request error
+          console.log('HTTP error in DBURLFile:', xhr.status, xhr.statusText);
+        }
+      };
+
+      // start request
+      xhr.send();
+      return fileContent
+    }
+  }
+
+
+  class DBURLReader {
+    constructor(dburl) {
+      this.filelist = {};
+      this.initok = false;
+      this.location = dburl;
+      this.dbinfo = '';
+      this.parse(this.location);
+
+      // console.log(JSON.stringify(this.filelist))
+
+      if(this.fileexist('Materials.xml') && this.fileexist('info.xml')){
+        this.dbinfo = new DBinfo(this.filelist['info.xml'].read());
+        this.initok = true
+      }
+      else{
+        alert("db url ERROR")
+      }
+    }
+
+    fileexist(filename) {
+      let self = this;
+      return self.filelist[filename];
+    }
+
+    parse(dburl) {
+      let self = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', dburl, false);
+
+      // request state change event
+      xhr.onreadystatechange = function() {
+
+        // request completed?
+        if (xhr.readyState !== 4) return;
+
+        if (xhr.status === 200) {
+          // request successful - show response
+          let data = JSON.parse(xhr.responseText)
+          //console.log(JSON.stringify(data, null, "\t"));
+          for(let i = 0; i < data.length; i++) {
+            let obj = data[i];
+            if (obj.type == 'directory'){
+              // parse subdirs
+              self.parse(dburl + obj.name + '/')
+            }
+            else if (obj.type == 'file'){
+              self.filelist[obj.name] = new DBURLFile(dburl + obj.name, obj.name)
+            }
+            else {
+              console.log('Strange object parsed: ' + obj.type)
+            }
+          }
+        }
+        else {
+          // request error
+          console.log('HTTP error', xhr.status, xhr.statusText);
+        }
+      };
+      // start request
+      xhr.send();
+    }
+  }
+
+
+  //Start
+  let lxfml_file_list = [
+    {% for model in content %}
+      {% if model.lot == 14 %}
+        "{{url_for('properties.get_model', id=model.id, file_format='lxfml')}}"{{ ", " if not loop.last else "" }}
+      {% endif %}
+    {% endfor %}
+  ]
+  if (lxfml_file_list.length > 0) {
+  let ldddburl = FindDBURL()
+
+    if (ldddburl) {
+      let converter = new Converter()
+      converter.LoadDBURL(ldddburl)
+      for (let i = 0; i < lxfml_file_list.length; i++) {
+        converter.LoadScene(lxfml_file_list[i])
+      }
+      converter.Export('test.webgl')
+
+    }
+    else {
+      alert("LDD database not available. Please look for LEGO-Digital-Designer database.")
+    }
+  }
+
+  const onProgress = function ( xhr ) {
+
+    if ( xhr.lengthComputable ) {
+
+      const percentComplete = xhr.loaded / xhr.total * 100;
+      console.log( Math.round( percentComplete, 2 ) + '% downloaded' );
+
+    }
+
+  };
+
+  const onError = function (error) {
+    console.log(error)
+   };
+
+  // Load in pre-built models
+  let obj_file_list = [
+    {% for model in content %}
+      {% if model.lot != 14 %}
+        {{ model }} {{ ", " if not loop.last else "" }}
+      {% endif %}
+    {% endfor %}
+  ]
+
+  for (let i = 0; i < obj_file_list.length; i++) {
+    let mtlLoader = new MTLLoader();
+    mtlLoader.load( obj_file_list[i].mtl, function( materials ) {
+
+        materials.preload();
+        let objLoader = new OBJLoader();
+        objLoader.setMaterials( materials );
+
+        objLoader.load( obj_file_list[i].obj, function ( object ) {
+          // console.log(obj_file_list[i].pos)
+          for (let j = 0; j < obj_file_list[i].pos.length; j++) {
+            // console.log(obj_file_list[i].pos[j])
+            var newModel = object.clone();
+            newModel.position.x = obj_file_list[i].pos[j].x;
+            newModel.position.y = obj_file_list[i].pos[j].y;
+            newModel.position.z = obj_file_list[i].pos[j].z;
+
+            let quaternion = new THREE.Quaternion(
+              obj_file_list[i].pos[j].rx,
+              obj_file_list[i].pos[j].ry,
+              obj_file_list[i].pos[j].rz,
+              obj_file_list[i].pos[j].rw
+            );
+            newModel.rotation.setFromQuaternion(quaternion)
+
+            scene.add( newModel );
+          };
+        }, onProgress, onError );
+    });
+  }
+
+  // Three.JS stuff
+  let container = document.createElement( 'div' );
+  document.body.appendChild( container );
+
+  let camera = new THREE.PerspectiveCamera( 2.5, window.innerWidth / window.innerHeight, 1, 10000 );
+  {% if center %}
+    camera.position.set( brick_pos.x + 800, brick_pos.y + 800, brick_pos.z + 800 );
+  {% elif content|length > 1 %}
+    camera.position.set( {{ content[0].x }}+ 200, {{ content[0].y }}+ 300, {{ content[0].z }}+ 200 );
+  {% else %}
+    camera.position.set( brick_pos.x + 200, brick_pos.y + 300, brick_pos.z + 200 );
+  {% endif %}
+
+  {% if center %}
+    let center = new THREE.Vector3{{ center }};
+    let groundTexture = new THREE.TextureLoader().load( "{{url_for('luclient.get_dds_as_png', filename='env_nim_ag_grass.dds')}}");
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set( 10, 10 );
+    groundTexture.anisotropy = 16;
+    groundTexture.encoding = THREE.sRGBEncoding;
+    let groundMaterial = new THREE.MeshStandardMaterial( { map: groundTexture } );
+    let mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 400, 400 ), groundMaterial );
+    mesh.position.y = center.y;
+    mesh.position.x = center.x;
+    mesh.position.z = center.z
+    mesh.rotation.x = - Math.PI / 2;
+    mesh.receiveShadow = true;
+    scene.add( mesh );
+  {% endif %}
+
+  // scene
+  scene.background = new THREE.Color( 0xdeebed );
+
+  let ambientLight = new THREE.AmbientLight( 0xdeebed, 0.4 );
+  scene.add( ambientLight );
+
+  let directionalLight = new THREE.DirectionalLight( 0xffffff, 0.75 );
+  directionalLight.position.set( - 10000, 12000, 15000 );
+  scene.add( directionalLight );
+
+  let directionalLight2 = new THREE.DirectionalLight( 0xffffff, 0.75 );
+  directionalLight2.position.set( 10000, 12000, -15000 );
+  scene.add( directionalLight2 );
+
+  let renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  container.appendChild( renderer.domElement );
+
+  let controls = new THREE.OrbitControls (camera, renderer.domElement);
+  {% if content|length == 1 and content[0].lot != 14 %}
+    controls.target = new THREE.Vector3({{ content[0].pos[0].x }}, {{ content[0].pos[0].y }}, {{ content[0].pos[0].z }})
+  {% else %}
+    controls.target = brick_pos
+  {% endif %}
+  controls.update()
+  // if ( vnh ) vnh.update();
+
+  let render = function () {
+    requestAnimationFrame(render);
+    // camera.rotation.z += 0.01;
+    renderer.render(scene, camera);
+  };
+
+  render();
+</script>
+
+</body>
+</html>

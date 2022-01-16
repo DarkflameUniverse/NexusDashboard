@@ -1,0 +1,221 @@
+<div class="card shadow-sm bg-dark border-primary">
+  <div class="card-body">
+    <div class="row">
+      <div class="col text-center">
+        <h4>
+          Chatacter Data
+        </h4>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        U-Score: {{ character_json.obj.char.attr_ls }}
+      </div>
+      <div class="col">
+        Level: {{ character_json.obj.lvl.attr_l }}
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+        {% set parsed_lzid  = character_json.obj.char.attr_lzid|parse_lzid %}
+        Zone: {{ parsed_lzid[0]|get_zone_name }}<br>
+        Zone Instance: {{ parsed_lzid[1] }}<br>
+        Zone Clone: {{ parsed_lzid[2] }}<br>
+      </div>
+    </div>
+    <br/>
+
+    <div class="row">
+      <div class="col text-right">
+        <img src="{{url_for('luclient.get_icon_iconid', id=4273)}}"
+          alt="Coins: "
+          width="32"
+          height="32">
+          {{ character_json.obj.char.attr_cc }}
+      </div>
+      <div class="col text-center">
+        <img src="{{url_for('luclient.get_icon_iconid', id=3262)}}"
+          alt="Health: "
+          width="32"
+          height="32">
+          {{ character_json.obj.dest.attr_hc }}/{{ character_json.obj.dest.attr_hm }}
+      </div>
+      <div class="col text-center">
+        <img src="{{url_for('luclient.get_icon_iconid', id=3263)}}"
+          alt="Armor: "
+          width="32"
+          height="32">
+          {{ character_json.obj.dest.attr_ac }}/{{ character_json.obj.dest.attr_am }}
+      </div>
+      <div class="col">
+        <img src="{{url_for('luclient.get_icon_iconid', id=1032)}}"
+          alt="Imagination: "
+          width="32"
+          height="32">
+          {{ character_json.obj.dest.attr_ic }}/{{ character_json.obj.dest.attr_im }}
+      </div>
+    </div>
+    <br/>
+
+    <div class="row">
+      <div class="col text-right">
+        Play time:
+      </div>
+      <div class="col">
+          {{ (character_json.obj.char.attr_time|int/60/60/24)|int }} Days
+          {{ (character_json.obj.char.attr_time|int/60/60)|int - ((character_json.obj.char.attr_time|int/60/60/24)|int) * 24}} Hours
+          {{ (character_json.obj.char.attr_time|int/60 - (character_json.obj.char.attr_time|int/60/60)|int*60)|int }} Minutes
+      </div>
+    </div>
+    <hr class="bg-primary"/>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#generalStatisticsModal">
+      General Stats
+    </button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#zoneStatisticsModal">
+      Zone Stats
+    </button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inventoryModal">
+      Inventory
+    </button>
+    </a>
+  </div>
+</div>
+
+{# Inventory Modal #}
+<div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <div class="modal-title" id="inventoryModalLabel">
+          Inventories
+        </div>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <nav>
+          <div class="nav nav-tabs" id="inv-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-items-tab" data-toggle="tab" href="#nav-items" role="tab" aria-controls="nav-items" aria-selected="true">Items</a>
+            <a class="nav-item nav-link" id="nav-vault-tab" data-toggle="tab" href="#nav-vault" role="tab" aria-controls="nav-vault" aria-selected="false">Vault Items</a>
+            <a class="nav-item nav-link" id="nav-bricks-tab" data-toggle="tab" href="#nav-bricks" role="tab" aria-controls="nav-bricks" aria-selected="false">Bricks</a>
+            <a class="nav-item nav-link" id="nav-models-tab" data-toggle="tab" href="#nav-models" role="tab" aria-controls="nav-models" aria-selected="false">Models</a>
+            <a class="nav-item nav-link" id="nav-vault-models-tab" data-toggle="tab" href="#nav-vault-models" role="tab" aria-controls="nav-vault-models" aria-selected="false">Vault Models</a>
+            <a class="nav-item nav-link" id="nav-behaviors-tab" data-toggle="tab" href="#nav-behaviors" role="tab" aria-controls="nav-behaviors" aria-selected="false">Behaviors</a>
+          </div>
+        </nav>
+        <div class="tab-content mt-3" id="nav-invContent">
+          <div class="tab-pane fade show active" id="nav-items" role="tabpanel" aria-labelledby="nav-items-tab">
+            {# Inv ID 0 - Index: 0 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "0" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="tab-pane fade" id="nav-vault" role="tabpanel" aria-labelledby="nav-vault-tab">
+            {# Inv ID 1 - Index: 1 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "1" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="tab-pane fade" id="nav-vault-models" role="tabpanel" aria-labelledby="nav-vault-models-tab">
+            {# Inv ID 14 - Index: 10 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "14" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="tab-pane fade" id="nav-bricks" role="tabpanel" aria-labelledby="nav-bricks-tab">
+            {# Inv ID 2 - Index: 2 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "2" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="tab-pane fade" id="nav-models" role="tabpanel" aria-labelledby="nav-models-tab">
+            {# Inv ID 5 - Index: 6 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "5" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="tab-pane fade" id="nav-behaviors" role="tabpanel" aria-labelledby="nav-behaviors-tab">
+            {# Inv ID 7 - Index: 8 #}
+            {% for item in character_json.obj.inv.holdings.in %}
+              {% if item.attr_t == "7" %}
+                {% for inv_item in item.i %}
+                  {% include 'partials/charxml/_inv_grid.html.j2' %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# Zone Statistics Modal #}
+<div class="modal fade" id="zoneStatisticsModal" tabindex="-1" role="dialog" aria-labelledby="zoneStatisticsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="zoneStatisticsModalLabel">Zone Statistics</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% for zone in character_json.obj.char.zs.s %}
+          {% include 'partials/charxml/_zone_stats.html.j2' %}
+          {{ '<hr class="bg-primary"/>' if not loop.last else "" }}
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# General Statistics Modal #}
+<div class="modal fade" id="generalStatisticsModal" tabindex="-1" role="dialog" aria-labelledby="generalStatisticsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="generalStatisticsModalLabel">Statistics</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% include 'partials/charxml/_char_stats.html.j2' %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

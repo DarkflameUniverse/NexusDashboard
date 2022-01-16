@@ -1,0 +1,101 @@
+<div class="card shadow-sm bg-dark border-primary">
+  <div class="card-body">
+    <div class="row">
+      <div class="col text-center">
+        <h4>
+          {{ character.name }}
+        </h4>
+      </div>
+    </div>
+    <br/>
+    {% if character.pending_name %}
+      <div class="row">
+        <div class="col text-right">
+          Pending:
+        </div>
+        <br/>
+        <div class="col">
+          {{ character.pending_name }}
+        </div>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div class="col text-right">
+        Rename:
+      </div>
+      <br/>
+      <div class="col">
+        {% if character.needs_rename %}
+          <h5 class="far fa-check-square text-danger"></h5>
+        {% else %}
+          <h5 class="far fa-times-circle text-success"></h5>
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col text-right">
+        Last Login:
+      </div>
+      <div class="col">
+          {{ character.last_login|ctime }}
+      </div>
+    </div>
+    {% if request.endpoint != "characters.view" %}
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('characters.view', id=character.id) }}'>
+            View Character
+          </a>
+      </div>
+    </div>
+    {% else %}
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('accounts.view', id=character.account_id) }}'>
+            View Account: {{character.account.username}}
+          </a>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.id != character.account_id and current_user.gm_level > 2 %}
+      <hr class="bg-primary"/>
+      <div class="row">
+        <div class="col text-center">
+          <h4>Actions</h4>
+        </div>
+      </div>
+      <br/>
+      {% if not character.needs_rename %}
+        <a role="button" class="btn btn-danger btn btn-block"
+          href='{{url_for('characters.approve_name', id=character.id, action="rename")}}'>
+          Needs Rename
+        </a>
+      {% endif %}
+      {% if character.pending_name or character.needs_rename %}
+        <a role="button" class="btn btn-success btn btn-block"
+          href='{{url_for('characters.approve_name', id=character.id, action="approve")}}'>
+          Approve Name
+        </a>
+      {% endif %}
+
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('characters.restrict', id=character.id, bit=4) }}'>
+        {% if character.permission_map|check_perm_map(4) %}Unrestrict{% else %}Restrict{% endif %} Trade
+      </a>
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('characters.restrict', id=character.id, bit=5) }}'>
+        {% if character.permission_map|check_perm_map(5) %}Unrestrict{% else %}Restrict{% endif %} Mail
+      </a>
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('characters.restrict', id=character.id, bit=6) }}'>
+        {% if character.permission_map|check_perm_map(6) %}Unrestrict{% else %}Restrict{% endif %} Chat
+      </a>
+   {% endif %}
+
+  </div>
+</div>
