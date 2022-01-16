@@ -3,14 +3,14 @@ properties([
     gitParameter(
         branch: '',
         branchFilter: 'origin/(.*)',
-        defaultValue: 'origin/refactor',
+        defaultValue: 'origin/main',
         description: '',
         name: 'BRANCH',
         quickFilterEnabled: false,
-        selectedValue: 'NONE',
+        selectedValue: 'DEFAULT',
         sortMode: 'NONE',
         tagFilter: '*',
-        useRepository: 'git@github.com:aronwk-aaron/AccountManager.git',
+        useRepository: 'git@github.com:DarkflameUniverse/NexusDashboard.git',
         type: 'PT_BRANCH'
     )
   ])
@@ -25,15 +25,14 @@ node('worker'){
             userRemoteConfigs: [
                 [
                     credentialsId: 'aronwk',
-                    url: 'git@github.com:aronwk-aaron/AccountManager.git'
+                    url: 'git@github.com:DarkflameUniverse/NexusDashboard.git'
                 ]
             ]
         ])
     }
     def tag = ''
     stage("Build Container"){
-
-        if (params.BRANCH.contains('master')){
+        if (params.BRANCH.contains('main')){
             tag = 'latest'
         } else {
             tag = params.BRANCH.replace('\\', '-')
