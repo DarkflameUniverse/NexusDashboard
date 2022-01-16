@@ -20,7 +20,7 @@ docker run -d \
    -p 8000:8000/tcp
    -v /path/to/unpacked/client:/app/luclient:rw \
    -v /path/to/cachedir:/app/cache:rw \ # optional for persistent cache for conversions
-   aronwk/dlu-account_manager:refactor
+   aronwk/nexus-dashboard:latest
 
 ```
 
