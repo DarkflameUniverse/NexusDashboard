@@ -22,8 +22,15 @@ def items_by_date(date):
     return render_template('reports/items/by_date.html.j2', items=items, date=date)
 
 
-@scheduler.task("cron", id="gen_item_report", hour=3)
+@scheduler.task("cron", id="gen_item_report", hour=7)
 def gen_item_report():
+    date = datetime.date.today().strftime('%Y-%m-%d')
+    report = ItemReports.query.filter(ItemReports.date==date).first()
+
+    # Only one report per day
+    if report != None:
+        return f"Report Already Generated for {date}"
+
     char_xmls = CharacterXML.query.join(
                     CharacterInfo,
                     CharacterInfo.id==CharacterXML.id
@@ -31,7 +38,9 @@ def gen_item_report():
                     Account,
                     CharacterInfo.account_id==Account.id
                 ).filter(Account.gm_level < 3).all()
-    date = datetime.date.today().strftime('%Y-%m-%d')
+
+    report_data={}
+
     for char_xml in char_xmls:
         character_json = xmltodict.parse(
             char_xml.xml_data,
@@ -40,19 +49,10 @@ def gen_item_report():
         for inv in character_json["obj"]["inv"]["items"]["in"]:
             if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"])==0 or int(inv["attr_t"])==0):
                 for item in inv["i"]:
-                    entry = ItemReports.query.filter(
-                                ItemReports.item == int(item["attr_l"]) and \
-                                ItemReports.date == date
-                            ).first()
-                    if entry:
-                        entry.count = entry.count + int(item["attr_c"])
-                        entry.save()
+                    if item["attr_l"] in report_data:
+                        report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
                     else:
-                        new_entry = ItemReports(
-                            item=int(item["attr_l"]),
-                            count=int(item["attr_c"]),
-                            date=date
-                        )
-                        new_entry.save()
+                        report_data[item["attr_l"]] = int(item["attr_c"])
 
-    return "Done"
+
+    return f"Generated Report for {date}"

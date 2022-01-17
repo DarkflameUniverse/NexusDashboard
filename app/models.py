@@ -7,6 +7,7 @@ import logging
 from flask_sqlalchemy import BaseQuery
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import OperationalError, StatementError
+from sqlalchemy.types import JSON
 from time import sleep
 import random
 import string
@@ -983,20 +984,15 @@ class Server(db.Model):
 class ItemReports(db.Model):
     __tablename__ = 'item_reports'
 
-    item = db.Column(
-        db.Integer(),
-        primary_key=True,
-        nullable=False
-    )
-
-    count = db.Column(
-        db.Integer(),
+    data = db.Column(
+        JSON(),
         nullable=False
     )
 
     date = db.Column(
         db.Date(),
-        primary_key=False,
+        primary_key=True,
+        autoincrement=False
     )
 
     def save(self):
@@ -1007,4 +1003,3 @@ class ItemReports(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
