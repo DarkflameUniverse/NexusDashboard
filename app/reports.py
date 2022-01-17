@@ -11,8 +11,6 @@ reports_blueprint = Blueprint('reports', __name__)
 @gm_level(3)
 def index():
     reports = Reports.query.distinct(Reports.date).group_by(Reports.date).all()
-    print(gen_item_report())
-    print(gen_currency_report())
     return render_template('reports/index.html.j2', reports=reports)
 
 @reports_blueprint.route('/items/by_date/<date>', methods=['GET', 'POST'])
