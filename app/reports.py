@@ -27,6 +27,13 @@ def currency_by_date(date):
     data = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="currency").first().data
     return render_template('reports/currency/by_date.html.j2', data=data, date=date)
 
+@reports_blueprint.route('/uscore/by_date/<date>', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def uscore_by_date(date):
+    data = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="uscore").first().data
+    return render_template('reports/uscore/by_date.html.j2', data=data, date=date)
+
 
 @scheduler.task("cron", id="gen_item_report", hour=23)
 def gen_item_report():
@@ -108,3 +115,41 @@ def gen_currency_report():
         new_report.save()
 
         return f"Generated Currency Report for {date}"
+
+
+@scheduler.task("cron", id="gen_uscore_report", hour=23)
+def gen_uscore_report():
+    with scheduler.app.app_context():
+        date = datetime.date.today().strftime('%Y-%m-%d')
+        report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="uscore").first()
+
+        # Only one report per day
+        if report != None:
+            return f"U-Score Report Already Generated for {date}"
+
+        characters = CharacterXML.query.join(
+                        CharacterInfo,
+                        CharacterInfo.id==CharacterXML.id
+                    ).join(
+                        Account,
+                        CharacterInfo.account_id==Account.id
+                    ).filter(Account.gm_level < 3).all()
+
+        report_data={}
+
+        for character in characters:
+            character_json = xmltodict.parse(
+                character.xml_data,
+                attr_prefix="attr_"
+            )
+            report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
+
+        new_report = Reports(
+            data=report_data,
+            report_type="uscore",
+            date=date
+        )
+
+        new_report.save()
+
+        return f"Generated U-Score Report for {date}"
