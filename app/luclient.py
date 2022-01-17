@@ -243,7 +243,7 @@ def register_luclient_jinja_helpers(app):
     def get_lot_rarity(lot_id):
 
         render_component_id = query_cdclient(
-            'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
+            'select component_id from ComponentsRegistry where component_type = 11 and id = ?',
             [lot_id],
             one=True
         )[0]
