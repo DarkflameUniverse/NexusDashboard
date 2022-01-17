@@ -47,7 +47,7 @@
         {% endif %}
 
         {% if current_user.is_authenticated and current_user.gm_level >= 2 %}
-
+          <a id='report-index' class='nav-link' href='{{ url_for('reports.index') }}'>Reports</a>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
             <div class="dropdown-menu">

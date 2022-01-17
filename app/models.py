@@ -981,12 +981,19 @@ class Server(db.Model):
         db.session.commit()
 
 
-class ItemReports(db.Model):
-    __tablename__ = 'item_reports'
+class Reports(db.Model):
+    __tablename__ = 'reports'
 
     data = db.Column(
         JSON(),
         nullable=False
+    )
+
+    report_type = db.Column(
+        db.VARCHAR(35),
+        nullable=False,
+        primary_key=True,
+        autoincrement=False
     )
 
     date = db.Column(

@@ -12,14 +12,21 @@
   <div class="row">
     <div class="col">
       Items: <br/>
-      {% for item in items  %}
+      {% for report in reports  %}
         <a role="button" class="btn btn-primary btn btn-block"
-          href='{{url_for('reports.items_by_date', date=item.date)}}'>
-          {{item.date}}
+          href='{{url_for('reports.items_by_date', date=report.date)}}'>
+          {{report.date}}
         </a>
       {% endfor %}
     </div>
     <div class="col">
+      Currency: <br/>
+      {% for report in reports  %}
+        <a role="button" class="btn btn-primary btn btn-block"
+          href='{{url_for('reports.currency_by_date', date=report.date)}}'>
+          {{report.date}}
+        </a>
+      {% endfor %}
     </div>
     <div class="col">
     </div>

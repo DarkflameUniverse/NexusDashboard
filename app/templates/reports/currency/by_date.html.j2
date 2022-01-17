@@ -1,41 +1,36 @@
 {% extends 'base.html.j2' %}
 
 {% block title %}
-  Items on {{ date }}
+  Currency on {{ date }}
 {% endblock title %}
 
 {% block content_before %}
-  Items on {{ date }}
+  Currency on {{ date }}
 {% endblock content_before %}
 
 {% block content %}
   <div class='table-responsive'>
     <table class="table table-dark table-striped table-bordered table-hover"
-          id="items_by_date"
+          id="currency_by_date"
           data-order='[[ 1, "desc" ]]'>
       <thead>
         <th scope="col">
-          Item
+          Character
         </th>
         <th scope="col">
-          Count
-        </th>
-        <th scope="col">
-          Rarity
+          currency
         </th>
       </thead>
       <tbody>
-        {% for lot, count in data.items() %}
+        {% for name, currency in data.items() %}
           <tr>
             <td>
-              {{ lot|get_lot_name }}
+              {{ name }}
             </td>
             <td>
-              {{ count }}
+              {{ currency }}
             </td>
-            <td>
-              {{ lot|get_lot_rarity }}
-            </td>
+
           </tr>
         {% endfor %}
       </tbody>
@@ -47,7 +42,7 @@
   {{ super () }}
   <script>
     $(document).ready(function(){
-        let items_by_date = $('#items_by_date').DataTable({
+        let currency_by_date = $('#currency_by_date').DataTable({
             "processing": false,
             "serverSide": false,
           });
