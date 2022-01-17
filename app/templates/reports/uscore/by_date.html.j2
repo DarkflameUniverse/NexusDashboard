@@ -1,0 +1,51 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  U-Score on {{ date }}
+{% endblock title %}
+
+{% block content_before %}
+  U-Score on {{ date }}
+{% endblock content_before %}
+
+{% block content %}
+  <div class='table-responsive'>
+    <table class="table table-dark table-striped table-bordered table-hover"
+          id="uscore_by_date"
+          data-order='[[ 1, "desc" ]]'>
+      <thead>
+        <th scope="col">
+          Character
+        </th>
+        <th scope="col">
+          U-Score
+        </th>
+      </thead>
+      <tbody>
+        {% for name, uscore in data.items() %}
+          <tr>
+            <td>
+              {{ name }}
+            </td>
+            <td>
+              {{ uscore }}
+            </td>
+
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock  %}
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let uscore_by_date = $('#uscore_by_date').DataTable({
+            "processing": false,
+            "serverSide": false,
+          });
+        });
+  </script>
+{% endblock %}
