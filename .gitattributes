@@ -1,4 +1,4 @@
-app/static/bootstrap-4.2.1/* linguist-vendored
-app/static/bootswatch-master/* linguist-vendored
-app/static/datatables/* linguist-vendored
-app/static/font-awesome/* linguist-vendored
+app/static/bootstrap-4.2.1/* linguist-vendored=true
+app/static/bootswatch-master/* linguist-vendored=true
+app/static/datatables/* linguist-vendored=true
+app/static/font-awesome/* linguist-vendored=true
