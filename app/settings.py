@@ -4,6 +4,9 @@
 APP_NAME = "Nexus Dashboard"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
+# Send Analytics for Developers to better fix issues
+ALLOW_ANALYTICS = False
+
 # Flask settings
 CSRF_ENABLED = True
 
