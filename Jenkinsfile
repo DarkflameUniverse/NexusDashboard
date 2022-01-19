@@ -17,6 +17,9 @@ properties([
 ])
 
 node('worker'){
+
+    currentBuild.setDescription(params.BRANCH)
+
     stage('Clone Code'){
         checkout([
             $class: 'GitSCM',
