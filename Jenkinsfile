@@ -34,18 +34,18 @@ node('worker'){
         ])
     }
     def tag = ''
-    stage("Build Container"){
+    stage('Build Container'){
         if (params.BRANCH.contains('main')){
             tag = 'latest'
         } else {
             tag = params.BRANCH.replace('\\', '-')
         }
-        sh "docker build -t aronwk/nexus-dashboard:${tag} ."
+        sh 'docker build -t aronwk/nexus-dashboard:${tag} .'
     }
-    stage("Push Container"){
+    stage('Push Container'){
         withCredentials([usernamePassword(credentialsId: 'docker-hub-token', passwordVariable: 'password', usernameVariable: 'username')]) {
-            sh "docker login -u ${username} -p ${password}"
-            sh "docker push aronwk/nexus-dashboard:${tag}"
+            sh 'docker login -u ${username} -p ${password}'
+            sh 'docker push aronwk/nexus-dashboard:${tag}'
             sh 'docker logout'
         }
     }
