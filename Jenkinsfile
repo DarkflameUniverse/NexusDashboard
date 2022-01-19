@@ -35,10 +35,10 @@ node('worker'){
     }
     def tag = ''
     stage('Build Container'){
-        if (params.BRANCH.contains('main')){
+        if (params.GIT_BRANCH.contains('main')){
             tag = 'latest'
         } else {
-            tag = params.BRANCH.replace('\\', '-')
+            tag = params.GIT_BRANCH.replace('\\', '-')
         }
         sh "docker build -t aronwk/nexus-dashboard:$tag ."
     }
