@@ -6,6 +6,12 @@
   <img src="app/static/logo/logo.png" alt="Sublime's custom image"/>
 </p>
 
+## Features
+
+* Analytics
+  * Provide reporting to Developers to help better solve issues
+  * Disabled by default. Set `ALLOW_ANALYTICS` to true to enable
+
 # Deployment
 
 ## Docker
@@ -46,6 +52,7 @@ docker run -d \
     * USER_ENABLE_CONFIRM_EMAIL (Default: True)
     * USER_ENABLE_INVITE_USER (Default: False)
     * USER_REQUIRE_INVITATION (Default: False)
+    * ALLOW_ANALYTICS (Default: False)
     * REQUIRE_PLAY_KEY (Default: True)
     * MAIL_SERVER (Default: smtp.gmail.com)
     * MAIL_PORT (Default: 587)
@@ -61,6 +68,7 @@ docker run -d \
 Don't, use Docker /s
 
 TODO: Make manual deployment easier to configure
+
 
 # Development
 
