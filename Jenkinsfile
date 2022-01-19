@@ -5,8 +5,8 @@ properties([
         branchFilter: 'origin/(.*)',
         defaultValue: 'origin/main',
         description: '',
-        name: 'BRANCH',
-        quickFilterEnabled: false,
+        name: 'GIT_BRANCH',
+        quickFilterEnabled: true,
         selectedValue: 'DEFAULT',
         sortMode: 'NONE',
         tagFilter: '*',
@@ -17,13 +17,12 @@ properties([
 ])
 
 node('worker'){
-
-    currentBuild.setDescription(params.BRANCH)
+    currentBuild.setDescription(params.GIT_BRANCH)
 
     stage('Clone Code'){
         checkout([
             $class: 'GitSCM',
-            branches: [[name: params.BRANCH]],
+            branches: [[name: params.GIT_BRANCH]],
             extensions: [],
             userRemoteConfigs: [
                 [
@@ -34,19 +33,19 @@ node('worker'){
         ])
     }
     def tag = ''
-    stage("Build Container"){
+    stage('Build Container'){
         if (params.BRANCH.contains('main')){
             tag = 'latest'
         } else {
             tag = params.BRANCH.replace('\\', '-')
         }
-        sh "docker build -t aronwk/nexus-dashboard:${tag} ."
+        sh "docker build -t aronwk/nexus-dashboard:$tag ."
     }
-    stage("Push Container"){
+    stage('Push Container'){
         withCredentials([usernamePassword(credentialsId: 'docker-hub-token', passwordVariable: 'password', usernameVariable: 'username')]) {
-            sh "docker login -u ${username} -p ${password}"
-            sh "docker push aronwk/nexus-dashboard:${tag}"
-            sh 'docker logout'
+            sh "docker login -u $username -p $password"
+            sh "docker push aronwk/nexus-dashboard:$tag"
+            sh "docker logout"
         }
     }
 }
