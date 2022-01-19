@@ -21,7 +21,7 @@
     </div>
     <div class="col">
       Currency: <br/>
-      {% for report in reports  %}
+      {% for report in reports|reverse  %}
         <a role="button" class="btn btn-primary btn btn-block"
           href='{{url_for('reports.currency_by_date', date=report.date)}}'>
           {{report.date}}
@@ -30,7 +30,7 @@
     </div>
     <div class="col">
       U-Score: <br/>
-      {% for report in reports  %}
+      {% for report in reports|reverse  %}
         <a role="button" class="btn btn-primary btn btn-block"
           href='{{url_for('reports.uscore_by_date', date=report.date)}}'>
           {{report.date}}
