@@ -7,12 +7,12 @@ properties([
         description: '',
         name: 'GIT_BRANCH',
         quickFilterEnabled: true,
-        listSize: 1,
         selectedValue: 'DEFAULT',
         sortMode: 'NONE',
         tagFilter: '*',
         useRepository: 'git@github.com:DarkflameUniverse/NexusDashboard.git',
-        type: 'PT_BRANCH'
+        type: 'PT_BRANCH',
+        listSize: "1"
     )
   ])
 ])
