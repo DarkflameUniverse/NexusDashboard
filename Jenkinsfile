@@ -7,6 +7,7 @@ properties([
         description: '',
         name: 'GIT_BRANCH',
         quickFilterEnabled: true,
+        listSize: 1,
         selectedValue: 'DEFAULT',
         sortMode: 'NONE',
         tagFilter: '*',
