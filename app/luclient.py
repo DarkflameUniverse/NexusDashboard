@@ -11,6 +11,7 @@ import glob
 import os
 from wand import image
 from wand.exceptions import BlobError as BE
+import pathlib
 
 import sqlite3
 import xml.etree.ElementTree as ET
@@ -26,7 +27,7 @@ def get_dds_as_png(filename):
 
     cache = f'cache/{filename.split(".")[0]}.png'
 
-    if not os.path.exists("app/" + cache):
+    if not os.path.exists(cache):
         root = 'app/luclient/res/'
 
         path = glob.glob(
@@ -75,19 +76,19 @@ def get_icon_lot(id):
 
     filename = filename.replace("..\\", "").replace("\\", "/")
 
-    cache = f'cache/{filename.split("/")[-1].split(".")[0]}.png'
+    cache = f'app/cache/{filename.split(".")[0]}.png'
 
-    if not os.path.exists("app/" + cache):
+    if not os.path.exists(cache):
         root = 'app/luclient/res/'
         try:
-
+            pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
             with image.Image(filename=f'{root}{filename}'.lower()) as img:
                 img.compression = "no"
-                img.save(filename=f'app/cache/{filename.split("/")[-1].split(".")[0]}.png')
+                img.save(filename=cache)
         except BE:
             return redirect(url_for('luclient.unknown'))
 
-    return send_file(cache)
+    return send_file(pathlib.Path(cache).resolve())
 
 
 @luclient_blueprint.route('/get_icon_iconid/<id>')
@@ -102,36 +103,38 @@ def get_icon_iconid(id):
 
     filename = filename.replace("..\\", "").replace("\\", "/")
 
-    cache = f'cache/{filename.split("/")[-1].split(".")[0]}.png'
+    cache = f'app/cache/{filename.split(".")[0]}.png'
 
-    if not os.path.exists("app/" + cache):
+    if not os.path.exists(cache):
         root = 'app/luclient/res/'
         try:
-
+            pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
             with image.Image(filename=f'{root}{filename}'.lower()) as img:
                 img.compression = "no"
-                img.save(filename=f'app/cache/{filename.split("/")[-1].split(".")[0]}.png')
+                img.save(filename=cache)
         except BE:
             return redirect(url_for('luclient.unknown'))
 
-    return send_file(cache)
+    return send_file(pathlib.Path(cache).resolve())
 
 @luclient_blueprint.route('/unknown')
 @login_required
 def unknown():
     filename = "textures/ui/inventory/unknown.dds"
 
-    cache = f'cache/{filename.split("/")[-1].split(".")[0]}.png'
+    cache = f'app/cache/{filename.split(".")[0]}.png'
 
-    if not os.path.exists("app/" + cache):
+    if not os.path.exists(cache):
         root = 'app/luclient/res/'
+        try:
+            pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
+            with image.Image(filename=f'{root}{filename}'.lower()) as img:
+                img.compression = "no"
+                img.save(filename=cache)
+        except BE:
+            return redirect(url_for('luclient.unknown'))
 
-        with image.Image(filename=f'{root}{filename}'.lower()) as img:
-            img.compression = "no"
-            img.save(filename=f'app/cache/{filename.split("/")[-1].split(".")[0]}.png')
-
-
-    return send_file(cache)
+    return send_file(pathlib.Path(cache).resolve())
 
 
 def get_cdclient():
