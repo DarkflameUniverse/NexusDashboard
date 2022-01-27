@@ -131,9 +131,9 @@ def get(status="all"):
     if status=="all":
         query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account)
     elif status=="approved":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==True)
+        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==True).filter(Property.privacy_option==2)
     elif status=="unapproved":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==False)
+        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==False).filter(Property.privacy_option==2)
     else:
         raise Exception("Not a valid filter")
 
