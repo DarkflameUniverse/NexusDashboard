@@ -12,7 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import query_cdclient, register_luclient_jinja_helpers
 
-from app.commands import init_db, init_accounts
+from app.commands import init_db, init_accounts, load_property
 from app.models import Account, AccountInvitation
 
 # Instantiate Flask extensions
@@ -60,6 +60,7 @@ def create_app():
     # add the commands to flask cli
     app.cli.add_command(init_db)
     app.cli.add_command(init_accounts)
+    app.cli.add_command(load_property)
 
     register_settings(app)
     register_extensions(app)

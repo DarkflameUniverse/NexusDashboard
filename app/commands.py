@@ -4,7 +4,9 @@ from flask.cli import with_appcontext
 import random, string, datetime
 from flask_user import current_app
 from app import db
-from app.models import Account, PlayKey
+from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC
+import pathlib
+import zlib
 
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
@@ -29,14 +31,63 @@ def init_accounts():
 
     # Add accounts
     print('Creating Admin account.')
-    admin_account = find_or_create_account(
+    find_or_create_account(
         'admin',
         'example@example.com',
         'Nope',
     )
 
-
     return
+
+@click.command("load_property")
+@click.argument('zone')
+@click.argument('player')
+@with_appcontext
+def load_property(zone, player):
+
+    char = CharacterInfo.query.filter(CharacterInfo.name == player).first()
+    if not char:
+        print("Character not Found")
+        return 404
+
+    prop = Property.query.filter(Property.owner_id==char.id).filter(Property.zone_id==zone).first()
+
+    if not prop:
+        print(f"Property {zone} not claimed by Character: {char.name}")
+        return 404
+
+    prop_files = pathlib.Path('property_files/')
+    for i in prop_files.glob('**/*'):
+        if i.suffix == '.lxfml':
+            lxfml = ""
+            with open(i, "r") as file:
+                lxfml = file.read()
+            compressed_lxfml = zlib.compress(lxfml.encode())
+
+            new_ugc = UGC(
+                account_id=char.account_id,
+                character_id=char.id,
+                is_optimized=0,
+                lxfml=compressed_lxfml,
+                bake_ao=0,
+                filename=i.name
+            )
+            new_ugc.save()
+
+            new_prop_content = PropertyContent(
+                id=i.stem,
+                property_id=prop.id,
+                ugc_id=new_ugc.id,
+                lot=14,
+                x=0,
+                y=0,
+                z=0,
+                rx=0,
+                ry=0,
+                rz=0,
+                rw=1
+            )
+            new_prop_content.save()
 
 
 def find_or_create_account(name, email, password, gm_level=9):
@@ -68,3 +119,5 @@ def find_or_create_account(name, email, password, gm_level=9):
         db.session.add(play_key)
         db.session.commit()
     return # account
+
+

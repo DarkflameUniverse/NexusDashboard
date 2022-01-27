@@ -13,3 +13,4 @@ app/static/ldddb/*
 locale.xml
 app/luclient/*
 app/cache/*
+property_files/*
