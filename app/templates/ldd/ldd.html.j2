@@ -29,10 +29,9 @@
     {% endif %}
   </div>
 
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/super-three@0.116.0/build/three.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/super-three@0.116.0/examples/js/controls/OrbitControls.js"></script>
+
 
 <script type="text/javascript" src="{{ url_for('static', filename='lddviewer/base64-binary.js') }}"></script>
 
@@ -60,8 +59,8 @@
 {% endif %}
 
 <script type='module'>
-  import {MTLLoader} from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/jsm/loaders/MTLLoader.js'
-  import {OBJLoader} from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/jsm/loaders/OBJLoader.js'
+  import {MTLLoader} from 'https://cdn.jsdelivr.net/npm/super-three@0.116.0/examples/jsm/loaders/MTLLoader.js'
+  import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/super-three@0.116.0/examples/jsm/loaders/OBJLoader.js'
   //Three.js stuff
   const scene = new THREE.Scene();
   let cammatr = new THREE.Matrix4();
@@ -293,7 +292,6 @@
 
 
   class Scene{
-    //partially done - need zip file handling
     constructor(){
       this.Bricks = []
       this.Scenecamera = []
