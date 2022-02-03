@@ -41,7 +41,11 @@
             "serverSide": true,
             "ajax": "{{ url_for('accounts.get') }}",
             "columnDefs": [
-              { "searchable": false, "targets": [0,7] },
+              {% if config.USER_ENABLE_EMAIL %}
+                { "searchable": false, "targets": [0,7] },
+              {% else %}
+                { "searchable": false, "targets": [0,6] },
+              {% endif %}
               { "orderable": false, "targets": [0] }
             ]
           });
