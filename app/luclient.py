@@ -239,7 +239,8 @@ def register_luclient_jinja_helpers(app):
                 [lot_id],
                 one=True
             )
-            name = intermed[7] if (intermed[7] != "None" and intermed[7] !="" and intermed[7] != None) else intermed[1]
+            if intermed:
+                name = intermed[7] if (intermed[7] != "None" and intermed[7] !="" and intermed[7] != None) else intermed[1]
         return name
 
     @app.template_filter('get_lot_rarity')
