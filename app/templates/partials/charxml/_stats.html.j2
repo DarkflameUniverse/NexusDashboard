@@ -27,10 +27,12 @@
     {% set skill_desc = skill[0]|get_skill_desc %}
     {% if "IP" not in skill_desc and "AP" not in skill_desc and "LP" not in skill_desc and skill[0]|string not in skill_desc %}
       <br/>
-      <img src='{{ url_for('luclient.get_icon_iconid', id=skill[1]) }}'
-        alt='Skill: '
-        width='32'
-        height='32'>
+      {% if skill[1]%}
+        <img src='{{ url_for('luclient.get_icon_iconid', id=skill[1]) }}'
+          alt='Skill: '
+          width='32'
+          height='32'>
+      {% endif %}
       {{ skill[0]|get_skill_desc }}
       <br/>
     {% endif %}

@@ -89,6 +89,7 @@ def view(id):
 
 @character_blueprint.route('/view_xml/<id>', methods=['GET'])
 @login_required
+@gm_level(9)
 def view_xml(id):
 
     character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
@@ -107,6 +108,7 @@ def view_xml(id):
 
 @character_blueprint.route('/get_xml/<id>', methods=['GET'])
 @login_required
+@gm_level(9)
 def get_xml(id):
 
     character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
