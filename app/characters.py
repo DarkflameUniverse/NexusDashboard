@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash
+from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, make_response
 from flask_user import login_required, current_user
 import json
 from datatables import ColumnDT, DataTables
@@ -86,6 +86,47 @@ def view(id):
         character_json=character_json
     )
 
+
+@character_blueprint.route('/view_xml/<id>', methods=['GET'])
+@login_required
+def view_xml(id):
+
+    character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
+
+    if character_data == {}:
+        abort(404)
+        return
+
+    character_xml = CharacterXML.query.filter(
+                        CharacterXML.id==id
+                    ).first().xml_data
+
+    response = make_response(character_xml)
+    response.headers.set('Content-Type', 'text/xml')
+    return response
+
+@character_blueprint.route('/get_xml/<id>', methods=['GET'])
+@login_required
+def get_xml(id):
+
+    character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
+
+    if character_data == {}:
+        abort(404)
+        return
+
+    character_xml = CharacterXML.query.filter(
+                        CharacterXML.id==id
+                    ).first().xml_data
+
+    response = make_response(character_xml)
+    response.headers.set('Content-Type', 'attachment/xml')
+    response.headers.set(
+        'Content-Disposition',
+        'attachment',
+        filename=f"{character_data.name}.xml"
+    )
+    return response
 
 @character_blueprint.route('/restrict/<bit>/<id>', methods=['GET'])
 @login_required

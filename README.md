@@ -33,7 +33,7 @@ docker run -d \
  * /app/luclient must be mapped to the location of an unpacked client
    * you only need `res/` and `locale/` from the client, but dropping the whole cleint in there won't hurt
  * Use `fdb_to_sqlite.py` in lcdr's utilities on `res/cdclient.fdb` in the unpacked client to convert the client database to `cdclient.sqlite`
-   * Put teh resulting `cdclient.sqlite` in the res folder: `res/cdclient.sqlite`
+   * Put the resulting `cdclient.sqlite` in the res folder: `res/cdclient.sqlite`
  * unzip `res/brickdb.zip` in-place
    * **Docker will do this for you**
    * you should have new folders and files in the following places:

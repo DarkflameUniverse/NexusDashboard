@@ -8,7 +8,8 @@
   <br/>
   --------------------------------
   <br/>
-  {{ ("ItemSets_" ~ item_set[0] ~ "_kitName")|lu_translate }}: Rank {{ item_set[4] }}<br/>
+
+  {{ ("ItemSets_" ~ item_set[0] ~ "_kitName")|lu_translate }}{% if item_set[4]|int > 0%}: Rank {{ item_set[4] }}{% endif %}<br/>
   {% if item_set[5] %}
     <img src='/luclient/get_icon_iconid/{{item_set[5]}}'
           alt='Kit Image'

@@ -233,7 +233,7 @@ def register_luclient_jinja_helpers(app):
     @app.template_filter('get_lot_name')
     def get_lot_name(lot_id):
         name = translate_from_locale(f'Objects_{lot_id}_name')
-        if name == translate_from_locale(f'Objects_{lot_id}_name'):
+        if name == f'Objects_{lot_id}_name':
             intermed = query_cdclient(
                 'select * from Objects where id = ?',
                 [lot_id],
