@@ -1010,21 +1010,3 @@ class Reports(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
-class Audit(db.Model):
-    __tablename__ = 'audit'
-
-    data = db.Column(
-        JSON(),
-        nullable=False,
-        primary_key=True
-    )
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-        db.session.refresh(self)
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
