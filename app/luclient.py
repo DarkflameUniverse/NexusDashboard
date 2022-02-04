@@ -272,7 +272,7 @@ def register_luclient_jinja_helpers(app):
             if desc in ("", None):
                 desc = None
         if desc:
-            desc = desc.strip('"')
+            desc = desc.replace('"', "&#8220;")
         return desc
 
     @app.template_filter('get_item_set')
