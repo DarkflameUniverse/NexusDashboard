@@ -7,6 +7,12 @@ from app import db
 from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC
 import pathlib
 import zlib
+import os
+from wand import image
+from wand.exceptions import BlobError as BE
+import app.pylddlib as ldd
+from multiprocessing import Pool
+from functools import partial
 
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
@@ -89,6 +95,54 @@ def load_property(zone, player):
             )
             new_prop_content.save()
 
+@click.command("gen_image_cache")
+def gen_image_cache():
+    luclient = pathlib.Path('app/luclient/res')
+    files = [path for path in luclient.rglob("*.dds") if path.is_file()]
+
+    for file in files:
+        cache = get_cache_file(file).with_suffix(".png")
+        if not cache.exists():
+            try:
+                print(f"Convert {file.as_posix()} to {cache}")
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                with image.Image(filename=str(file.as_posix())) as img:
+                    img.compression = "no"
+                    img.save(filename=str(cache.as_posix()))
+            except BE:
+                return print(f"Error on {file}")
+
+@click.command("gen_model_cache")
+def gen_model_cache():
+    luclient = pathlib.Path('app/luclient/res')
+    files = [path for path in luclient.rglob("*.lxfml") if path.is_file()]
+    pool = Pool(processes=4)
+    pool.map(partial(convert_lxfml_to_obj, lod=0), files)
+    pool.map(partial(convert_lxfml_to_obj, lod=1), files)
+    pool.map(partial(convert_lxfml_to_obj, lod=2), files)
+
+def convert_lxfml_to_obj(file, lod):
+    mtl = get_cache_file(file).with_suffix(f".lod{lod}.mtl")
+    if not mtl.exists():
+        mtl.parent.mkdir(parents=True, exist_ok=True)
+        print(f"Convert LXFML {file.as_posix()} to obj and mtl @ {mtl}")
+        try:
+            ldd.main(str(file.as_posix()), str(mtl.with_suffix("").as_posix()), lod) # convert to OBJ
+        except Exception as e:
+            print(f"ERROR on {file}:\n {e}")
+    else:
+        # print(f"Already Exists: {file} with LOD {lod}")
+        return
+
+def get_cache_file(path):
+    # convert to list so that we can change elements
+    parts = list(path.parts)
+
+    # replace part that matches src with dst
+    parts[parts.index("luclient")] = "cache"
+    del parts[parts.index("res")]
+
+    return pathlib.Path(*parts)
 
 def find_or_create_account(name, email, password, gm_level=9):
     """ Find existing account or create new account """
@@ -119,5 +173,3 @@ def find_or_create_account(name, email, password, gm_level=9):
         db.session.add(play_key)
         db.session.commit()
     return # account
-
-

@@ -367,19 +367,13 @@ def prebuilt(content, file_format):
 
         cache = f"app/cache/{filename}.{file_format}"
 
-        if os.path.exists(cache):
-            with open(cache, 'r') as file:
-                cache_data = file.read()
-            response = make_response(cache_data)
-
-        else:
+        if not os.path.exists(cache):
             lxfml = f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml'
             ldd.main(lxfml, cache.split('.')[0]) # convert to OBJ
 
-            if os.path.exists(cache):
-                with open(cache, 'r') as file:
-                    cache_data = file.read()
-                response = make_response(cache_data)
+        with open(cache, 'r') as file:
+            cache_data = file.read()
+        response = make_response(cache_data)
 
     else:
         raise(Exception("INVALID FILE FORMAT"))
