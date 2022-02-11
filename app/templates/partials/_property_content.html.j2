@@ -59,24 +59,24 @@
       </div>
     </div>
     <br/>
-    <h5 class="text-center"> Render </h5>
+    <h5 class="text-center">Render Quality</h5>
     <div class="row">
       <div class="col text-center">
-        <a role="button" class="btn btn-primary"
+        <a role="button" class="btn btn-primary btn-block"
           href='{{ url_for('properties.view_model', id=item.id, lod=0) }}'>
-          0
+          High (0)
         </a>
       </div>
       <div class="col text-center">
-        <a role="button" class="btn btn-primary"
+        <a role="button" class="btn btn-primary btn-block"
           href='{{ url_for('properties.view_model', id=item.id, lod=1) }}'>
-          1
+          Med (1)
         </a>
       </div>
       <div class="col text-center">
-        <a role="button" class="btn btn-primary"
+        <a role="button" class="btn btn-primary btn-block"
           href='{{ url_for('properties.view_model', id=item.id, lod=2) }}'>
-          2
+          Low (2)
         </a>
       </div>
     </div>

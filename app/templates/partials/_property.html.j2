@@ -81,19 +81,24 @@
       </div>
     {% else %}
       <br/>
+      <h5 class="text-center">Render Quality</h5>
       <div class="row">
         <div class="col text-center">
             <a role="button" class="btn btn-primary btn-block"
               href='{{ url_for('properties.view_models', id=property.id, lod=0) }}'>
-              Render: High
+              High (0)
             </a>
+          </div>
+          <div class="col text-center">
             <a role="button" class="btn btn-primary btn-block"
               href='{{ url_for('properties.view_models', id=property.id, lod=1) }}'>
-              Render: Medium
+              Med (1)
             </a>
+          </div>
+          <div class="col text-center">
             <a role="button" class="btn btn-primary btn-block"
               href='{{ url_for('properties.view_models', id=property.id, lod=2) }}'>
-              Render: Low
+              Low (2)
             </a>
         </div>
       </div>
