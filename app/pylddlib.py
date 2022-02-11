@@ -30,7 +30,7 @@ if sys.version_info < (3, 0):
     sys.setdefaultencoding('utf-8')
 
 PRIMITIVEPATH = '/Primitives/'
-GEOMETRIEPATH = PRIMITIVEPATH + 'LOD0/'
+GEOMETRIEPATH = PRIMITIVEPATH
 DECORATIONPATH = '/Decorations/'
 MATERIALNAMESPATH = '/MaterialNames/'
 
@@ -238,10 +238,10 @@ class Scene:
                 for childnode in node.childNodes:
                     if childnode.nodeName == 'BrickSet':
                         self.Version = str(childnode.getAttribute('version'))
-            elif node.nodeName == 'Cameras':
-                for childnode in node.childNodes:
-                    if childnode.nodeName == 'Camera':
-                        self.Scenecamera.append(SceneCamera(node=childnode))
+            # elif node.nodeName == 'Cameras':
+            #     for childnode in node.childNodes:
+            #         if childnode.nodeName == 'Camera':
+            #             self.Scenecamera.append(SceneCamera(node=childnode))
             elif node.nodeName == 'Bricks':
                 for childnode in node.childNodes:
                     if childnode.nodeName == 'Brick':
@@ -720,8 +720,10 @@ class Converter:
         start_time = time.time()
 
         out = open(filename + ".obj.tmp", "w+")
+        out.truncate(0)
         out.write("mtllib " + filename + ".mtl" + '\n\n')
         outtext = open(filename + ".mtl.tmp", "w+")
+        outtext.truncate(0)
 
         total = len(self.scene.Bricks)
         current = 0
@@ -823,13 +825,13 @@ class Converter:
         sys.stdout.write('%s\r' % ('                                                                                                 '))
         # print("--- %s seconds ---" % (time.time() - start_time))
 
-def setDBFolderVars(dbfolderlocation):
+def setDBFolderVars(dbfolderlocation, lod):
     global PRIMITIVEPATH
     global GEOMETRIEPATH
     global DECORATIONPATH
     global MATERIALNAMESPATH
     PRIMITIVEPATH = os.path.join(dbfolderlocation, 'Primitives', '')
-    GEOMETRIEPATH = os.path.join(dbfolderlocation, 'brickprimitives', 'lod0', '')
+    GEOMETRIEPATH = os.path.join(dbfolderlocation, 'brickprimitives', f'lod{lod}', '')
     DECORATIONPATH = os.path.join(dbfolderlocation, 'Decorations', '')
     MATERIALNAMESPATH = os.path.join(dbfolderlocation, 'MaterialNames', '')
     # print(MATERIALNAMESPATH)
@@ -880,7 +882,7 @@ def progress(count, total, status='', suffix = ''):
     sys.stdout.write('Progress: [%s] %s%s %s %s\r' % (bar, percents, '%', suffix, status))
     sys.stdout.flush()
 
-def main(lxf_filename, obj_filename):
+def main(lxf_filename, obj_filename, lod="2"):
     # print("- - - pylddlib - - -")
     # print("          _ ")
     # print("         [_]")
@@ -890,10 +892,11 @@ def main(lxf_filename, obj_filename):
     # print("        [=|=]")
     # print("")
     # print("- - - - - - - - - - - -")
-
+    global GEOMETRIEPATH
+    GEOMETRIEPATH = GEOMETRIEPATH + f"LOD{lod}/"
     converter = Converter()
     # print("Found DB folder. Will use this instead of db.lif!")
-    setDBFolderVars(dbfolderlocation = "app/luclient/res/")
+    setDBFolderVars(dbfolderlocation = "app/luclient/res/", lod=lod)
     converter.LoadDBFolder(dbfolderlocation = "app/luclient/res/")
     converter.LoadScene(filename=lxf_filename)
     converter.Export(filename=obj_filename)

@@ -467,16 +467,16 @@
     constructor(designID, database){
       this.designID = designID
       this.Parts = []
-
       this.studsFields2D = []
-      let GeometryLocation = `${designID}.g`
+      let lod = {{ lod }}
+      let GeometryLocation = `lod${lod}/${designID}.g`
       let PrimitiveLocation = `${designID}.xml`
 
       let GeometryCount = 0
       while (GeometryLocation in database.filelist) {
         this.Parts[GeometryCount] = new GeometryReader(database.filelist[GeometryLocation].read())
         GeometryCount = GeometryCount + 1
-        GeometryLocation = `${designID}.g${GeometryCount}`
+        GeometryLocation = `lod${lod}/${designID}.g${GeometryCount}`
       }
       let primitive = new Primitive(database.filelist[PrimitiveLocation].read())
       this.Partname = primitive.Designname
@@ -1019,7 +1019,7 @@
       return self.filelist[filename];
     }
 
-    parse(dburl) {
+    parse(dburl, folder="") {
       let self = this;
       let xhr = new XMLHttpRequest();
       xhr.open('GET', dburl, false);
@@ -1038,10 +1038,16 @@
             let obj = data[i];
             if (obj.type == 'directory'){
               // parse subdirs
-              self.parse(dburl + obj.name + '/')
+              self.parse(dburl + obj.name + '/', obj.name)
             }
             else if (obj.type == 'file'){
-              self.filelist[obj.name] = new DBURLFile(dburl + obj.name, obj.name)
+
+              if (folder.includes("lod")){
+
+                self.filelist[`${folder}/${obj.name}`] = new DBURLFile(dburl + obj.name, obj.name)
+              } else {
+                self.filelist[obj.name] = new DBURLFile(dburl + obj.name, obj.name)
+              }
             }
             else {
               console.log('Strange object parsed: ' + obj.type)
@@ -1063,7 +1069,7 @@
   let lxfml_file_list = [
     {% for model in content %}
       {% if model.lot == 14 %}
-        "{{url_for('properties.get_model', id=model.id, file_format='lxfml')}}"{{ ", " if not loop.last else "" }}
+        "{{url_for('properties.get_model', id=model.id, file_format='lxfml', lod=lod)}}"{{ ", " if not loop.last else "" }}
       {% endif %}
     {% endfor %}
   ]
