@@ -23,6 +23,7 @@ import zlib
 import xmltodict
 import os
 import app.pylddlib as ldd
+import pathlib
 
 property_blueprint = Blueprint('properties', __name__)
 
@@ -206,16 +207,16 @@ def get(status="all"):
     return data
 
 
-@property_blueprint.route('/view_model/<id>', methods=['GET'])
+@property_blueprint.route('/view_model/<id>/<lod>', methods=['GET'])
 @login_required
-def view_model(id):
+def view_model(id, lod):
     property_content_data = PropertyContent.query.filter(PropertyContent.id==id).all()
 
     # TODO: Restrict somehow
     formatted_data = [
         {
-            "obj": url_for('properties.get_model', id=property_content_data[0].id, file_format='obj'),
-            "mtl": url_for('properties.get_model', id=property_content_data[0].id, file_format='mtl'),
+            "obj": url_for('properties.get_model', id=property_content_data[0].id, file_format='obj', lod=lod),
+            "mtl": url_for('properties.get_model', id=property_content_data[0].id, file_format='mtl', lod=lod),
             "lot": property_content_data[0].lot,
             "id": property_content_data[0].id,
             "pos": [{
@@ -232,7 +233,8 @@ def view_model(id):
 
     return render_template(
         'ldd/ldd.html.j2',
-        content=formatted_data
+        content=formatted_data,
+        lod=lod
     )
 
 property_center = {
@@ -245,9 +247,9 @@ property_center = {
 }
 
 
-@property_blueprint.route('/view_models/<id>', methods=['GET'])
+@property_blueprint.route('/view_models/<id>/<lod>', methods=['GET'])
 @login_required
-def view_models(id):
+def view_models(id, lod):
     property_content_data = PropertyContent.query.filter(
         PropertyContent.property_id==id
     ).order_by(PropertyContent.lot).all()
@@ -273,8 +275,8 @@ def view_models(id):
             # add new lot
             consolidated_list.append(
                 {
-                    "obj": url_for('properties.get_model', id=property_content_data[item].id, file_format='obj'),
-                    "mtl": url_for('properties.get_model', id=property_content_data[item].id, file_format='mtl'),
+                    "obj": url_for('properties.get_model', id=property_content_data[item].id, file_format='obj', lod=lod),
+                    "mtl": url_for('properties.get_model', id=property_content_data[item].id, file_format='mtl', lod=lod),
                     "lot": property_content_data[item].lot,
                     "id": property_content_data[item].id,
                     "pos": [{
@@ -293,18 +295,20 @@ def view_models(id):
         'ldd/ldd.html.j2',
         property_data=property_data,
         content=consolidated_list,
-        center=property_center[property_data.zone_id]
+        center=property_center[property_data.zone_id],
+        lod=lod
     )
 
-@property_blueprint.route('/get_model/<id>/<file_format>', methods=['GET'])
+@property_blueprint.route('/get_model/<id>/<file_format>/<lod>', methods=['GET'])
 @login_required
-def get_model(id, file_format):
+def get_model(id, file_format, lod):
     content = PropertyContent.query.filter(PropertyContent.id==id).first()
-
+    if not(0 <= int(lod) <= 2):
+        abort(404)
     if content.lot == 14: # ugc model
         response = ugc(content)[0]
     else: # prebuild model
-        response = prebuilt(content, file_format)[0]
+        response = prebuilt(content, file_format, lod)[0]
 
     response.headers.set('Content-Type', 'text/xml')
     return response
@@ -337,7 +341,7 @@ def ugc(content):
     return response, ugc_data.filename
 
 
-def prebuilt(content, file_format):
+def prebuilt(content, file_format, lod):
     # translate LOT to component id
     # we need to get a type of 2 because reasons
     render_component_id = query_cdclient(
@@ -357,7 +361,7 @@ def prebuilt(content, file_format):
         return f"No filename for LOT {content.lot}"
 
     if file_format == "lxfml":
-        lxfml = f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml'
+        lxfml = pathilob.Path(f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml')
         with open(lxfml, 'r') as file:
             lxfml_data = file.read()
         # print(lxfml_data)
@@ -365,7 +369,7 @@ def prebuilt(content, file_format):
 
     elif file_format in ["obj", "mtl"]:
 
-        cache = f"app/cache/{filename}.{file_format}"
+        cache = f"app/cache/BrickModels/{filename}.lod{lod}.{file_format}"
 
         if not os.path.exists(cache):
             lxfml = f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml'
