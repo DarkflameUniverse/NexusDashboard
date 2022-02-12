@@ -35,7 +35,7 @@ def uscore_by_date(date):
     return render_template('reports/uscore/by_date.html.j2', data=data, date=date)
 
 
-@scheduler.task("cron", id="gen_item_report", hour=23)
+@scheduler.task("cron", id="gen_item_report", hour=23, timezone="UTC")
 def gen_item_report():
     try:
         current_app.logger.info("Start Item Report Generation")
@@ -83,7 +83,7 @@ def gen_item_report():
     return
 
 
-@scheduler.task("cron", id="gen_currency_report", hour=23)
+@scheduler.task("cron", id="gen_currency_report", hour=23, timezone="UTC")
 def gen_currency_report():
     try:
         current_app.logger.info("Start Currency Report Generation")
@@ -125,7 +125,7 @@ def gen_currency_report():
     return
 
 
-@scheduler.task("cron", id="gen_uscore_report", hour=23)
+@scheduler.task("cron", id="gen_uscore_report", hour=23, timezone="UTC")
 def gen_uscore_report():
     try:
         current_app.logger.info("Start U-Score Report Generation")
