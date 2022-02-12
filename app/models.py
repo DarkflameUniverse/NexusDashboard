@@ -1010,3 +1010,43 @@ class Reports(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+    id = db.Column(
+        mysql.INTEGER,
+        primary_key=True
+    )
+
+    account_id = db.Column(
+        db.Integer(),
+        db.ForeignKey(Account.id, ondelete='CASCADE'),
+        nullable=True
+    )
+
+    account = db.relationship(
+        'Account',
+        backref="audit_logs",
+        passive_deletes=True
+    )
+
+    action = db.Column(
+        mysql.TEXT,
+        nullable=True
+    )
+
+    date = db.Column(
+        mysql.TIMESTAMP,
+        nullable=False,
+        server_default=db.func.now()
+    )
+
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
