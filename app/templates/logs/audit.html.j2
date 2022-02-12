@@ -1,0 +1,46 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Audit Log
+{% endblock title %}
+
+{% block content_before %}
+  Audit Log
+{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <table class="table table-dark table-striped table-bordered table-hover" id="audit_table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Account</th>
+            <th>Command</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock  %}
+
+
+{% block js %}
+  {{ super () }}
+  <script>
+    $(document).ready(function(){
+        let audit_table = $('#audit_table').DataTable({
+            "order": [[0, "desc"]],
+            "processing": true,
+            "serverSide": true,
+            "ajax": "{{ url_for('log.get_audits') }}",
+          });
+        });
+  </script>
+{% endblock %}

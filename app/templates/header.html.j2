@@ -52,22 +52,24 @@
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
             <div class="dropdown-menu">
 
-              <a class="dropdown-item" href='{{ url_for('mail.send') }}'>Send Mail</a>
+              <a class="dropdown-item text-center" href='{{ url_for('mail.send') }}'>Send Mail</a>
               <hr/>
-              <h6 class="text-center">Moderation</h6>
-              <a class="dropdown-item" href='{{ url_for('moderation.index', status='unapproved') }}'>View Unapproved Items</a>
-              <a class="dropdown-item" href='{{ url_for('moderation.index', status='approved') }}'>View Approved Items</a>
-              <a class="dropdown-item" href='{{ url_for('moderation.index', status='all') }}'>View All Items</a>
+              <h3 class="text-center">Moderation</h3>
+              <a class="dropdown-item text-center" href='{{ url_for('moderation.index', status='unapproved') }}'>Unapproved Items</a>
+              <a class="dropdown-item text-center" href='{{ url_for('moderation.index', status='approved') }}'>Approved Items</a>
+              <a class="dropdown-item text-center" href='{{ url_for('moderation.index', status='all') }}'>All Items</a>
               <hr/>
-              <h6 class="text-center">Bug Reports</h6>
-              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='unresolved') }}'>View Unresolved Reports</a>
-              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='resolved') }}'>View Resolved Reports</a>
-              <a class="dropdown-item" href='{{ url_for('bug_reports.index', status='all') }}'>View All Reports</a>
+              <h3 class="text-center">Bug Reports</h3>
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='unresolved') }}'>Unresolved Reports</a>
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='resolved') }}'>Resolved Reports</a>
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='all') }}'>All Reports</a>
               {% if current_user.is_authenticated and current_user.gm_level >= 8 %}
                 <hr/>
-                <h6 class="text-center">Logs</h6>
-                <a class="dropdown-item" href='{{ url_for('log.activity') }}'>Command Log</a>
-                <a class="dropdown-item" href='{{ url_for('log.command') }}'>Activity Log</a>
+                <h3 class="text-center">Logs</h3>
+                <a class="dropdown-item text-center" href='{{ url_for('log.activity') }}'>Command Log</a>
+                <a class="dropdown-item text-center" href='{{ url_for('log.command') }}'>Activity Log</a>
+                <a class="dropdown-item text-center" href='{{ url_for('log.audit') }}'>Audit Log</a>
+                <a class="dropdown-item text-center" href='{{ url_for('log.error') }}'>Error Log</a>
               {% endif %}
             </div>
           </li>
