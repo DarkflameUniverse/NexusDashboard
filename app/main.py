@@ -40,11 +40,3 @@ def favicon():
         'favicon.ico',
         mimetype='image/vnd.microsoft.icon'
     )
-
-@main_blueprint.route('/logs')
-@gm_level(9)
-def logs():
-    with open('nexus_dashboard.log', 'r') as file:
-        logs = '</br>'.join(file.read().split('\n')[-100:])
-    return render_template('main/logs.html.j2', logs=logs)
-    return '</br>'.join(all_read_text.splitlines()[-total_lines_wanted:])
