@@ -1,5 +1,5 @@
 import os
-from flask import Flask, url_for, g, redirect
+from flask import Flask, url_for, g, redirect, render_template
 from functools import wraps
 from flask_assets import Environment
 from webassets import Bundle
@@ -7,13 +7,18 @@ import time
 from app.models import db, migrate, PlayKey
 from app.schemas import ma
 from app.forms import CustomUserManager
-from flask_user import user_registered, current_user
+from flask_user import user_registered, current_user, user_logged_in
 from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import query_cdclient, register_luclient_jinja_helpers
 
 from app.commands import init_db, init_accounts, load_property, gen_image_cache, gen_model_cache
 from app.models import Account, AccountInvitation
+
+import logging
+from logging.handlers import RotatingFileHandler
+
+from werkzeug.exceptions import HTTPException
 
 # Instantiate Flask extensions
 csrf_protect = CSRFProtect()
@@ -22,7 +27,6 @@ scheduler = APScheduler()
 
 
 def create_app():
-
     app = Flask(__name__, instance_relative_config=True)
 
     # decrement uses on a play key after a successful registration
@@ -33,8 +37,19 @@ def create_app():
             play_key_used = PlayKey.query.filter(PlayKey.id == user.play_key_id).first()
             play_key_used.key_uses = play_key_used.key_uses - 1
             play_key_used.times_used = play_key_used.times_used + 1
+            app.logger.info(
+                f"USERS::REGISTRATION User with ID {user.id} and name {user.username} Registered \
+                using Play Key ID {play_key_used.id} : {play_key_used.key_string}"
+                )
             db.session.add(play_key_used)
             db.session.commit()
+        else:
+            app.logger.info(f"USERS::REGISTRATION User with ID {user.id} and name {user.username} Registered")
+
+
+    @user_logged_in.connect_via(app)
+    def _after_login_hook(sender, user, **extra):
+        app.logger.info(f"{user.username} Logged in")
 
     # A bunch of jinja filters to make things easiers
     @app.template_filter('ctime')
@@ -51,15 +66,24 @@ def create_app():
         else:
             return 0 & (1 << bit)
 
+    @app.template_filter('debug')
+    def debug(text):
+        print(text)
+
     @app.teardown_appcontext
     def close_connection(exception):
         cdclient = getattr(g, '_cdclient', None)
         if cdclient is not None:
             cdclient.close()
 
-    @app.template_filter('debug')
-    def debug(text):
-        print(text)
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        app.logger.error(e)
+        # pass through HTTP errors
+        if isinstance(e, HTTPException):
+            return e
+        # now you're handling non-HTTP exceptions only
+        return render_template("status_codes/500.html.j2", exception=e), 500
 
     # add the commands to flask cli
     app.cli.add_command(init_db)
@@ -68,6 +92,7 @@ def create_app():
     app.cli.add_command(gen_image_cache)
     app.cli.add_command(gen_model_cache)
 
+    register_logging(app)
     register_settings(app)
     register_extensions(app)
     register_blueprints(app)
@@ -131,6 +156,14 @@ def register_blueprints(app):
     from .reports import reports_blueprint
     app.register_blueprint(reports_blueprint, url_prefix='/reports')
 
+
+def register_logging(app):
+    # file logger
+    file_handler = RotatingFileHandler('nexus_dashboard.log', maxBytes=1024 * 1024 * 100, backupCount=20)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
 
 
 def register_settings(app):

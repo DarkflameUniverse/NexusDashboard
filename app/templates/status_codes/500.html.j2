@@ -1,0 +1,18 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}ERROR{% endblock %}
+
+{% block content_before %}
+ ERROR - {{ config.APP_NAME }}
+{% endblock %}
+
+{% block content %}
+  {% if current_user.gm_level == 9 %}
+    <code>
+      {{ exception }}
+    </code>
+  {% else %}
+    <h2 class="text-center">An Error has Occurred!!!</h2>
+    <div>Please Report this to an Admin</div>
+  {% endif %}
+{% endblock %}

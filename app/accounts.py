@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, current_app, flash
+from flask import render_template, Blueprint, redirect, url_for, request, abort, current_app, flash, current_app
 from flask_user import login_required, current_user
 import json
 from datatables import ColumnDT, DataTables

@@ -1,0 +1,13 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}LOGS{% endblock %}
+
+{% block content_before %}
+ LOGS - {{ config.APP_NAME }}
+{% endblock %}
+
+{% block content_override %}
+  <code>
+    {{ logs }}
+  </code>
+{% endblock %}

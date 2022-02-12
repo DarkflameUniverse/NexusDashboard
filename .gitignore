@@ -14,3 +14,4 @@ locale.xml
 app/luclient/*
 app/cache/*
 property_files/*
+*.log

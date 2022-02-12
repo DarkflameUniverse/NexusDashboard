@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, request
+from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, request, current_app
 from flask_user import login_required, current_user
 from app.models import db, CharacterInfo, Account, CharacterXML, Reports
 from app import gm_level, scheduler
@@ -37,119 +37,131 @@ def uscore_by_date(date):
 
 @scheduler.task("cron", id="gen_item_report", hour=23)
 def gen_item_report():
-    with scheduler.app.app_context():
-        date = datetime.date.today().strftime('%Y-%m-%d')
-        report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="items").first()
+    try:
+        current_app.logger.info("Start Item Report Generation")
+        with scheduler.app.app_context():
+            date = datetime.date.today().strftime('%Y-%m-%d')
+            report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="items").first()
 
-        # Only one report per day
-        if report != None:
-            return f"Item Report Already Generated for {date}"
+            # Only one report per day
+            if report != None:
+                current_app.logger.info(f"Item Report Already Generated for {date}")
 
-        char_xmls = CharacterXML.query.join(
-                        CharacterInfo,
-                        CharacterInfo.id==CharacterXML.id
-                    ).join(
-                        Account,
-                        CharacterInfo.account_id==Account.id
-                    ).filter(Account.gm_level < 3).all()
+            char_xmls = CharacterXML.query.join(
+                            CharacterInfo,
+                            CharacterInfo.id==CharacterXML.id
+                        ).join(
+                            Account,
+                            CharacterInfo.account_id==Account.id
+                        ).filter(Account.gm_level < 3).all()
 
-        report_data={}
+            report_data={}
 
-        for char_xml in char_xmls:
-            character_json = xmltodict.parse(
-                char_xml.xml_data,
-                attr_prefix="attr_"
+            for char_xml in char_xmls:
+                character_json = xmltodict.parse(
+                    char_xml.xml_data,
+                    attr_prefix="attr_"
+                )
+                for inv in character_json["obj"]["inv"]["items"]["in"]:
+                    if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"])==0 or int(inv["attr_t"])==0):
+                        for item in inv["i"]:
+                            if item["attr_l"] in report_data:
+                                report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
+                            else:
+                                report_data[item["attr_l"]] = int(item["attr_c"])
+
+            new_report = Reports(
+                data=report_data,
+                report_type="items",
+                date=date
             )
-            for inv in character_json["obj"]["inv"]["items"]["in"]:
-                if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"])==0 or int(inv["attr_t"])==0):
-                    for item in inv["i"]:
-                        if item["attr_l"] in report_data:
-                            report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
-                        else:
-                            report_data[item["attr_l"]] = int(item["attr_c"])
 
-        new_report = Reports(
-            data=report_data,
-            report_type="items",
-            date=date
-        )
-
-        new_report.save()
-
-        return f"Generated Item Report for {date}"
+            new_report.save()
+        current_app.logger.info(f"Generated Item Report for {date}")
+    except Exception as e:
+        current_app.logger.critical(f"REPORT::ITEMS - {e}")
+    return
 
 
 @scheduler.task("cron", id="gen_currency_report", hour=23)
 def gen_currency_report():
-    with scheduler.app.app_context():
-        date = datetime.date.today().strftime('%Y-%m-%d')
-        report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="currency").first()
+    try:
+        current_app.logger.info("Start Currency Report Generation")
+        with scheduler.app.app_context():
+            date = datetime.date.today().strftime('%Y-%m-%d')
+            report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="currency").first()
 
-        # Only one report per day
-        if report != None:
-            return f"Currency Report Already Generated for {date}"
+            # Only one report per day
+            if report != None:
+                current_app.logger.info(f"Currency Report Already Generated for {date}")
 
-        characters = CharacterXML.query.join(
-                        CharacterInfo,
-                        CharacterInfo.id==CharacterXML.id
-                    ).join(
-                        Account,
-                        CharacterInfo.account_id==Account.id
-                    ).filter(Account.gm_level < 3).all()
+            characters = CharacterXML.query.join(
+                            CharacterInfo,
+                            CharacterInfo.id==CharacterXML.id
+                        ).join(
+                            Account,
+                            CharacterInfo.account_id==Account.id
+                        ).filter(Account.gm_level < 3).all()
 
-        report_data={}
+            report_data={}
 
-        for character in characters:
-            character_json = xmltodict.parse(
-                character.xml_data,
-                attr_prefix="attr_"
+            for character in characters:
+                character_json = xmltodict.parse(
+                    character.xml_data,
+                    attr_prefix="attr_"
+                )
+                report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
+
+            new_report = Reports(
+                data=report_data,
+                report_type="currency",
+                date=date
             )
-            report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
 
-        new_report = Reports(
-            data=report_data,
-            report_type="currency",
-            date=date
-        )
-
-        new_report.save()
-
-        return f"Generated Currency Report for {date}"
+            new_report.save()
+        current_app.logger.info(f"Generated Currency Report for {date}")
+    except Exception as e:
+        current_app.logger.critical(f"REPORT::CURRENCY - {e}")
+    return
 
 
 @scheduler.task("cron", id="gen_uscore_report", hour=23)
 def gen_uscore_report():
-    with scheduler.app.app_context():
-        date = datetime.date.today().strftime('%Y-%m-%d')
-        report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="uscore").first()
+    try:
+        current_app.logger.info("Start U-Score Report Generation")
+        with scheduler.app.app_context():
+            date = datetime.date.today().strftime('%Y-%m-%d')
+            report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="uscore").first()
 
-        # Only one report per day
-        if report != None:
-            return f"U-Score Report Already Generated for {date}"
+            # Only one report per day
+            if report != None:
+                current_app.logger.info(f"U-Score Report Already Generated for {date}")
 
-        characters = CharacterXML.query.join(
-                        CharacterInfo,
-                        CharacterInfo.id==CharacterXML.id
-                    ).join(
-                        Account,
-                        CharacterInfo.account_id==Account.id
-                    ).filter(Account.gm_level < 3).all()
+            characters = CharacterXML.query.join(
+                            CharacterInfo,
+                            CharacterInfo.id==CharacterXML.id
+                        ).join(
+                            Account,
+                            CharacterInfo.account_id==Account.id
+                        ).filter(Account.gm_level < 3).all()
 
-        report_data={}
+            report_data={}
 
-        for character in characters:
-            character_json = xmltodict.parse(
-                character.xml_data,
-                attr_prefix="attr_"
+            for character in characters:
+                character_json = xmltodict.parse(
+                    character.xml_data,
+                    attr_prefix="attr_"
+                )
+                report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
+
+            new_report = Reports(
+                data=report_data,
+                report_type="uscore",
+                date=date
             )
-            report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
 
-        new_report = Reports(
-            data=report_data,
-            report_type="uscore",
-            date=date
-        )
-
-        new_report.save()
-
-        return f"Generated U-Score Report for {date}"
+            new_report.save()
+        current_app.logger.info(f"Generated U-Score Report for {date}")
+    except Exception as e:
+        current_app.logger.critical(f"REPORT::U-SCORE - {e}")
+    return
