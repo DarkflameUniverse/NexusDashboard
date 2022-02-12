@@ -3,7 +3,7 @@ from flask_user import login_required, current_user
 from app.models import db, Mail, CharacterInfo
 from datatables import ColumnDT, DataTables
 from app.forms import SendMailForm
-from app import gm_level
+from app import gm_level, log_audit
 from app.luclient import translate_from_locale, query_cdclient
 import time
 
@@ -29,6 +29,7 @@ def send():
         if form.attachment.data != "0" and form.attachment_count.data == 0:
             form.attachment_count.data = 1
         if form.recipient.data == "0":
+            log_audit(f"Sending {form.subject.data}: {form.body.data} to All Characters with {form.attachment_count.data} of item {form.attachment.data}")
             for character in CharacterInfo.query.all():
                 Mail(
                     sender_id = 0,
@@ -42,6 +43,7 @@ def send():
                     attachment_lot = form.attachment.data,
                     attachment_count = form.attachment_count.data
                 ).save()
+                log_audit(f"Sent {form.subject.data}: {form.body.data} to ({character.id}){character.name} with {form.attachment_count.data} of item {form.attachment.data}")
         else:
             Mail(
                 sender_id = 0,
@@ -55,6 +57,7 @@ def send():
                 attachment_lot = form.attachment.data,
                 attachment_count = form.attachment_count.data
             ).save()
+            log_audit(f"Sent {form.subject.data}: {form.body.data} to ({form.recipient.data}){CharacterInfo.query.filter(CharacterInfo.id == form.recipient.data).first().name} with {form.attachment_count.data} of item {form.attachment.data}")
 
         flash("Sent Mail", "success")
         return redirect(url_for('mail.send'))

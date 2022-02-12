@@ -13,7 +13,7 @@ from flask_apscheduler import APScheduler
 from app.luclient import query_cdclient, register_luclient_jinja_helpers
 
 from app.commands import init_db, init_accounts, load_property, gen_image_cache, gen_model_cache
-from app.models import Account, AccountInvitation
+from app.models import Account, AccountInvitation, AuditLog
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -245,3 +245,9 @@ def gm_level(gm_level):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+def log_audit(message):
+    AuditLog(
+        account_id=current_user.id,
+        action=message
+    ).save()

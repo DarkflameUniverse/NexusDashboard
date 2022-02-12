@@ -3,7 +3,7 @@ from flask_user import login_required
 from app.models import PetNames, db
 from datatables import ColumnDT, DataTables
 from app.forms import CreatePlayKeyForm, EditPlayKeyForm
-from app import gm_level
+from app import gm_level, log_audit
 
 moderation_blueprint = Blueprint('moderation', __name__)
 
@@ -23,6 +23,7 @@ def approve_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 2
+    log_audit(f"Approved pet name {pet_data.pet_name}")
     flash(f"Approved pet name {pet_data.pet_name}", "success")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
@@ -36,6 +37,7 @@ def reject_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 0
+    log_audit(f"Rejected pet name {pet_data.pet_name}")
     flash(f"Rejected pet name {pet_data.pet_name}", "danger")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))

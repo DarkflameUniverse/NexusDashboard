@@ -16,7 +16,7 @@ from datatables import ColumnDT, DataTables
 import time
 from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account
 from app.schemas import PropertySchema
-from app import gm_level
+from app import gm_level, log_audit
 from app.luclient import query_cdclient
 
 import zlib
@@ -50,25 +50,29 @@ def approve(id):
         property_data.rejection_reason = ""
 
     if property_data.mod_approved:
-        flash(
-            f"""Approved Property
+        message = f"""Approved Property
             {property_data.name if property_data.name else query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
                 [property_data.zone_id],
                 one=True
             )[0]}
-            from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}""",
+            from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
+        log_audit(message)
+        flash(
+            message,
             "success"
         )
     else:
-        flash(
-            f"""Unapproved Property
+        message = f"""Unapproved Property
             {property_data.name if property_data.name else query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
                 [property_data.zone_id],
                 one=True
             )[0]}
-            from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}""",
+            from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
+        log_audit(message)
+        flash(
+            message,
             "danger"
         )
 

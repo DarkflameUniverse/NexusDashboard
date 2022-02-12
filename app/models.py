@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_user import UserMixin
+from flask_user import UserMixin, current_user
 from wtforms import ValidationError
 
 import logging
@@ -1021,7 +1021,7 @@ class AuditLog(db.Model):
     account_id = db.Column(
         db.Integer(),
         db.ForeignKey(Account.id, ondelete='CASCADE'),
-        nullable=True
+        nullable=False,
     )
 
     account = db.relationship(
@@ -1032,7 +1032,7 @@ class AuditLog(db.Model):
 
     action = db.Column(
         mysql.TEXT,
-        nullable=True
+        nullable=False
     )
 
     date = db.Column(
@@ -1040,7 +1040,6 @@ class AuditLog(db.Model):
         nullable=False,
         server_default=db.func.now()
     )
-
 
     def save(self):
         db.session.add(self)
