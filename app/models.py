@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_user import UserMixin
+from flask_user import UserMixin, current_user
 from wtforms import ValidationError
 
 import logging
@@ -1000,6 +1000,45 @@ class Reports(db.Model):
         db.Date(),
         primary_key=True,
         autoincrement=False
+    )
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+    id = db.Column(
+        mysql.INTEGER,
+        primary_key=True
+    )
+
+    account_id = db.Column(
+        db.Integer(),
+        db.ForeignKey(Account.id, ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    account = db.relationship(
+        'Account',
+        backref="audit_logs",
+        passive_deletes=True
+    )
+
+    action = db.Column(
+        mysql.TEXT,
+        nullable=False
+    )
+
+    date = db.Column(
+        mysql.TIMESTAMP,
+        nullable=False,
+        server_default=db.func.now()
     )
 
     def save(self):

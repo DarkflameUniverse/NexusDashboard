@@ -6,7 +6,7 @@ import datetime
 import time
 from app.models import Account, AccountInvitation, db
 from app.schemas import AccountSchema
-from app import gm_level
+from app import gm_level, log_audit
 from app.forms import EditGMLevelForm
 
 accounts_blueprint = Blueprint('accounts', __name__)
@@ -46,8 +46,10 @@ def edit_gm_level(id):
     form = EditGMLevelForm()
 
     if form.validate_on_submit():
+        log_audit(f"Changed ({account_data.id}){account_data.username}'s GM Level from {account_data.gm_level} to {form.gm_level.data}")
         account_data.gm_level = form.gm_level.data
         account_data.save()
+
         return redirect(url_for('accounts.view', id=account_data.id))
 
     form.gm_level.data = account_data.gm_level
@@ -63,8 +65,10 @@ def lock(id):
     account.locked = not account.locked
     account.save()
     if account.locked:
+        log_audit(f"Locked ({account.id}){account.username}")
         flash("Locked Account", "danger")
     else:
+        log_audit(f"Unlocked ({account.id}){account.username}")
         flash("Unlocked account", "success")
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
@@ -77,8 +81,10 @@ def ban(id):
     account.banned = not account.banned
     account.save()
     if account.banned:
+        log_audit(f"Banned ({account.id}){account.username}")
         flash("Banned Account", "danger")
     else:
+        log_audit(f"Unbanned ({account.id}){account.username}")
         flash("Unbanned account", "success")
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
@@ -90,10 +96,12 @@ def mute(id, days=0):
     account = Account.query.filter(Account.id == id).first()
     if days == "0":
         account.mute_expire = 0
+        log_audit(f"Unmuted ({account.id}){account.username}")
         flash("Unmuted Account", "success")
     else:
         muted_intil = datetime.datetime.now() + datetime.timedelta(days=int(days))
         account.mute_expire = muted_intil.timestamp()
+        log_audit(f"Muted ({account.id}){account.username} for {days} days")
         flash(f"Muted account for {days} days", "danger")
     account.save()
 

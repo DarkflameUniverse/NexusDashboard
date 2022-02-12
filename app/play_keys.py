@@ -3,7 +3,7 @@ from flask_user import login_required, current_user
 from app.models import Account, AccountInvitation, PlayKey, db
 from datatables import ColumnDT, DataTables
 from app.forms import CreatePlayKeyForm, EditPlayKeyForm
-from app import gm_level
+from app import gm_level, log_audit
 
 play_keys_blueprint = Blueprint('play_keys', __name__)
 
@@ -21,6 +21,7 @@ def index():
 @gm_level(9)
 def create(count=1, uses=1):
     PlayKey.create(count=count, uses=uses)
+    log_audit(f"Created {count} Play Key(s) with {uses} uses!")
     flash(f"Created {count} Play Key(s) with {uses} uses!", "success")
     return redirect(url_for('play_keys.index'))
 
@@ -32,6 +33,8 @@ def bulk_create():
     form = CreatePlayKeyForm()
     if form.validate_on_submit():
         PlayKey.create(count=form.count.data, uses=form.uses.data)
+        log_audit(f"Created {form.count.data} Play Key(s) with {form.uses.data} uses!")
+        flash(f"Created {form.count.data} Play Key(s) with {form.uses.data} uses!", "success")
         return redirect(url_for('play_keys.index'))
 
     return render_template('play_keys/bulk.html.j2', form=form)
@@ -43,6 +46,7 @@ def bulk_create():
 def delete(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
     associated_accounts = Account.query.filter(Account.play_key_id==id).all()
+    log_audit(f"Deleted Play Key {key.key_string}")
     flash(f"Deleted Play Key {key.key_string}", "danger")
     key.delete()
     return redirect(url_for('play_keys.index'))
@@ -56,10 +60,16 @@ def edit(id):
     form = EditPlayKeyForm()
 
     if form.validate_on_submit():
+        log_audit(f"Updated Play key {key.id} \
+            Uses: {key.key_uses}:{form.uses.data} \
+            Active: {key.active}:{form.active.data} \
+            Notes: {key.notes}:{form.notes.data} \
+        ")
         key.key_uses = form.uses.data
         key.active = form.active.data
         key.notes = form.notes.data
         key.save()
+
         return redirect(url_for('play_keys.index'))
 
     form.uses.data = key.key_uses

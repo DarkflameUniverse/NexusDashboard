@@ -5,7 +5,7 @@ from datatables import ColumnDT, DataTables
 import datetime, time
 from app.models import CharacterInfo, CharacterXML, Account, db
 from app.schemas import CharacterInfoSchema
-from app import gm_level
+from app import gm_level, log_audit
 import xmltodict
 
 character_blueprint = Blueprint('characters', __name__)
@@ -26,16 +26,19 @@ def approve_name(id, action):
     character =  CharacterInfo.query.filter(CharacterInfo.id == id).first()
 
     if action == "approve":
+        log_audit(f"Approved ({character.id}){character.pending_name} from {character.name}")
+        flash(
+            f"Approved ({character.id}){character.pending_name} from {character.name}",
+            "success"
+        )
         if character.pending_name:
             character.name = character.pending_name
             character.pending_name = ""
         character.needs_rename = False
-        flash(
-            f"Approved name {character.name}",
-            "success"
-        )
+
     elif action == "rename":
         character.needs_rename = True
+        log_audit(f"Marked character ({character.id}){character.name} (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename")
         flash(
             f"Marked character {character.name} (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename",
             "danger"
@@ -145,6 +148,9 @@ def restrict(id, bit):
     if character_data == {}:
         abort(404)
         return
+
+    log_audit(f"Updated ({character_data.id}){character_data.name}'s permission map to \
+        {character_data.permission_map ^ (1 << int(bit))} from {character_data.permission_map}")
 
     character_data.permission_map ^= (1 << int(bit))
     character_data.save()
