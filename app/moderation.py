@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, redirect, url_for, request, abort, flash
 from flask_user import login_required
-from app.models import PetNames, db
+from app.models import PetNames, db, CharacterXML, CharacterInfo
 from datatables import ColumnDT, DataTables
 from app.forms import CreatePlayKeyForm, EditPlayKeyForm
 from app import gm_level, log_audit
@@ -47,10 +47,14 @@ def reject_pet(id):
 @login_required
 @gm_level(3)
 def get_pets(status="all"):
+    # call this to make things nicer
+    accociate_pets_and_owners()
+
     columns = [
         ColumnDT(PetNames.id),
         ColumnDT(PetNames.pet_name),
         ColumnDT(PetNames.approved),
+        ColumnDT(PetNames.owner_id),
     ]
 
     query = None
@@ -107,4 +111,21 @@ def get_pets(status="all"):
             """
             pet_data["2"] = "<span class='text-danger'>Rejected</span>"
 
+        pet_data["3"] = f"""
+            <a role="button" class="btn btn-primary btn btn-block"
+                href='{url_for('characters.view', id=pet_data["3"])}'>
+                {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
+            </a>
+        """
+
     return data
+
+
+def accociate_pets_and_owners():
+    pets = PetNames.query.filter(PetNames.owner_id == None).all()
+    if pets:
+        for pet in pets:
+            owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%{pet.id}%")).first()
+            if owner:
+                pet.owner_id = owner.id
+            pet.save()

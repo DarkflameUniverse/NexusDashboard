@@ -582,6 +582,19 @@ class PetNames(db.Model):
         server_default='0'
     )
 
+    owner_id  = db.Column(
+        mysql.BIGINT,
+        db.ForeignKey(CharacterInfo.id, ondelete='CASCADE'),
+        nullable=True
+    )
+
+    owner = db.relationship(
+        'CharacterInfo',
+        foreign_keys=[owner_id],
+        backref="pet_owner",
+        passive_deletes=True
+    )
+
     def save(self):
         db.session.add(self)
         db.session.commit()
