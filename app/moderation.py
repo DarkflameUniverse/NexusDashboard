@@ -23,8 +23,8 @@ def approve_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 2
-    log_audit(f"Approved pet name {pet_data.pet_name}")
-    flash(f"Approved pet name {pet_data.pet_name}", "success")
+    log_audit(f"Approved pet name {pet_data.pet_name} from {pet_data.owner.name}")
+    flash(f"Approved pet name {pet_data.pet_name} from {pet_data.owner.name}", "success")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
@@ -37,8 +37,8 @@ def reject_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 0
-    log_audit(f"Rejected pet name {pet_data.pet_name}")
-    flash(f"Rejected pet name {pet_data.pet_name}", "danger")
+    log_audit(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner.name}")
+    flash(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner.name}", "danger")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
