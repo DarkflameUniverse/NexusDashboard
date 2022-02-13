@@ -23,8 +23,8 @@ def approve_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 2
-    log_audit(f"Approved pet name {pet_data.pet_name} from {pet_data.owner.name}")
-    flash(f"Approved pet name {pet_data.pet_name} from {pet_data.owner.name}", "success")
+    log_audit(f"Approved pet name {pet_data.pet_name} from {pet_data.owner_id}")
+    flash(f"Approved pet name {pet_data.pet_name} from {pet_data.owner_id}", "success")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
@@ -37,8 +37,8 @@ def reject_pet(id):
     pet_data =  PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 0
-    log_audit(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner.name}")
-    flash(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner.name}", "danger")
+    log_audit(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner_id}")
+    flash(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner_id}", "danger")
     pet_data.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
@@ -47,9 +47,6 @@ def reject_pet(id):
 @login_required
 @gm_level(3)
 def get_pets(status="all"):
-    # call this to make things nicer
-    accociate_pets_and_owners()
-
     columns = [
         ColumnDT(PetNames.id),
         ColumnDT(PetNames.pet_name),
@@ -111,29 +108,43 @@ def get_pets(status="all"):
             """
             pet_data["2"] = "<span class='text-danger'>Rejected</span>"
 
-        try:
-            pet_data["3"] = f"""
-                <a role="button" class="btn btn-primary btn btn-block"
-                    href='{url_for('characters.view', id=pet_data["3"])}'>
-                    {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
-                </a>
-            """
-        except Exception as e:
-            PetNames.query.filter(PetNames.id==id).first().delete()
-            pet_data["3"] = "Deleted Character"
-
+        if pet_data["3"]:
+            try:
+                pet_data["3"] = f"""
+                    <a role="button" class="btn btn-primary btn btn-block"
+                        href='{url_for('characters.view', id=pet_data["3"])}'>
+                        {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
+                    </a>
+                """
+            except Exception as e:
+                PetNames.query.filter(PetNames.id==id).first().delete()
+                pet_data["0"] = "<span class='text-danger'>Deleted Refresh to make go away</span>"
+                pet_data["3"] = "<span class='text-danger'>Character Deleted</span>"
+        else:
+            pet_data["3"] = "Pending Character Association"
 
     return data
 
 
-def accociate_pets_and_owners():
-    pets = PetNames.query.filter(PetNames.owner_id == None).all()
-    if pets:
-        for pet in pets:
-            owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%{pet.id}%")).first()
+@scheduler.task("cron", id="pet_name_maintenance", mintute=0, timezone="UTC")
+def pet_name_maintenance():
+    # associate pet names to characters
+    unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
+    if unassociated_pets:
+        for pet in unassociated_pets:
+            owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%<p id=\"{pet.id}\" l=\"%")).first()
             if owner:
                 pet.owner_id = owner.id
                 pet.save()
             else:
                 pet.delete()
+
+    # auto-moderate based on already moderated names
+    unmoderated_pets = PetNames.query.filter(PetNames.approved==1).all()
+    if unmoderated_pets:
+        for pet in unmoderated_pets:
+            existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).first()
+            if existing_pet:
+                pet.approved = existing_pet.approved
+                pet.save()
 
