@@ -111,12 +111,17 @@ def get_pets(status="all"):
             """
             pet_data["2"] = "<span class='text-danger'>Rejected</span>"
 
-        pet_data["3"] = f"""
-            <a role="button" class="btn btn-primary btn btn-block"
-                href='{url_for('characters.view', id=pet_data["3"])}'>
-                {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
-            </a>
-        """
+        try:
+            pet_data["3"] = f"""
+                <a role="button" class="btn btn-primary btn btn-block"
+                    href='{url_for('characters.view', id=pet_data["3"])}'>
+                    {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
+                </a>
+            """
+        except Exception as e:
+            PetNames.query.filter(PetNames.id==id).first().delete()
+            pet_data["3"] = "Deleted Character"
+
 
     return data
 
@@ -128,4 +133,7 @@ def accociate_pets_and_owners():
             owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%{pet.id}%")).first()
             if owner:
                 pet.owner_id = owner.id
-            pet.save()
+                pet.save()
+            else:
+                pet.delete()
+

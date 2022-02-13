@@ -8,7 +8,8 @@ from flask import (
     jsonify,
     send_from_directory,
     make_response,
-    flash
+    flash,
+    current_app
 )
 from flask_user import login_required, current_user
 import json
@@ -358,29 +359,29 @@ def prebuilt(content, file_format, lod):
         [render_component_id],
         one=True
     )
-
     if filename:
         filename = filename[0].split("\\\\")[-1].lower().split(".")[0]
     else:
         return f"No filename for LOT {content.lot}"
 
+    lxfml = pathlib.Path(f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml')
     if file_format == "lxfml":
-        lxfml = pathilob.Path(f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml')
+
         with open(lxfml, 'r') as file:
             lxfml_data = file.read()
-        # print(lxfml_data)
         response = make_response(lxfml_data)
 
     elif file_format in ["obj", "mtl"]:
+        cache = pathlib.Path(f'app/cache/BrickModels/{filename}.lod{lod}.{file_format}')
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod) # convert to OBJ
+        except Exception as e:
+            current_app.logger.error(f"ERROR on {cache}:\n {e}")
 
-        cache = f"app/cache/BrickModels/{filename}.lod{lod}.{file_format}"
-
-        if not os.path.exists(cache):
-            lxfml = f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml'
-            ldd.main(lxfml, cache.split('.')[0]) # convert to OBJ
-
-        with open(cache, 'r') as file:
+        with open(str(cache.as_posix()), 'r') as file:
             cache_data = file.read()
+
         response = make_response(cache_data)
 
     else:
