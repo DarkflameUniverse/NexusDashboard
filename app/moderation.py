@@ -3,7 +3,7 @@ from flask_user import login_required
 from app.models import PetNames, db, CharacterXML, CharacterInfo
 from datatables import ColumnDT, DataTables
 from app.forms import CreatePlayKeyForm, EditPlayKeyForm
-from app import gm_level, log_audit
+from app import gm_level, log_audit, scheduler
 
 moderation_blueprint = Blueprint('moderation', __name__)
 
@@ -126,7 +126,7 @@ def get_pets(status="all"):
     return data
 
 
-@scheduler.task("cron", id="pet_name_maintenance", mintute=0, timezone="UTC")
+@scheduler.task("cron", id="pet_name_maintenance", minute=0, timezone="UTC")
 def pet_name_maintenance():
     # associate pet names to characters
     unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
