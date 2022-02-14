@@ -128,23 +128,24 @@ def get_pets(status="all"):
 
 @scheduler.task("cron", id="pet_name_maintenance", minute=0, timezone="UTC")
 def pet_name_maintenance():
-    # associate pet names to characters
-    unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
-    if unassociated_pets:
-        for pet in unassociated_pets:
-            owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%<p id=\"{pet.id}\" l=\"%")).first()
-            if owner:
-                pet.owner_id = owner.id
-                pet.save()
-            else:
-                pet.delete()
+    with scheduler.app.app_context():
+        # associate pet names to characters
+        unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
+        if unassociated_pets:
+            for pet in unassociated_pets:
+                owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%<p id=\"{pet.id}\" l=\"%")).first()
+                if owner:
+                    pet.owner_id = owner.id
+                    pet.save()
+                else:
+                    pet.delete()
 
-    # auto-moderate based on already moderated names
-    unmoderated_pets = PetNames.query.filter(PetNames.approved==1).all()
-    if unmoderated_pets:
-        for pet in unmoderated_pets:
-            existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).first()
-            if existing_pet:
-                pet.approved = existing_pet.approved
-                pet.save()
+        # auto-moderate based on already moderated names
+        unmoderated_pets = PetNames.query.filter(PetNames.approved==1).all()
+        if unmoderated_pets:
+            for pet in unmoderated_pets:
+                existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).first()
+                if existing_pet:
+                    pet.approved = existing_pet.approved
+                    pet.save()
 
