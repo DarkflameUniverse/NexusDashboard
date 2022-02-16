@@ -15,7 +15,7 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0')
 else:
     import logging
-    from loggin.handlers import RotatingFileHandler
+    from logging.handlers import RotatingFileHandler
     gunicorn_logger = logging.getLogger('gunicorn.error')
     app.logger.handlers = gunicorn_logger.handlers
     file_handler = RotatingFileHandler('nexus_dashboard.log', maxBytes=1024 * 1024 * 100, backupCount=20)
