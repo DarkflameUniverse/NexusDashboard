@@ -37,9 +37,10 @@ def uscore_by_date(date):
 
 @scheduler.task("cron", id="gen_item_report", hour=23, timezone="UTC")
 def gen_item_report():
-    try:
-        current_app.logger.info("Start Item Report Generation")
-        with scheduler.app.app_context():
+    with scheduler.app.app_context():
+        try:
+            current_app.logger.info("Start Item Report Generation")
+
             date = datetime.date.today().strftime('%Y-%m-%d')
             report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="items").first()
 
@@ -77,17 +78,18 @@ def gen_item_report():
             )
 
             new_report.save()
-        current_app.logger.info(f"Generated Item Report for {date}")
-    except Exception as e:
-        current_app.logger.critical(f"REPORT::ITEMS - {e}")
-    return
+            current_app.logger.info(f"Generated Item Report for {date}")
+        except Exception as e:
+            current_app.logger.critical(f"REPORT::ITEMS - {e}")
+        return
 
 
 @scheduler.task("cron", id="gen_currency_report", hour=23, timezone="UTC")
 def gen_currency_report():
-    try:
-        current_app.logger.info("Start Currency Report Generation")
-        with scheduler.app.app_context():
+    with scheduler.app.app_context():
+        try:
+            current_app.logger.info("Start Currency Report Generation")
+
             date = datetime.date.today().strftime('%Y-%m-%d')
             report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="currency").first()
 
@@ -119,17 +121,18 @@ def gen_currency_report():
             )
 
             new_report.save()
-        current_app.logger.info(f"Generated Currency Report for {date}")
-    except Exception as e:
-        current_app.logger.critical(f"REPORT::CURRENCY - {e}")
-    return
+            current_app.logger.info(f"Generated Currency Report for {date}")
+        except Exception as e:
+            current_app.logger.critical(f"REPORT::CURRENCY - {e}")
+        return
 
 
 @scheduler.task("cron", id="gen_uscore_report", hour=23, timezone="UTC")
 def gen_uscore_report():
-    try:
-        current_app.logger.info("Start U-Score Report Generation")
-        with scheduler.app.app_context():
+    with scheduler.app.app_context():
+        try:
+            current_app.logger.info("Start U-Score Report Generation")
+
             date = datetime.date.today().strftime('%Y-%m-%d')
             report = Reports.query.filter(Reports.date==date).filter(Reports.report_type=="uscore").first()
 
@@ -161,7 +164,7 @@ def gen_uscore_report():
             )
 
             new_report.save()
-        current_app.logger.info(f"Generated U-Score Report for {date}")
-    except Exception as e:
-        current_app.logger.critical(f"REPORT::U-SCORE - {e}")
-    return
+            current_app.logger.info(f"Generated U-Score Report for {date}")
+        except Exception as e:
+            current_app.logger.critical(f"REPORT::U-SCORE - {e}")
+        return
