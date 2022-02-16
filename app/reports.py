@@ -47,6 +47,7 @@ def gen_item_report():
             # Only one report per day
             if report != None:
                 current_app.logger.info(f"Item Report Already Generated for {date}")
+                return
 
             char_xmls = CharacterXML.query.join(
                             CharacterInfo,
@@ -96,6 +97,7 @@ def gen_currency_report():
             # Only one report per day
             if report != None:
                 current_app.logger.info(f"Currency Report Already Generated for {date}")
+                return
 
             characters = CharacterXML.query.join(
                             CharacterInfo,
@@ -139,6 +141,7 @@ def gen_uscore_report():
             # Only one report per day
             if report != None:
                 current_app.logger.info(f"U-Score Report Already Generated for {date}")
+                return
 
             characters = CharacterXML.query.join(
                             CharacterInfo,
