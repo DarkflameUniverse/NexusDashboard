@@ -52,32 +52,18 @@
     </div>
     {% else %}
     <br/>
-    <div class="row">
-      <div class="col text-center">
-          <a role="button" class="btn btn-primary btn-block"
-            href='{{ url_for('characters.view_xml', id=character.id) }}'>
-            View XML
-          </a>
-      </div>
-    </div>
-    <br/>
-    <div class="row">
-      <div class="col text-center">
-          <a role="button" class="btn btn-primary btn-block"
-            href='{{ url_for('characters.get_xml', id=character.id) }}'>
-            Download XML
-          </a>
-      </div>
-    </div>
-    <br/>
-    <div class="row">
-      <div class="col text-center">
-          <a role="button" class="btn btn-primary btn-block"
-            href='{{ url_for('accounts.view', id=character.account_id) }}'>
-            View Account: {{character.account.username}}
-          </a>
-      </div>
-    </div>
+    <a role="button" class="btn btn-primary btn-block"
+      href='{{ url_for('characters.view_xml', id=character.id) }}'>
+      View XML
+    </a>
+    <a role="button" class="btn btn-primary btn-block"
+      href='{{ url_for('characters.get_xml', id=character.id) }}'>
+      Download XML
+    </a>
+    <a role="button" class="btn btn-primary btn-block"
+      href='{{ url_for('accounts.view', id=character.account_id) }}'>
+      View Account: {{character.account.username}}
+    </a>
     {% endif %}
 
     {% if current_user.gm_level > 2 %}
