@@ -268,9 +268,13 @@ def register_luclient_jinja_helpers(app):
                 'select description from Objects where id = ?',
                 [lot_id],
                 one=True
-            )[0]
+            )
             if desc in ("", None):
                 desc = None
+            else:
+                desc = desc[0]
+                if desc in ("", None):
+                    desc = None
         if desc:
             desc = desc.replace('"', "&#8220;")
         return desc
