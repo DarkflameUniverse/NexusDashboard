@@ -25,7 +25,6 @@ def send():
     form = SendMailForm()
 
     if request.method == "POST":
-    # if form.validate_on_submit():
         if form.attachment.data != "0" and form.attachment_count.data == 0:
             form.attachment_count.data = 1
         if form.recipient.data == "0":

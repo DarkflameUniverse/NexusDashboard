@@ -171,3 +171,17 @@ class SendMailForm(FlaskForm):
     )
 
     submit = SubmitField('Submit')
+
+
+class RescueForm(FlaskForm):
+
+    save_world = SelectField(
+        'Move to:',
+        coerce=str,
+        choices=[
+            ("",""),
+        ],
+        validators=[validators.DataRequired()]
+    )
+
+    submit = SubmitField('Submit')
