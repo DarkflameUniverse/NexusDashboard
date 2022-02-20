@@ -196,8 +196,7 @@ def rescue(id):
         char.attrib["lzx"] = new_zone.attrib["x"]
         char.attrib["lzy"] = new_zone.attrib["y"]
         char.attrib["lzz"] = new_zone.attrib["z"]
-        char.attrib["lzid"] = form.save_world.data
-        print(form.save_world.data)
+        char.attrib["lwid"] = form.save_world.data
 
         character_data.xml_data = ET.tostring(character_xml)
         character_data.save()
