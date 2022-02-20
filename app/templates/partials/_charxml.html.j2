@@ -19,7 +19,7 @@
     <div class="row">
       <div class="col text-center">
         {% set parsed_lzid  = character_json.obj.char.attr_lzid|parse_lzid %}
-        Zone: {{ parsed_lzid[0]|get_zone_name }}<br>
+        Zone: {{ character_json.obj.char.attr_lwid|get_zone_name }}<br>
         Zone Instance: {{ parsed_lzid[1] }}<br>
         Zone Clone: {{ parsed_lzid[2] }}<br>
       </div>
