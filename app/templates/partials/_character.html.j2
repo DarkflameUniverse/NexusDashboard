@@ -55,6 +55,24 @@
     <div class="row">
       <div class="col text-center">
           <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('characters.view_xml', id=character.id) }}'>
+            View XML
+          </a>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
+            href='{{ url_for('characters.get_xml', id=character.id) }}'>
+            Download XML
+          </a>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col text-center">
+          <a role="button" class="btn btn-primary btn-block"
             href='{{ url_for('accounts.view', id=character.account_id) }}'>
             View Account: {{character.account.username}}
           </a>
@@ -62,7 +80,7 @@
     </div>
     {% endif %}
 
-    {% if current_user.id != character.account_id and current_user.gm_level > 2 %}
+    {% if current_user.gm_level > 2 %}
       <hr class="bg-primary"/>
       <div class="row">
         <div class="col text-center">
@@ -83,6 +101,10 @@
         </a>
       {% endif %}
 
+      <a role="button" class="btn btn-warning btn-block"
+        href='{{ url_for('characters.rescue', id=character.id) }}'>
+        Rescue
+      </a>
       <a role="button" class="btn btn-primary btn-block"
         href='{{ url_for('characters.restrict', id=character.id, bit=4) }}'>
         {% if character.permission_map|check_perm_map(4) %}Unrestrict{% else %}Restrict{% endif %} Trade

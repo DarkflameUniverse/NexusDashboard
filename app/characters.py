@@ -5,8 +5,12 @@ from datatables import ColumnDT, DataTables
 import datetime, time
 from app.models import CharacterInfo, CharacterXML, Account, db
 from app.schemas import CharacterInfoSchema
+from app.forms import RescueForm
 from app import gm_level, log_audit
+from app.luclient import translate_from_locale
 import xmltodict
+import xml.etree.ElementTree as ET
+
 
 character_blueprint = Blueprint('characters', __name__)
 
@@ -92,7 +96,6 @@ def view(id):
 
 @character_blueprint.route('/view_xml/<id>', methods=['GET'])
 @login_required
-@gm_level(9)
 def view_xml(id):
 
     character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
@@ -100,6 +103,11 @@ def view_xml(id):
     if character_data == {}:
         abort(404)
         return
+
+    if current_user.gm_level < 3:
+        if character_data.account_id and character_data.account_id != current_user.id:
+            abort(403)
+            return
 
     character_xml = CharacterXML.query.filter(
                         CharacterXML.id==id
@@ -111,7 +119,6 @@ def view_xml(id):
 
 @character_blueprint.route('/get_xml/<id>', methods=['GET'])
 @login_required
-@gm_level(9)
 def get_xml(id):
 
     character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
@@ -119,6 +126,10 @@ def get_xml(id):
     if character_data == {}:
         abort(404)
         return
+    if current_user.gm_level < 3:
+        if character_data.account_id and character_data.account_id != current_user.id:
+            abort(403)
+            return
 
     character_xml = CharacterXML.query.filter(
                         CharacterXML.id==id
@@ -157,6 +168,42 @@ def restrict(id, bit):
 
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
+
+@character_blueprint.route('/rescue/<id>', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def rescue(id):
+
+    form = RescueForm()
+
+    character_data = CharacterXML.query.filter(
+                        CharacterXML.id==id
+                    ).first()
+
+    character_xml = ET.XML(character_data.xml_data)
+    for zone in character_xml.findall('.//r'):
+        if int(zone.attrib["w"]) % 100 == 0:
+            form.save_world.choices.append(
+                (
+                    zone.attrib["w"],
+                    translate_from_locale(f"ZoneTable_{zone.attrib['w']}_DisplayDescription")
+                )
+            )
+
+    if form.validate_on_submit():
+        new_zone = character_xml.find(f'.//r[@w="{form.save_world.data}"]')
+        char = character_xml.find(".//char")
+        char.attrib["lzx"] = new_zone.attrib["x"]
+        char.attrib["lzy"] = new_zone.attrib["y"]
+        char.attrib["lzz"] = new_zone.attrib["z"]
+        char.attrib["lzid"] = form.save_world.data
+
+        character_data.xml_data = ET.tostring(character_xml)
+        character_data.save()
+
+        return redirect(url_for('characters.view', id=id))
+
+    return render_template("character/rescue.html.j2", form=form)
 
 @character_blueprint.route('/get/<status>', methods=['GET'])
 @login_required
