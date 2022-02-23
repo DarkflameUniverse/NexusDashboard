@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash
+from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, current_app
 from flask_user import login_required
 from app.models import PetNames, db, CharacterXML, CharacterInfo
 from datatables import ColumnDT, DataTables
@@ -126,12 +126,14 @@ def get_pets(status="all"):
     return data
 
 
-@scheduler.task("cron", id="pet_name_maintenance", minute=0, timezone="UTC")
+@scheduler.task("cron", id="pet_name_maintenance", second="*", timezone="UTC")
 def pet_name_maintenance():
     with scheduler.app.app_context():
         # associate pet names to characters
+        current_app.logger.info("Started Pet Name Maintenance")
         unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
         if unassociated_pets:
+            current_app.logger.info("Found un-associated pets")
             for pet in unassociated_pets:
                 owner = CharacterXML.query.filter(CharacterXML.xml_data.like(f"%<p id=\"{pet.id}\" l=\"%")).first()
                 if owner:
@@ -143,9 +145,10 @@ def pet_name_maintenance():
         # auto-moderate based on already moderated names
         unmoderated_pets = PetNames.query.filter(PetNames.approved==1).all()
         if unmoderated_pets:
+            current_app.logger.info("Found un-moderated Pets")
             for pet in unmoderated_pets:
-                existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).first()
+                existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).filter(PetNames.pet_name == pet.pet_name).first()
                 if existing_pet:
                     pet.approved = existing_pet.approved
                     pet.save()
-
+        current_app.logger.info("Finished Pet Name Maintenance")
