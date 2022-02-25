@@ -21,12 +21,12 @@ def command():
     return render_template('logs/command.html.j2')
 
 
-@log_blueprint.route('/errors')
+@log_blueprint.route('/system')
 @gm_level(8)
-def error():
+def system():
     with open('nexus_dashboard.log', 'r') as file:
         logs = '</br>'.join(file.read().split('\n')[-100:])
-    return render_template('logs/error.html.j2', logs=logs)
+    return render_template('logs/system.html.j2', logs=logs)
 
 
 @log_blueprint.route('/audits')

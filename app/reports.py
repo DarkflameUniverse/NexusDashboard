@@ -60,17 +60,21 @@ def gen_item_report():
             report_data={}
 
             for char_xml in char_xmls:
-                character_json = xmltodict.parse(
-                    char_xml.xml_data,
-                    attr_prefix="attr_"
-                )
-                for inv in character_json["obj"]["inv"]["items"]["in"]:
-                    if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"])==0 or int(inv["attr_t"])==0):
-                        for item in inv["i"]:
-                            if item["attr_l"] in report_data:
-                                report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
-                            else:
-                                report_data[item["attr_l"]] = int(item["attr_c"])
+                try:
+                    character_json = xmltodict.parse(
+                        char_xml.xml_data,
+                        attr_prefix="attr_"
+                    )
+                    for inv in character_json["obj"]["inv"]["items"]["in"]:
+                        if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"])==0 or int(inv["attr_t"])==0):
+                            for item in inv["i"]:
+                                if item["attr_l"] in report_data:
+                                    report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
+                                else:
+                                    report_data[item["attr_l"]] = int(item["attr_c"])
+                except Exception as e:
+                    current_app.logger.error(f"REPORT::ITEMS - ERROR PARSING CHARACTER {char_xml.id}")
+                    current_app.logger.error(f"REPORT::ITEMS - {e}")
 
             new_report = Reports(
                 data=report_data,
@@ -110,11 +114,15 @@ def gen_currency_report():
             report_data={}
 
             for character in characters:
-                character_json = xmltodict.parse(
-                    character.xml_data,
-                    attr_prefix="attr_"
-                )
-                report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
+                try:
+                    character_json = xmltodict.parse(
+                        character.xml_data,
+                        attr_prefix="attr_"
+                    )
+                    report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
+                except Exception as e:
+                    current_app.logger.error(f"REPORT::CURRENCY - ERROR PARSING CHARACTER {char_xml.id}")
+                    current_app.logger.error(f"REPORT::CURRENCY - {e}")
 
             new_report = Reports(
                 data=report_data,
@@ -154,11 +162,15 @@ def gen_uscore_report():
             report_data={}
 
             for character in characters:
-                character_json = xmltodict.parse(
-                    character.xml_data,
-                    attr_prefix="attr_"
-                )
-                report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
+                try:
+                    character_json = xmltodict.parse(
+                        character.xml_data,
+                        attr_prefix="attr_"
+                    )
+                    report_data[CharacterInfo.query.filter(CharacterInfo.id==character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
+                except Exception as e:
+                    current_app.logger.error(f"REPORT::U-SCORE - ERROR PARSING CHARACTER {char_xml.id}")
+                    current_app.logger.error(f"REPORT::U-SCORE - {e}")
 
             new_report = Reports(
                 data=report_data,

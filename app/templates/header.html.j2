@@ -69,13 +69,11 @@
                 <a class="dropdown-item text-center" href='{{ url_for('log.activity') }}'>Command Log</a>
                 <a class="dropdown-item text-center" href='{{ url_for('log.command') }}'>Activity Log</a>
                 <a class="dropdown-item text-center" href='{{ url_for('log.audit') }}'>Audit Log</a>
-                <a class="dropdown-item text-center" href='{{ url_for('log.error') }}'>Error Log</a>
+                <a class="dropdown-item text-center" href='{{ url_for('log.system') }}'>System Log</a>
               {% endif %}
             </div>
           </li>
         {% endif %}
-
-
 
         {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
           {# Play Keys #}

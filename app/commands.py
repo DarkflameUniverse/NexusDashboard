@@ -50,7 +50,7 @@ def init_accounts():
 @click.argument('player')
 @with_appcontext
 def load_property(zone, player):
-
+    """shoves property data into db"""
     char = CharacterInfo.query.filter(CharacterInfo.name == player).first()
     if not char:
         print("Character not Found")
@@ -97,6 +97,7 @@ def load_property(zone, player):
 
 @click.command("gen_image_cache")
 def gen_image_cache():
+    """generates image cache"""
     luclient = pathlib.Path('app/luclient/res')
     files = [path for path in luclient.rglob("*.dds") if path.is_file()]
 
@@ -114,6 +115,7 @@ def gen_image_cache():
 
 @click.command("gen_model_cache")
 def gen_model_cache():
+    """generate model obj cache"""
     luclient = pathlib.Path('app/luclient/res')
     files = [path for path in luclient.rglob("*.lxfml") if path.is_file()]
     pool = Pool(processes=4)
@@ -135,6 +137,7 @@ def convert_lxfml_to_obj(file, lod):
         return
 
 def get_cache_file(path):
+    """helper"""
     # convert to list so that we can change elements
     parts = list(path.parts)
 

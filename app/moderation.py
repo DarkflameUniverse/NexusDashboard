@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, current_app
+from flask import render_template, Blueprint, redirect, url_for, request, flash, current_app
 from flask_user import login_required
 from app.models import PetNames, db, CharacterXML, CharacterInfo
 from datatables import ColumnDT, DataTables
@@ -126,7 +126,7 @@ def get_pets(status="all"):
     return data
 
 
-@scheduler.task("cron", id="pet_name_maintenance", second="*", timezone="UTC")
+@scheduler.task("cron", id="pet_name_maintenance", hour="*", timezone="UTC")
 def pet_name_maintenance():
     with scheduler.app.app_context():
         # associate pet names to characters

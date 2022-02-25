@@ -25,7 +25,7 @@ USER_REQUIRE_RETYPE_PASSWORD = True  # Prompt for `retype password`
 USER_ENABLE_USERNAME = True  # Register and Login with username
 
 # Email Related Settings
-USER_ENABLE_EMAIL = True  # Register with Email WILL - DISABLE OTHER THINGS TOO
+USER_ENABLE_EMAIL = False  # Register with Email WILL - DISABLE OTHER THINGS TOO
 USER_ENABLE_CONFIRM_EMAIL = True  # Force users to confirm their email
 USER_ENABLE_INVITE_USER = False  # Allow users to be invited
 USER_REQUIRE_INVITATION = False  # Only invited users may - WILL DISABLE REGISTRATION
