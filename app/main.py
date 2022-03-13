@@ -1,17 +1,14 @@
-from flask import render_template, Blueprint, redirect,  request, send_from_directory, make_response, send_file, current_app
-from flask_user import login_required, current_user
-import json, glob, os
-from wand import image
+from flask import render_template, Blueprint, send_from_directory
+from flask_user import current_user
 
-from app.models import Account, AccountInvitation, CharacterInfo
+from app.models import Account
 from app.schemas import AccountSchema, CharacterInfoSchema
-from app.luclient import query_cdclient
-from app import gm_level
 
 main_blueprint = Blueprint('main', __name__)
 
 account_schema = AccountSchema()
 char_info_schema = CharacterInfoSchema()
+
 
 @main_blueprint.route('/', methods=['GET'])
 def index():

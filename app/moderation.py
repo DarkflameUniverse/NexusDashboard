@@ -2,7 +2,6 @@ from flask import render_template, Blueprint, redirect, url_for, request, flash,
 from flask_user import login_required
 from app.models import PetNames, db, CharacterXML, CharacterInfo
 from datatables import ColumnDT, DataTables
-from app.forms import CreatePlayKeyForm, EditPlayKeyForm
 from app import gm_level, log_audit, scheduler
 
 moderation_blueprint = Blueprint('moderation', __name__)
@@ -20,7 +19,7 @@ def index(status):
 @gm_level(3)
 def approve_pet(id):
 
-    pet_data =  PetNames.query.filter(PetNames.id == id).first()
+    pet_data = PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 2
     log_audit(f"Approved pet name {pet_data.pet_name} from {pet_data.owner_id}")
@@ -34,7 +33,7 @@ def approve_pet(id):
 @gm_level(3)
 def reject_pet(id):
 
-    pet_data =  PetNames.query.filter(PetNames.id == id).first()
+    pet_data = PetNames.query.filter(PetNames.id == id).first()
 
     pet_data.approved = 0
     log_audit(f"Rejected pet name {pet_data.pet_name} from {pet_data.owner_id}")
@@ -55,15 +54,14 @@ def get_pets(status="all"):
     ]
 
     query = None
-    if status=="all":
+    if status == "all":
         query = db.session.query().select_from(PetNames)
-    elif status=="approved":
-        query = db.session.query().select_from(PetNames).filter(PetNames.approved==2)
-    elif status=="unapproved":
-        query = db.session.query().select_from(PetNames).filter(PetNames.approved==1)
+    elif status == "approved":
+        query = db.session.query().select_from(PetNames).filter(PetNames.approved == 2)
+    elif status == "unapproved":
+        query = db.session.query().select_from(PetNames).filter(PetNames.approved == 1)
     else:
         raise Exception("Not a valid filter")
-
 
     params = request.args.to_dict()
 
@@ -116,8 +114,8 @@ def get_pets(status="all"):
                         {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
                     </a>
                 """
-            except Exception as e:
-                PetNames.query.filter(PetNames.id==id).first().delete()
+            except Exception:
+                PetNames.query.filter(PetNames.id == id).first().delete()
                 pet_data["0"] = "<span class='text-danger'>Deleted Refresh to make go away</span>"
                 pet_data["3"] = "<span class='text-danger'>Character Deleted</span>"
         else:
@@ -131,7 +129,7 @@ def pet_name_maintenance():
     with scheduler.app.app_context():
         # associate pet names to characters
         current_app.logger.info("Started Pet Name Maintenance")
-        unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
+        unassociated_pets = PetNames.query.filter(PetNames.owner_id is None).all()
         if unassociated_pets:
             current_app.logger.info("Found un-associated pets")
             for pet in unassociated_pets:
@@ -143,11 +141,11 @@ def pet_name_maintenance():
                     pet.delete()
 
         # auto-moderate based on already moderated names
-        unmoderated_pets = PetNames.query.filter(PetNames.approved==1).all()
+        unmoderated_pets = PetNames.query.filter(PetNames.approved == 1).all()
         if unmoderated_pets:
             current_app.logger.info("Found un-moderated Pets")
             for pet in unmoderated_pets:
-                existing_pet = PetNames.query.filter(PetNames.approved.in_([0,2])).filter(PetNames.pet_name == pet.pet_name).first()
+                existing_pet = PetNames.query.filter(PetNames.approved.in_([0, 2])).filter(PetNames.pet_name == pet.pet_name).first()
                 if existing_pet:
                     pet.approved = existing_pet.approved
                     pet.save()

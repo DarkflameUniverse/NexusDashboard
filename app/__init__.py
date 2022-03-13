@@ -10,7 +10,7 @@ from app.forms import CustomUserManager
 from flask_user import user_registered, current_user, user_logged_in
 from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
-from app.luclient import query_cdclient, register_luclient_jinja_helpers
+from app.luclient import register_luclient_jinja_helpers
 
 from app.commands import init_db, init_accounts, load_property, gen_image_cache, gen_model_cache
 from app.models import Account, AccountInvitation, AuditLog
@@ -40,12 +40,11 @@ def create_app():
             app.logger.info(
                 f"USERS::REGISTRATION User with ID {user.id} and name {user.username} Registered \
                 using Play Key ID {play_key_used.id} : {play_key_used.key_string}"
-                )
+            )
             db.session.add(play_key_used)
             db.session.commit()
         else:
             app.logger.info(f"USERS::REGISTRATION User with ID {user.id} and name {user.username} Registered")
-
 
     @user_logged_in.connect_via(app)
     def _after_login_hook(sender, user, **extra):
@@ -55,7 +54,7 @@ def create_app():
     @app.template_filter('ctime')
     def timectime(s):
         if s:
-            return time.ctime(s) # or datetime.datetime.fromtimestamp(s)
+            return time.ctime(s)  # or datetime.datetime.fromtimestamp(s)
         else:
             return "Never"
 
@@ -245,6 +244,7 @@ def gm_level(gm_level):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
 
 def log_audit(message):
     AuditLog(

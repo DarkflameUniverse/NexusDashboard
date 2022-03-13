@@ -5,14 +5,11 @@ from flask import (
     url_for,
     request,
     abort,
-    jsonify,
-    send_from_directory,
     make_response,
     flash,
     current_app
 )
 from flask_user import login_required, current_user
-import json
 from datatables import ColumnDT, DataTables
 import time
 from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account
@@ -21,14 +18,13 @@ from app import gm_level, log_audit
 from app.luclient import query_cdclient
 
 import zlib
-import xmltodict
-import os
 import app.pylddlib as ldd
 import pathlib
 
 property_blueprint = Blueprint('properties', __name__)
 
 property_schema = PropertySchema()
+
 
 @property_blueprint.route('/', methods=['GET'])
 @login_required
@@ -42,7 +38,7 @@ def index():
 @gm_level(3)
 def approve(id):
 
-    property_data =  Property.query.filter(Property.id == id).first()
+    property_data = Property.query.filter(Property.id == id).first()
 
     property_data.mod_approved = not property_data.mod_approved
 
@@ -89,8 +85,6 @@ def approve(id):
     else:
         go_to = url_for('main.index')
 
-
-
     return redirect(go_to)
 
 
@@ -134,15 +128,18 @@ def get(status="all"):
     ]
 
     query = None
-    if status=="all":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account)
-    elif status=="approved":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==True).filter(Property.privacy_option==2)
-    elif status=="unapproved":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id==Property.owner_id).join(Account).filter(Property.mod_approved==False).filter(Property.privacy_option==2)
+    if status == "all":
+        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id == Property.owner_id).join(Account)
+    elif status == "approved":
+        query = db.session.query().select_from(Property).join(
+            CharacterInfo, CharacterInfo.id == Property.owner_id
+        ).join(Account).filter(Property.mod_approved is True).filter(Property.privacy_option == 2)
+    elif status == "unapproved":
+        query = db.session.query().select_from(Property).join(
+            CharacterInfo, CharacterInfo.id == Property.owner_id
+        ).join(Account).filter(Property.mod_approved is False).filter(Property.privacy_option == 2)
     else:
         raise Exception("Not a valid filter")
-
 
     params = request.args.to_dict()
 
@@ -183,10 +180,10 @@ def get(status="all"):
 
         if property_data["4"] == "":
             property_data["4"] = query_cdclient(
-            'select DisplayDescription from ZoneTable where zoneID = ?',
-            [property_data["12"]],
-            one=True
-        )
+                'select DisplayDescription from ZoneTable where zoneID = ?',
+                [property_data["12"]],
+                one=True
+            )
 
         if property_data["6"] == 0:
             property_data["6"] = "Private"
@@ -215,7 +212,7 @@ def get(status="all"):
 @property_blueprint.route('/view_model/<id>/<lod>', methods=['GET'])
 @login_required
 def view_model(id, lod):
-    property_content_data = PropertyContent.query.filter(PropertyContent.id==id).all()
+    property_content_data = PropertyContent.query.filter(PropertyContent.id == id).all()
 
     # TODO: Restrict somehow
     formatted_data = [
@@ -242,6 +239,7 @@ def view_model(id, lod):
         lod=lod
     )
 
+
 property_center = {
     1150: "(-17, 432, -60)",
     1151: "(0, 455, -110)",
@@ -256,7 +254,7 @@ property_center = {
 @login_required
 def view_models(id, lod):
     property_content_data = PropertyContent.query.filter(
-        PropertyContent.property_id==id
+        PropertyContent.property_id == id
     ).order_by(PropertyContent.lot).all()
 
     consolidated_list = []
@@ -295,7 +293,7 @@ def view_models(id, lod):
                     }]
                 }
             )
-    property_data = Property.query.filter(Property.id==id).first()
+    property_data = Property.query.filter(Property.id == id).first()
     return render_template(
         'ldd/ldd.html.j2',
         property_data=property_data,
@@ -304,30 +302,30 @@ def view_models(id, lod):
         lod=lod
     )
 
+
 @property_blueprint.route('/get_model/<id>/<file_format>/<lod>', methods=['GET'])
 @login_required
 def get_model(id, file_format, lod):
-    content = PropertyContent.query.filter(PropertyContent.id==id).first()
+    content = PropertyContent.query.filter(PropertyContent.id == id).first()
     if not(0 <= int(lod) <= 2):
         abort(404)
-    if content.lot == 14: # ugc model
+    if content.lot == 14:  # ugc model
         response = ugc(content)[0]
-    else: # prebuild model
+    else:  # prebuilt model
         response = prebuilt(content, file_format, lod)[0]
 
     response.headers.set('Content-Type', 'text/xml')
     return response
 
 
-
 @property_blueprint.route('/download_model/<id>', methods=['GET'])
 @login_required
 def download_model(id):
-    content = PropertyContent.query.filter(PropertyContent.id==id).first()
+    content = PropertyContent.query.filter(PropertyContent.id == id).first()
 
-    if content.lot == 14: # ugc model
+    if content.lot == 14:  # ugc model
         response, filename = ugc(content)
-    else: # prebuild model
+    else:  # prebuilt model
         response, filename = prebuilt(content, "lxfml")
 
     response.headers.set('Content-Type', 'attachment/xml')
@@ -340,7 +338,7 @@ def download_model(id):
 
 
 def ugc(content):
-    ugc_data = UGC.query.filter(UGC.id==content.ugc_id).first()
+    ugc_data = UGC.query.filter(UGC.id == content.ugc_id).first()
     uncompressed_lxfml = zlib.decompress(ugc_data.lxfml)
     response = make_response(uncompressed_lxfml)
     return response, ugc_data.filename
@@ -355,7 +353,8 @@ def prebuilt(content, file_format, lod):
         one=True
     )[0]
     # find the asset from rendercomponent given the  component id
-    filename = query_cdclient('select render_asset from RenderComponent where id = ?',
+    filename = query_cdclient(
+        'select render_asset from RenderComponent where id = ?',
         [render_component_id],
         one=True
     )
@@ -375,7 +374,7 @@ def prebuilt(content, file_format, lod):
         cache = pathlib.Path(f'app/cache/BrickModels/{filename}.lod{lod}.{file_format}')
         cache.parent.mkdir(parents=True, exist_ok=True)
         try:
-            ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod) # convert to OBJ
+            ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod)  # convert to OBJ
         except Exception as e:
             current_app.logger.error(f"ERROR on {cache}:\n {e}")
 

@@ -1,11 +1,12 @@
 from flask import render_template, Blueprint, request, url_for
-from flask_user import login_required, current_user
+from flask_user import login_required
 from app.models import CommandLog, ActivityLog, db, Account, CharacterInfo, AuditLog
 from datatables import ColumnDT, DataTables
 import time
 from app import gm_level
 
 log_blueprint = Blueprint('log', __name__)
+
 
 @log_blueprint.route('/activities', methods=['GET'])
 @login_required
@@ -40,11 +41,11 @@ def audit():
 @gm_level(8)
 def get_activities():
     columns = [
-        ColumnDT(ActivityLog.id),           # 0
-        ColumnDT(ActivityLog.character_id), # 1
-        ColumnDT(ActivityLog.activity),     # 2
-        ColumnDT(ActivityLog.time),         # 3
-        ColumnDT(ActivityLog.map_id),       # 4
+        ColumnDT(ActivityLog.id),               # 0
+        ColumnDT(ActivityLog.character_id),     # 1
+        ColumnDT(ActivityLog.activity),         # 2
+        ColumnDT(ActivityLog.time),             # 3
+        ColumnDT(ActivityLog.map_id),           # 4
     ]
 
     query = db.session.query().select_from(ActivityLog)
@@ -82,9 +83,9 @@ def get_activities():
 @gm_level(8)
 def get_commands():
     columns = [
-        ColumnDT(CommandLog.id),           # 0
-        ColumnDT(CommandLog.character_id), # 1
-        ColumnDT(CommandLog.command),      # 2
+        ColumnDT(CommandLog.id),            # 0
+        ColumnDT(CommandLog.character_id),  # 1
+        ColumnDT(CommandLog.command),       # 2
     ]
 
     query = db.session.query().select_from(CommandLog)

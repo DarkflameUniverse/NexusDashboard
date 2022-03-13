@@ -1,8 +1,7 @@
 from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, make_response
 from flask_user import login_required, current_user
-import json
 from datatables import ColumnDT, DataTables
-import datetime, time
+import time
 from app.models import CharacterInfo, CharacterXML, Account, db
 from app.schemas import CharacterInfoSchema
 from app.forms import RescueForm
@@ -16,6 +15,7 @@ character_blueprint = Blueprint('characters', __name__)
 
 character_schema = CharacterInfoSchema()
 
+
 @character_blueprint.route('/', methods=['GET'])
 @login_required
 @gm_level(3)
@@ -27,7 +27,7 @@ def index():
 @login_required
 @gm_level(3)
 def approve_name(id, action):
-    character =  CharacterInfo.query.filter(CharacterInfo.id == id).first()
+    character = CharacterInfo.query.filter(CharacterInfo.id == id).first()
 
     if action == "approve":
         log_audit(f"Approved ({character.id}){character.pending_name} from {character.name}")
@@ -42,9 +42,12 @@ def approve_name(id, action):
 
     elif action == "rename":
         character.needs_rename = True
-        log_audit(f"Marked character ({character.id}){character.name} (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename")
+        log_audit(
+            f"Marked character ({character.id}){character.name} \
+                (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename")
         flash(
-            f"Marked character {character.name} (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename",
+            f"Marked character {character.name} \
+                (Pending Name: {character.pending_name if character.pending_name else 'None'}) as needing Rename",
             "danger"
         )
 
@@ -67,11 +70,11 @@ def view(id):
             abort(403)
             return
     character_json = xmltodict.parse(
-            CharacterXML.query.filter(
-                CharacterXML.id==id
-            ).first().xml_data,
-            attr_prefix="attr_"
-        )
+        CharacterXML.query.filter(
+            CharacterXML.id == id
+        ).first().xml_data,
+        attr_prefix="attr_"
+    )
 
     # print json for reference
     # with open("errorchar.json", "a") as file:
@@ -84,8 +87,7 @@ def view(id):
     # sort by items slot index
     for inv in character_json["obj"]["inv"]["holdings"]["in"]:
         if "i" in inv.keys() and type(inv["i"]) == list:
-            inv["i"] = sorted(inv["i"], key = lambda i: int(i['attr_s']))
-
+            inv["i"] = sorted(inv["i"], key=lambda i: int(i['attr_s']))
 
     return render_template(
         'character/view.html.j2',
@@ -110,12 +112,13 @@ def view_xml(id):
             return
 
     character_xml = CharacterXML.query.filter(
-                        CharacterXML.id==id
-                    ).first().xml_data
+        CharacterXML.id == id
+    ).first().xml_data
 
     response = make_response(character_xml)
     response.headers.set('Content-Type', 'text/xml')
     return response
+
 
 @character_blueprint.route('/get_xml/<id>', methods=['GET'])
 @login_required
@@ -132,8 +135,8 @@ def get_xml(id):
             return
 
     character_xml = CharacterXML.query.filter(
-                        CharacterXML.id==id
-                    ).first().xml_data
+        CharacterXML.id == id
+    ).first().xml_data
 
     response = make_response(character_xml)
     response.headers.set('Content-Type', 'attachment/xml')
@@ -143,6 +146,7 @@ def get_xml(id):
         filename=f"{character_data.name}.xml"
     )
     return response
+
 
 @character_blueprint.route('/restrict/<bit>/<id>', methods=['GET'])
 @login_required
@@ -177,8 +181,8 @@ def rescue(id):
     form = RescueForm()
 
     character_data = CharacterXML.query.filter(
-                        CharacterXML.id==id
-                    ).first()
+        CharacterXML.id == id
+    ).first()
 
     character_xml = ET.XML(character_data.xml_data)
     for zone in character_xml.findall('.//r'):
@@ -205,6 +209,7 @@ def rescue(id):
 
     return render_template("character/rescue.html.j2", form=form)
 
+
 @character_blueprint.route('/get/<status>', methods=['GET'])
 @login_required
 @gm_level(3)
@@ -220,12 +225,12 @@ def get(status):
     ]
 
     query = None
-    if status=="all":
+    if status == "all":
         query = db.session.query().select_from(CharacterInfo).join(Account)
-    elif status=="approved":
-        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename == False))
-    elif status=="unapproved":
-        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename == True))
+    elif status == "approved":
+        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename is False))
+    elif status == "unapproved":
+        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename is True))
     else:
         raise Exception("Not a valid filter")
 
@@ -286,6 +291,4 @@ def get(status):
         if perm_map & (1 << 6):
             character["6"] += "Restricted Chat</br>"
 
-
     return data
-

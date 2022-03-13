@@ -1,10 +1,8 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, current_app, flash, current_app
+from flask import render_template, Blueprint, redirect, url_for, request, current_app, flash
 from flask_user import login_required, current_user
-import json
 from datatables import ColumnDT, DataTables
 import datetime
-import time
-from app.models import Account, AccountInvitation, db
+from app.models import Account, db
 from app.schemas import AccountSchema
 from app import gm_level, log_audit
 from app.forms import EditGMLevelForm
@@ -12,6 +10,7 @@ from app.forms import EditGMLevelForm
 accounts_blueprint = Blueprint('accounts', __name__)
 
 account_schema = AccountSchema()
+
 
 @accounts_blueprint.route('/', methods=['GET'])
 @login_required
@@ -38,7 +37,7 @@ def edit_gm_level(id):
     if current_user.id == int(id):
         flash("You cannot your own GM Level", "danger")
         return redirect(request.referrer if request.referrer else url_for("main.index"))
-    account_data = Account.query.filter(Account.id==id).first()
+    account_data = Account.query.filter(Account.id == id).first()
     if account_data.gm_level >= 8 and current_user.gm_level == 8:
         flash("You cannot edit this user's GM Level", "warning")
         return redirect(request.referrer if request.referrer else url_for("main.index"))
@@ -138,10 +137,10 @@ def get():
             View
             </a>
         """
-            #        <a role="button" class="btn btn-danger btn btn-block"
-            # href='{url_for('acounts.delete', id=account["0"])}'>
-            # Delete
-            # </a>
+        #        <a role="button" class="btn btn-danger btn btn-block"
+        # href='{url_for('acounts.delete', id=account["0"])}'>
+        # Delete
+        # </a>
 
         if account["4"]:
             account["4"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
@@ -154,13 +153,13 @@ def get():
             account["5"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
         if account["6"]:
-            account["6"] = f'''<h2 class="far fa-times-circle text-danger"></h2>'''
+            account["6"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
         else:
             account["6"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
         if current_app.config["USER_ENABLE_EMAIL"]:
             if account["8"]:
-                account["8"] = f'''<h2 class="far fa-check-square text-success"></h2>'''
+                account["8"] = '''<h2 class="far fa-check-square text-success"></h2>'''
             else:
                 account["8"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
         else:
@@ -175,4 +174,3 @@ def get():
             del account["8"]
 
     return data
-

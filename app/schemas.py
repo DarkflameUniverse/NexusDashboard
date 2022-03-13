@@ -1,6 +1,20 @@
 from flask_marshmallow import Marshmallow
-from app.models import *
+from app.models import (
+    PlayKey
+    PetNames
+    Mail
+    UGC
+    PropertyContent
+    Property
+    CharacterXML
+    CharacterInfo
+    Account
+    AccountInvitation
+    ActivityLog
+    CommandLog
+)
 ma = Marshmallow()
+
 
 class PlayKeySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -42,7 +56,6 @@ class PropertyContentSchema(ma.SQLAlchemyAutoSchema):
         include_fk = True
 
     ugc = ma.Nested(UGCSchema)
-
 
 
 class PropertySchema(ma.SQLAlchemyAutoSchema):

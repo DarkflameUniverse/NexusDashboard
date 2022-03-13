@@ -1,14 +1,14 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash
-from flask_user import login_required, current_user
-from app.models import Account, AccountInvitation, PlayKey, db
+from flask import render_template, Blueprint, redirect, url_for, request, flash
+from flask_user import login_required
+from app.models import Account, PlayKey, db
 from datatables import ColumnDT, DataTables
 from app.forms import CreatePlayKeyForm, EditPlayKeyForm
 from app import gm_level, log_audit
 
 play_keys_blueprint = Blueprint('play_keys', __name__)
 
-# Key creation page
 
+# Key creation page
 @play_keys_blueprint.route('/', methods=['GET'])
 @login_required
 @gm_level(9)
@@ -45,7 +45,7 @@ def bulk_create():
 @gm_level(9)
 def delete(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
-    associated_accounts = Account.query.filter(Account.play_key_id==id).all()
+    # associated_accounts = Account.query.filter(Account.play_key_id==id).all()
     log_audit(f"Deleted Play Key {key.key_string}")
     flash(f"Deleted Play Key {key.key_string}", "danger")
     key.delete()
@@ -56,7 +56,7 @@ def delete(id):
 @login_required
 @gm_level(9)
 def edit(id):
-    key = PlayKey.query.filter(PlayKey.id==id).first()
+    key = PlayKey.query.filter(PlayKey.id == id).first()
     form = EditPlayKeyForm()
 
     if form.validate_on_submit():
@@ -84,7 +84,7 @@ def edit(id):
 @gm_level(9)
 def view(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
-    accounts = Account.query.filter(Account.play_key_id==id).all()
+    accounts = Account.query.filter(Account.play_key_id == id).all()
     return render_template('play_keys/view.html.j2', key=key, accounts=accounts)
 
 
@@ -125,7 +125,12 @@ def get():
                 Delete
             </a>
 
-            <div class="modal fade bd-example-modal-lg" id="delete-{play_key["1"]}-modal" tabindex="-1" role="dialog" aria-labelledby="delete-{play_key["1"]}-modalLabel" aria-hidden="true">
+            <div class="modal
+                    fade bd-example-modal-lg"
+                    id="delete-{play_key["1"]}-modal"
+                    tabindex="-1" role="dialog"
+                    aria-labelledby="delete-{play_key["1"]}-modalLabel"
+                    aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content bg-dark border-primary">
                     <div class="modal-header">

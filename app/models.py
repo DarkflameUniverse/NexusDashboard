@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_user import UserMixin, current_user
+from flask_user import UserMixin
 from wtforms import ValidationError
 
 import logging
@@ -11,6 +11,7 @@ from sqlalchemy.types import JSON
 from time import sleep
 import random
 import string
+
 
 # retrying query to work around python trash collector
 # killing connections of other gunicorn workers
@@ -46,8 +47,10 @@ class RetryingQuery(BaseQuery):
                     raise
                 self.session.rollback()
 
+
 db = SQLAlchemy(query_class=RetryingQuery)
 migrate = Migrate()
+
 
 class PlayKey(db.Model):
     __tablename__ = 'play_keys'
@@ -120,6 +123,7 @@ class PlayKey(db.Model):
         db.session.add(self)
         db.session.commit()
         db.session.refresh(self)
+
 
 class Account(db.Model, UserMixin):
     __tablename__ = 'accounts'
@@ -200,7 +204,7 @@ class Account(db.Model, UserMixin):
 
     @staticmethod
     def get_user_by_id(*, user_id=None):
-        return User.query.filter(user_id == User.id).first()
+        return Account.query.filter(user_id == Account.id).first()
 
     def save(self):
         db.session.add(self)
@@ -210,6 +214,7 @@ class Account(db.Model, UserMixin):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class AccountInvitation(db.Model):
     __tablename__ = 'account_invites'
@@ -245,14 +250,10 @@ class AccountInvitation(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-
     @staticmethod
     def get_user_by_id(*, user_id=None):
-        return User.query.filter(user_id == User.id).first()
+        return Account.query.filter(user_id == Account.id).first()
 
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
 
 # This table is cursed, see prop_clone_id
 class CharacterInfo(db.Model):
@@ -327,6 +328,7 @@ class CharacterInfo(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class CharacterXML(db.Model):
     __tablename__ = 'charxml'
     id = db.Column(
@@ -348,6 +350,7 @@ class CharacterXML(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class CommandLog(db.Model):
     __tablename__ = 'command_log'
     id = db.Column(db.Integer, primary_key=True)
@@ -364,7 +367,7 @@ class CommandLog(db.Model):
         passive_deletes=True
     )
 
-    command =  db.Column(
+    command = db.Column(
         mysql.VARCHAR(256),
         nullable=False
     )
@@ -377,6 +380,7 @@ class CommandLog(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class Friends(db.Model):
     __tablename__ = 'friends'
@@ -422,6 +426,7 @@ class Friends(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class Leaderboard(db.Model):
     __tablename__ = 'leaderboard'
@@ -471,6 +476,7 @@ class Leaderboard(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class Mail(db.Model):
     __tablename__ = 'mail'
@@ -560,6 +566,7 @@ class Mail(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class ObjectIDTracker(db.Model):
     __tablename__ = 'object_id_tracker'
     last_object_id = db.Column(
@@ -568,6 +575,7 @@ class ObjectIDTracker(db.Model):
         primary_key=True,
         server_default='0'
     )
+
 
 class PetNames(db.Model):
     __tablename__ = 'pet_names'
@@ -582,7 +590,7 @@ class PetNames(db.Model):
         server_default='0'
     )
 
-    owner_id  = db.Column(
+    owner_id = db.Column(
         mysql.BIGINT,
         nullable=True
     )
@@ -605,7 +613,7 @@ class Property(db.Model):
         autoincrement=False
     )
 
-    owner_id  = db.Column(
+    owner_id = db.Column(
         mysql.BIGINT,
         db.ForeignKey(CharacterInfo.id, ondelete='CASCADE'),
         nullable=False
@@ -623,7 +631,7 @@ class Property(db.Model):
         nullable=False,
     )
 
-    clone_id  = db.Column(
+    clone_id = db.Column(
         mysql.BIGINT(unsigned=True),
         db.ForeignKey(CharacterInfo.prop_clone_id, ondelete='CASCADE'),
     )
@@ -763,6 +771,7 @@ class UGC(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class PropertyContent(db.Model):
     __tablename__ = 'properties_contents'
     id = db.Column(
@@ -843,6 +852,7 @@ class PropertyContent(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class ActivityLog(db.Model):
     __tablename__ = 'activity_log'
     id = db.Column(mysql.INTEGER, primary_key=True)
@@ -882,6 +892,7 @@ class ActivityLog(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class BugReport(db.Model):
     __tablename__ = 'bug_reports'
@@ -943,6 +954,7 @@ class BugReport(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class Server(db.Model):
     __tablename__ = 'servers'
@@ -1015,6 +1027,7 @@ class Reports(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
 
 class AuditLog(db.Model):
     __tablename__ = 'audit_logs'

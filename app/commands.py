@@ -1,18 +1,19 @@
 import click
-import json
 from flask.cli import with_appcontext
-import random, string, datetime
+import random
+import string
+import datetime
 from flask_user import current_app
 from app import db
 from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC
 import pathlib
 import zlib
-import os
 from wand import image
 from wand.exceptions import BlobError as BE
 import app.pylddlib as ldd
 from multiprocessing import Pool
 from functools import partial
+
 
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
@@ -45,6 +46,7 @@ def init_accounts():
 
     return
 
+
 @click.command("load_property")
 @click.argument('zone')
 @click.argument('player')
@@ -56,7 +58,7 @@ def load_property(zone, player):
         print("Character not Found")
         return 404
 
-    prop = Property.query.filter(Property.owner_id==char.id).filter(Property.zone_id==zone).first()
+    prop = Property.query.filter(Property.owner_id == char.id).filter(Property.zone_id == zone).first()
 
     if not prop:
         print(f"Property {zone} not claimed by Character: {char.name}")
@@ -95,6 +97,7 @@ def load_property(zone, player):
             )
             new_prop_content.save()
 
+
 @click.command("gen_image_cache")
 def gen_image_cache():
     """generates image cache"""
@@ -113,6 +116,7 @@ def gen_image_cache():
             except BE:
                 return print(f"Error on {file}")
 
+
 @click.command("gen_model_cache")
 def gen_model_cache():
     """generate model obj cache"""
@@ -123,18 +127,20 @@ def gen_model_cache():
     pool.map(partial(convert_lxfml_to_obj, lod=1), files)
     pool.map(partial(convert_lxfml_to_obj, lod=2), files)
 
+
 def convert_lxfml_to_obj(file, lod):
     mtl = get_cache_file(file).with_suffix(f".lod{lod}.mtl")
     if not mtl.exists():
         mtl.parent.mkdir(parents=True, exist_ok=True)
         print(f"Convert LXFML {file.as_posix()} to obj and mtl @ {mtl}")
         try:
-            ldd.main(str(file.as_posix()), str(mtl.with_suffix("").as_posix()), lod) # convert to OBJ
+            ldd.main(str(file.as_posix()), str(mtl.with_suffix("").as_posix()), lod)  # convert to OBJ
         except Exception as e:
             print(f"ERROR on {file}:\n {e}")
     else:
         # print(f"Already Exists: {file} with LOD {lod}")
         return
+
 
 def get_cache_file(path):
     """helper"""
@@ -146,6 +152,7 @@ def get_cache_file(path):
     del parts[parts.index("res")]
 
     return pathlib.Path(*parts)
+
 
 def find_or_create_account(name, email, password, gm_level=9):
     """ Find existing account or create new account """
@@ -164,15 +171,16 @@ def find_or_create_account(name, email, password, gm_level=9):
         db.session.commit()
 
         play_key = PlayKey.query.filter(PlayKey.key_string == key).first()
-        account = Account(email=email,
-                    username=name,
-                    password=current_app.user_manager.password_manager.hash_password(password),
-                    play_key_id=play_key.id,
-                    email_confirmed_at=datetime.datetime.utcnow(),
-                    gm_level=gm_level
-                )
+        account = Account(
+            email=email,
+            username=name,
+            password=current_app.user_manager.password_manager.hash_password(password),
+            play_key_id=play_key.id,
+            email_confirmed_at=datetime.datetime.utcnow(),
+            gm_level=gm_level
+        )
         play_key.key_uses = 0
         db.session.add(account)
         db.session.add(play_key)
         db.session.commit()
-    return # account
+    return  # account

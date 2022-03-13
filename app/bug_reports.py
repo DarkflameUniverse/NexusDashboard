@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash
+from flask import render_template, Blueprint, redirect, url_for, request, flash
 from flask_user import login_required, current_user
 from app.models import db, BugReport, CharacterInfo
 from datatables import ColumnDT, DataTables
@@ -7,6 +7,7 @@ from app import gm_level
 from app.luclient import translate_from_locale
 
 bug_report_blueprint = Blueprint('bug_reports', __name__)
+
 
 @bug_report_blueprint.route('/<status>', methods=['GET'])
 @login_required
@@ -23,7 +24,7 @@ def view(id):
     if report.resoleved_by:
         rb = report.resoleved_by.username
     else:
-        rb=""
+        rb = ""
     return render_template('bug_reports/view.html.j2', report=report, resolved_by=rb)
 
 
@@ -62,12 +63,12 @@ def get(status):
     ]
 
     query = None
-    if status=="all":
+    if status == "all":
         query = db.session.query().select_from(BugReport)
-    elif status=="resolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time != None)
-    elif status=="unresolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == None)
+    elif status == "resolved":
+        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time not None)
+    elif status == "unresolved":
+        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time is None)
     else:
         raise Exception("Not a valid filter")
 

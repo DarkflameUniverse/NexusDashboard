@@ -16,12 +16,12 @@ from wtforms import (
     SubmitField,
     validators,
     IntegerField,
-    StringField,
     SelectField
 )
 
 from wtforms.validators import DataRequired, Optional
 from app.models import PlayKey
+
 
 def validate_play_key(form, field):
     """Validates a field for a valid phone number
@@ -85,6 +85,7 @@ class CustomRegisterForm(FlaskForm):
 
     submit = SubmitField('Register')
 
+
 class CreatePlayKeyForm(FlaskForm):
 
     count = IntegerField(
@@ -96,6 +97,7 @@ class CreatePlayKeyForm(FlaskForm):
         validators=[DataRequired()]
     )
     submit = SubmitField('Create!')
+
 
 class EditPlayKeyForm(FlaskForm):
 
@@ -119,7 +121,7 @@ class EditGMLevelForm(FlaskForm):
 
     gm_level = IntegerField(
         'GM Level',
-        widget=NumberInput(min = 0, max = 9)
+        widget=NumberInput(min=0, max=9)
     )
 
     submit = SubmitField('Submit')
@@ -142,8 +144,8 @@ class SendMailForm(FlaskForm):
         'Recipient: ',
         coerce=str,
         choices=[
-            ("",""),
-            ("0","All Characters"),
+            ("", ""),
+            ("0", "All Characters"),
         ],
         validators=[validators.DataRequired()]
     )
@@ -162,7 +164,7 @@ class SendMailForm(FlaskForm):
     attachment = SelectField(
         "Attachment",
         coerce=str,
-        choices=[(0,"No Attachment")]
+        choices=[(0, "No Attachment")]
     )
 
     attachment_count = IntegerField(
@@ -179,7 +181,7 @@ class RescueForm(FlaskForm):
         'Move to:',
         coerce=str,
         choices=[
-            ("",""),
+            ("", ""),
         ],
         validators=[validators.DataRequired()]
     )

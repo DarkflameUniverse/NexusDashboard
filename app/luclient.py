@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 luclient_blueprint = Blueprint('luclient', __name__)
 locale = {}
 
+
 @luclient_blueprint.route('/get_dds_as_png/<filename>')
 @login_required
 def get_dds_as_png(filename):
@@ -37,7 +38,7 @@ def get_dds_as_png(filename):
 
         with image.Image(filename=path) as img:
             img.compression = "no"
-            img.save(filename='app/cache/'+filename.split('.')[0] + '.png')
+            img.save(filename='app/cache/' + filename.split('.')[0] + '.png')
 
     return send_file(cache)
 
@@ -69,7 +70,8 @@ def get_icon_lot(id):
     )[0]
 
     # find the asset from rendercomponent given the  component id
-    filename = query_cdclient('select icon_asset from RenderComponent where id = ?',
+    filename = query_cdclient(
+        'select icon_asset from RenderComponent where id = ?',
         [render_component_id],
         one=True
     )[0]
@@ -116,6 +118,7 @@ def get_icon_iconid(id):
             return redirect(url_for('luclient.unknown'))
 
     return send_file(pathlib.Path(cache).resolve())
+
 
 @luclient_blueprint.route('/unknown')
 @login_required
@@ -195,6 +198,7 @@ def translate_from_locale(trans_string):
     else:
         return trans_string
 
+
 def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_zone_name')
@@ -203,15 +207,17 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_skill_desc')
     def get_skill_desc(skill_id):
-        return translate_from_locale(f'SkillBehavior_{skill_id}_descriptionUI').replace(
-                "%(DamageCombo)", "Damage Combo: "
-            ).replace(
-                "%(AltCombo)", "<br/>Skeleton Combo: "
-            ).replace(
-                "%(Description)", "<br/>"
-            ).replace(
-                "%(ChargeUp)", "<br/>Charge-up: "
-            )
+        return translate_from_locale(
+            f'SkillBehavior_{skill_id}_descriptionUI'
+        ).replace(
+            "%(DamageCombo)", "Damage Combo: "
+        ).replace(
+            "%(AltCombo)", "<br/>Skeleton Combo: "
+        ).replace(
+            "%(Description)", "<br/>"
+        ).replace(
+            "%(ChargeUp)", "<br/>Charge-up: "
+        )
 
     @app.template_filter('parse_lzid')
     def parse_lzid(lzid):
@@ -240,7 +246,7 @@ def register_luclient_jinja_helpers(app):
                 one=True
             )
             if intermed:
-                name = intermed[7] if (intermed[7] != "None" and intermed[7] !="" and intermed[7] != None) else intermed[1]
+                name = intermed[7] if (intermed[7] != "None" and intermed[7] != "" and intermed[7] is None) else intermed[1]
         return name
 
     @app.template_filter('get_lot_rarity')
@@ -252,7 +258,8 @@ def register_luclient_jinja_helpers(app):
             one=True
         )[0]
 
-        rarity = query_cdclient('select rarity from ItemComponent where id = ?',
+        rarity = query_cdclient(
+            'select rarity from ItemComponent where id = ?',
             [render_component_id],
             one=True
         )
@@ -302,7 +309,6 @@ def register_luclient_jinja_helpers(app):
 
         return consolidate_stats(stats)
 
-
     @app.template_filter('get_set_stats')
     def get_set_stats(lot_id):
         stats = query_cdclient(
@@ -331,7 +337,7 @@ def register_luclient_jinja_helpers(app):
 def consolidate_stats(stats):
 
     if len(stats) > 1:
-        consolidated_stats = {"im": 0,"life": 0,"armor": 0, "skill": []}
+        consolidated_stats = {"im": 0, "life": 0, "armor": 0, "skill": []}
         for stat in stats:
             if stat[0]:
                 consolidated_stats["im"] += stat[0]
@@ -340,8 +346,7 @@ def consolidate_stats(stats):
             if stat[2]:
                 consolidated_stats["armor"] += stat[2]
             if stat[3]:
-                consolidated_stats["skill"].append([stat[3],stat[4]])
-
+                consolidated_stats["skill"].append([stat[3], stat[4]])
 
         stats = consolidated_stats
     elif len(stats) == 1:
