@@ -176,7 +176,7 @@ def register_settings(app):
     try:
         app.config.from_object('app.settings')
     except Exception:
-
+        print("Not using settings.py")
 
     # Load environment specific settings
     app.config['TESTING'] = False
