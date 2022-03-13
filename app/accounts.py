@@ -61,7 +61,7 @@ def edit_gm_level(id):
 @gm_level(3)
 def lock(id):
     account = Account.query.filter(Account.id == id).first()
-    account.locked = not account.locked
+    account.active = account.locked = not account.locked
     account.save()
     if account.locked:
         log_audit(f"Locked ({account.id}){account.username}")
@@ -77,7 +77,7 @@ def lock(id):
 @gm_level(3)
 def ban(id):
     account = Account.query.filter(Account.id == id).first()
-    account.banned = not account.banned
+    account.active = account.banned = not account.banned
     account.save()
     if account.banned:
         log_audit(f"Banned ({account.id}){account.username}")

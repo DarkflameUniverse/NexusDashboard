@@ -230,14 +230,38 @@ def register_settings(app):
         "pool_pre_ping": True,
         "pool_use_lifo": True
     }
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-    app.config['MAIL_PORT'] = os.getenv('MAIL_USE_SSL', 587)
-    app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', False)
-    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', True)
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', None)
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', None)
-    app.config['USER_EMAIL_SENDER_NAME'] = os.getenv('USER_EMAIL_SENDER_NAME', None)
-    app.config['USER_EMAIL_SENDER_EMAIL'] = os.getenv('USER_EMAIL_SENDER_EMAIL', None)
+    app.config['MAIL_SERVER'] = os.getenv(
+        'MAIL_SERVER',
+        app.config['MAIL_SERVER']
+    )
+    app.config['MAIL_PORT'] = os.getenv(
+        'MAIL_USE_SSL',
+        app.config['MAIL_PORT']
+    )
+    app.config['MAIL_USE_SSL'] = os.getenv(
+        'MAIL_USE_SSL',
+        app.config['MAIL_USE_SSL']
+    )
+    app.config['MAIL_USE_TLS'] = os.getenv(
+        'MAIL_USE_TLS',
+        app.config['MAIL_USE_TLS']
+    )
+    app.config['MAIL_USERNAME'] = os.getenv(
+        'MAIL_USERNAME',
+        app.config['MAIL_USERNAME']
+    )
+    app.config['MAIL_PASSWORD'] = os.getenv(
+        'MAIL_PASSWORD',
+        app.config['MAIL_PASSWORD']
+    )
+    app.config['USER_EMAIL_SENDER_NAME'] = os.getenv(
+        'USER_EMAIL_SENDER_NAME',
+        app.config['USER_EMAIL_SENDER_NAME']
+    )
+    app.config['USER_EMAIL_SENDER_EMAIL'] = os.getenv(
+        'USER_EMAIL_SENDER_EMAIL',
+        app.config['USER_EMAIL_SENDER_EMAIL']
+    )
 
 
 def gm_level(gm_level):
