@@ -15,3 +15,4 @@ app/luclient/*
 app/cache/*
 property_files/*
 *.log
+app/settings.py

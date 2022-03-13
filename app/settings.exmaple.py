@@ -34,7 +34,7 @@ USER_ENABLE_FORGOT_PASSWORD = True  # Allow users to reset their passwords
 # Require Play Key
 REQUIRE_PLAY_KEY = True
 
-# Password hashing settings
+# Password hashing settings DO NOT CHANGE
 USER_PASSLIB_CRYPTCONTEXT_SCHEMES = ['bcrypt']  # bcrypt for password hashing
 
 # Flask-User routing settings
