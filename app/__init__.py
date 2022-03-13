@@ -173,15 +173,25 @@ def register_settings(app):
     """
 
     # Load common settings
-    app.config.from_object('app.settings')
+    try:
+        app.config.from_object('app.settings')
+    except Exception:
+
 
     # Load environment specific settings
     app.config['TESTING'] = False
     app.config['DEBUG'] = False
 
     # always pull these two from the env
-    app.config['SECRET_KEY'] = os.getenv('APP_SECRET_KEY')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('APP_DATABASE_URI')
+    app.config['SECRET_KEY'] = os.getenv(
+        'APP_SECRET_KEY',
+        app.config['APP_SECRET_KEY']
+
+    )
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+        'APP_DATABASE_URI',
+        app.config['APP_DATABASE_URI']
+    )
 
     # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(

@@ -4,6 +4,9 @@
 APP_NAME = "Nexus Dashboard"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
+APP_SECRET_KEY = ""
+APP_DATABASE_URI = ""
+
 # Send Analytics for Developers to better fix issues
 ALLOW_ANALYTICS = False
 
