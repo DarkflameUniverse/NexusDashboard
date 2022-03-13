@@ -126,7 +126,7 @@ def gen_currency_report():
                     )
                     report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
                 except Exception as e:
-                    current_app.logger.error(f"REPORT::CURRENCY - ERROR PARSING CHARACTER {char_xml.id}")
+                    current_app.logger.error(f"REPORT::CURRENCY - ERROR PARSING CHARACTER {character.id}")
                     current_app.logger.error(f"REPORT::CURRENCY - {e}")
 
             new_report = Reports(
@@ -174,7 +174,7 @@ def gen_uscore_report():
                     )
                     report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
                 except Exception as e:
-                    current_app.logger.error(f"REPORT::U-SCORE - ERROR PARSING CHARACTER {char_xml.id}")
+                    current_app.logger.error(f"REPORT::U-SCORE - ERROR PARSING CHARACTER {character.id}")
                     current_app.logger.error(f"REPORT::U-SCORE - {e}")
 
             new_report = Reports(
