@@ -1,16 +1,16 @@
 from flask_marshmallow import Marshmallow
 from app.models import (
-    PlayKey
-    PetNames
-    Mail
-    UGC
-    PropertyContent
-    Property
-    CharacterXML
-    CharacterInfo
-    Account
-    AccountInvitation
-    ActivityLog
+    PlayKey,
+    PetNames,
+    Mail,
+    UGC,
+    PropertyContent,
+    Property,
+    CharacterXML,
+    CharacterInfo,
+    Account,
+    AccountInvitation,
+    ActivityLog,
     CommandLog
 )
 ma = Marshmallow()

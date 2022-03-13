@@ -50,7 +50,7 @@ def gen_item_report():
             report = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "items").first()
 
             # Only one report per day
-            if report not None:
+            if report is not None:
                 current_app.logger.info(f"Item Report Already Generated for {date}")
                 return
 
@@ -104,7 +104,7 @@ def gen_currency_report():
             report = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "currency").first()
 
             # Only one report per day
-            if report not None:
+            if report is not None:
                 current_app.logger.info(f"Currency Report Already Generated for {date}")
                 return
 
@@ -152,7 +152,7 @@ def gen_uscore_report():
             report = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "uscore").first()
 
             # Only one report per day
-            if report not None:
+            if report is not None:
                 current_app.logger.info(f"U-Score Report Already Generated for {date}")
                 return
 
