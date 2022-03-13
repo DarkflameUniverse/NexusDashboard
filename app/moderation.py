@@ -128,7 +128,7 @@ def get_pets(status="all"):
 def pet_name_maintenance():
     with scheduler.app.app_context():
         # associate pet names to characters
-        current_app.logger.info("Started Pet Name Maintenance")
+        # current_app.logger.info("Started Pet Name Maintenance")
         unassociated_pets = PetNames.query.filter(PetNames.owner_id is None).all()
         if unassociated_pets:
             current_app.logger.info("Found un-associated pets")
@@ -149,4 +149,4 @@ def pet_name_maintenance():
                 if existing_pet:
                     pet.approved = existing_pet.approved
                     pet.save()
-        current_app.logger.info("Finished Pet Name Maintenance")
+        # current_app.logger.info("Finished Pet Name Maintenance")
