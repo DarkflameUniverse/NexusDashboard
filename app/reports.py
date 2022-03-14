@@ -1,9 +1,12 @@
 from flask import render_template, Blueprint, current_app
 from flask_user import login_required
 from app.models import CharacterInfo, Account, CharacterXML, Reports
+from app.luclient import get_lot_name
 from app import gm_level, scheduler
+from sqlalchemy.orm import load_only
 import datetime
 import xmltodict
+import random
 
 reports_blueprint = Blueprint('reports', __name__)
 
@@ -12,8 +15,30 @@ reports_blueprint = Blueprint('reports', __name__)
 @login_required
 @gm_level(3)
 def index():
-    reports = Reports.query.distinct(Reports.date).group_by(Reports.date).all()
-    return render_template('reports/index.html.j2', reports=reports)
+    reports_items = Reports.query.distinct(
+        Reports.date
+    ).filter(
+        Reports.report_type == "items"
+    ).group_by(Reports.date).options(load_only(Reports.date)).all()
+
+    reports_currency = Reports.query.distinct(
+        Reports.date
+    ).filter(
+        Reports.report_type == "currency"
+    ).group_by(Reports.date).options(load_only(Reports.date)).all()
+
+    reports_uscore = Reports.query.distinct(
+        Reports.date
+    ).filter(
+        Reports.report_type == "uscore"
+    ).group_by(Reports.date).options(load_only(Reports.date)).all()
+
+    return render_template(
+        'reports/index.html.j2',
+        reports_items=reports_items,
+        reports_currency=reports_currency,
+        reports_uscore=reports_uscore,
+    )
 
 
 @reports_blueprint.route('/items/by_date/<date>', methods=['GET', 'POST'])
@@ -24,6 +49,46 @@ def items_by_date(date):
     return render_template('reports/items/by_date.html.j2', data=data, date=date)
 
 
+@reports_blueprint.route('/items/graph', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def items_graph():
+    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+    entries = Reports.query.filter(
+        Reports.report_type == "items"
+    ).filter(Reports.date >= thirty_days_ago).all()
+    # transform data for chartjs
+    labels = []
+    items = dict()
+    datasets = []
+    # get stuff ready
+    for entry in entries:
+        labels.append(entry.date.strftime("%m/%d/%Y"))
+        for key in entry.data:
+            items[key] = get_lot_name(key)
+    # make it
+    for key, value in items.items():
+        data = []
+        for entry in entries:
+            if key in entry.data.keys():
+                data.append(entry.data[key])
+            else:
+                data.append(0)
+        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        datasets.append({
+            "label": value,
+            "data": data,
+            "backgroundColor": color,
+            "borderColor": color
+        })
+
+    return render_template(
+        'reports/graph.html.j2',
+        labels=labels,
+        datasets=datasets,
+        name="Item"
+    )
+
 @reports_blueprint.route('/currency/by_date/<date>', methods=['GET', 'POST'])
 @login_required
 @gm_level(3)
@@ -32,12 +97,84 @@ def currency_by_date(date):
     return render_template('reports/currency/by_date.html.j2', data=data, date=date)
 
 
+@reports_blueprint.route('/currency/graph', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def currency_graph():
+    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+    entries = Reports.query.filter(
+        Reports.report_type == "currency"
+    ).filter(Reports.date >= thirty_days_ago).all()
+    characters = CharacterInfo.query.options(load_only(CharacterInfo.name)).all()
+    labels = []
+    datasets = []
+    # get stuff ready
+    for entry in entries:
+        labels.append(entry.date.strftime("%m/%d/%Y"))
+    for character in characters:
+        data = []
+        for entry in entries:
+            if character.name in entry.data.keys():
+                data.append(entry.data[character.name])
+            else:
+                data.append(0)
+        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        datasets.append({
+            "label": character.name,
+            "data": data,
+            "backgroundColor": color,
+            "borderColor": color
+        })
+    return render_template(
+        'reports/graph.html.j2',
+        labels=labels,
+        datasets=datasets,
+        name="Currency"
+    )
+
+
 @reports_blueprint.route('/uscore/by_date/<date>', methods=['GET', 'POST'])
 @login_required
 @gm_level(3)
 def uscore_by_date(date):
     data = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "uscore").first().data
     return render_template('reports/uscore/by_date.html.j2', data=data, date=date)
+
+
+@reports_blueprint.route('/uscore/graph', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def uscore_graph():
+    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+    entries = Reports.query.filter(
+        Reports.report_type == "uscore"
+    ).filter(Reports.date >= thirty_days_ago).all()
+    characters = CharacterInfo.query.options(load_only(CharacterInfo.name)).all()
+    labels = []
+    datasets = []
+    # get stuff ready
+    for entry in entries:
+        labels.append(entry.date.strftime("%m/%d/%Y"))
+    for character in characters:
+        data = []
+        for entry in entries:
+            if character.name in entry.data.keys():
+                data.append(entry.data[character.name])
+            else:
+                data.append(0)
+        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        datasets.append({
+            "label": character.name,
+            "data": data,
+            "backgroundColor": color,
+            "borderColor": color
+        })
+    return render_template(
+        'reports/graph.html.j2',
+        labels=labels,
+        datasets=datasets,
+        name="U-Score"
+    )
 
 
 @scheduler.task("cron", id="gen_item_report", hour=23, timezone="UTC")

@@ -199,6 +199,19 @@ def translate_from_locale(trans_string):
         return trans_string
 
 
+def get_lot_name(lot_id):
+    name = translate_from_locale(f'Objects_{lot_id}_name')
+    if name == f'Objects_{lot_id}_name':
+        intermed = query_cdclient(
+            'select * from Objects where id = ?',
+            [lot_id],
+            one=True
+        )
+        if intermed:
+            name = intermed[7] if (intermed[7] != "None" and intermed[7] != "" and intermed[7] is None) else intermed[1]
+    return name
+
+
 def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_zone_name')
@@ -237,17 +250,8 @@ def register_luclient_jinja_helpers(app):
             return None
 
     @app.template_filter('get_lot_name')
-    def get_lot_name(lot_id):
-        name = translate_from_locale(f'Objects_{lot_id}_name')
-        if name == f'Objects_{lot_id}_name':
-            intermed = query_cdclient(
-                'select * from Objects where id = ?',
-                [lot_id],
-                one=True
-            )
-            if intermed:
-                name = intermed[7] if (intermed[7] != "None" and intermed[7] != "" and intermed[7] is None) else intermed[1]
-        return name
+    def jinja_get_lot_name(lot_id):
+        return get_lot_name(lot_id)
 
     @app.template_filter('get_lot_rarity')
     def get_lot_rarity(lot_id):

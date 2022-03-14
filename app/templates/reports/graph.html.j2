@@ -1,0 +1,37 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  {{name}} History for the Last 30 Days
+{% endblock title %}
+
+{% block content_before %}
+  {{name}} History for the Last 30 Days
+{% endblock content_before %}
+
+{% block content %}
+  <canvas id="item_chart"></canvas>
+{% endblock  %}
+
+{% block js %}
+  {{ super () }}
+  <script type="text/javascript" src="{{ url_for('static', filename='chartjs/chart.min.js') }}"></script>
+  <script>
+    $(document).ready(function(){
+      let config = {
+        type: 'line',
+        data: {
+          labels: {{labels}},
+          datasets: {{datasets}},
+        },
+        options: {
+          plugins: { legend: { display: false }, }
+        }
+      };
+        let items_chart = new Chart(
+          document.getElementById('item_chart'),
+          config
+        );
+      }
+    );
+  </script>
+{% endblock %}
