@@ -1,3 +1,4 @@
 app/static/bootstrap-4.2.1/* linguist-vendored=true
 app/static/datatables/* linguist-vendored=true
 app/static/font-awesome/* linguist-vendored=true
+app/static/chartjs/* linguist-vendored=true

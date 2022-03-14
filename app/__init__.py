@@ -193,7 +193,7 @@ def register_settings(app):
         'APP_DATABASE_URI',
         app.config['APP_DATABASE_URI']
     )
-    if app.config['SECRET_KEY'] is None or app.config['APP_DATABASE_URI'] is None:
+    if app.config['SECRET_KEY'] is "" or "<database>" in app.config['APP_DATABASE_URI']:
         raise("No database uri or secret Key")
     # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(
