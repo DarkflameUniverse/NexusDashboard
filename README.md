@@ -92,7 +92,7 @@ docker run -d \
 
 ### Environmental Variables
 
-Please Reference `app/settings.exmaple.py` to see all the variables
+Please Reference `app/settings_exmaple.py` to see all the variables
 
   * Required:
     * APP_SECRET_KEY (Must be provided)
@@ -101,7 +101,7 @@ Please Reference `app/settings.exmaple.py` to see all the variables
 
 ## Manual
 
-  * Copy `app/settings.exmaple.py` to `app/settings.py` and adjust the settings you would like.
+  * Copy `app/settings_exmaple.py` to `app/settings.py` and adjust the settings you would like.
     * Provide `APP_SECRET_KEY` and `APP_DATABASE_URI` in `app/settings.py`
   * app/luclient must contian a copy of an unpacked client
     * you only need `res/` and `locale/` from the client, but dropping the whole client in there won't hurt
