@@ -1,11 +1,11 @@
 {% extends 'base.html.j2' %}
 
 {% block title %}
-  {{name}} History for the Last 30 Days
+  {{ name }} History for the Last 30 Days
 {% endblock title %}
 
 {% block content_before %}
-  {{name}} History for the Last 30 Days
+  {{ name }} History for the Last 30 Days
 {% endblock content_before %}
 
 {% block content %}
@@ -24,7 +24,21 @@
           datasets: {{datasets}},
         },
         options: {
-          plugins: { legend: { display: false }, }
+          plugins: { legend: { display: false }, },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Date'
+              },
+              display: true
+            },
+            y: {
+              display: true,
+              type: 'logarithmic',
+              text: '{{ name }}'
+            }
+          }
         }
       };
         let items_chart = new Chart(
