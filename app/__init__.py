@@ -176,7 +176,8 @@ def register_settings(app):
     try:
         app.config.from_object('app.settings')
     except Exception:
-        print("Not using settings.py")
+        app.logger.info("No settings.py, loading from example")
+        app.config.from_object('app.settings_example')
 
     # Load environment specific settings
     app.config['TESTING'] = False
@@ -192,7 +193,8 @@ def register_settings(app):
         'APP_DATABASE_URI',
         app.config['APP_DATABASE_URI']
     )
-
+    if app.config['SECRET_KEY'] is None or app.config['APP_DATABASE_URI'] is None:
+        raise("No database uri or secret Key")
     # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(
         'USER_ENABLE_REGISTER',
