@@ -193,7 +193,8 @@ def register_settings(app):
         'APP_DATABASE_URI',
         app.config['APP_DATABASE_URI']
     )
-    if app.config['SECRET_KEY'] == "" or "<database>" in app.config['APP_DATABASE_URI']:
+    if app.config['SECRET_KEY'] == "" or \
+            app.config['APP_DATABASE_URI'] == "mysql+pymysql://<username>:<password>@<host>:<port>/<database>":
         raise("No database uri or secret Key")
     # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(
