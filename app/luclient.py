@@ -200,6 +200,8 @@ def translate_from_locale(trans_string):
 
 
 def get_lot_name(lot_id):
+    if not lot_id:
+        return "Missing"
     name = translate_from_locale(f'Objects_{lot_id}_name')
     if name == f'Objects_{lot_id}_name':
         intermed = query_cdclient(
@@ -216,6 +218,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_zone_name')
     def get_zone_name(zone_id):
+        if not zone_id:
+            return "Missing"
         return translate_from_locale(f'ZoneTable_{zone_id}_DisplayDescription')
 
     @app.template_filter('get_skill_desc')
@@ -255,7 +259,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_lot_rarity')
     def get_lot_rarity(lot_id):
-
+        if not lot_id:
+            return "Missing"
         render_component_id = query_cdclient(
             'select component_id from ComponentsRegistry where component_type = 11 and id = ?',
             [lot_id],
@@ -273,6 +278,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_lot_desc')
     def get_lot_desc(lot_id):
+        if not lot_id:
+            return "Missing"
         desc = translate_from_locale(f'Objects_{lot_id}_description')
         if desc == f'Objects_{lot_id}_description':
             desc = query_cdclient(
@@ -292,6 +299,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_item_set')
     def check_if_in_set(lot_id):
+        if not lot_id:
+            return None
         item_set = query_cdclient(
             'select * from ItemSets where itemIDs like ? or itemIDs like ? or itemIDs like ?',
             [f'{lot_id}%', f'%, {lot_id}%', f'%,{lot_id}%'],
@@ -304,6 +313,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_lot_stats')
     def get_lot_stats(lot_id):
+        if not lot_id:
+            return None
         stats = query_cdclient(
             'SELECT imBonusUI, lifeBonusUI, armorBonusUI, skillID, skillIcon FROM SkillBehavior WHERE skillID IN (\
                 SELECT skillID FROM ObjectSkills WHERE objectTemplate=?\
@@ -315,6 +326,8 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('get_set_stats')
     def get_set_stats(lot_id):
+        if not lot_id:
+            return "Missing"
         stats = query_cdclient(
             'SELECT imBonusUI, lifeBonusUI, armorBonusUI, skillID, skillIcon FROM SkillBehavior WHERE skillID IN (\
                 SELECT skillID FROM ItemSetSkills WHERE SkillSetID=?\
