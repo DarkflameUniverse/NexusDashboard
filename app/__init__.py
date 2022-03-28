@@ -154,6 +154,8 @@ def register_blueprints(app):
     app.register_blueprint(luclient_blueprint, url_prefix='/luclient')
     from .reports import reports_blueprint
     app.register_blueprint(reports_blueprint, url_prefix='/reports')
+    from .api import api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api')
 
 
 def register_logging(app):
