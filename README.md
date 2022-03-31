@@ -100,7 +100,7 @@ Please Reference `app/settings_exmaple.py` to see all the variables
   * Everything else is optional and has defaults
 
 ## Manual
-
+  * Install `imagemagick` or `libmagickwand-dev` for dds-to-png conversion
   * Copy `app/settings_exmaple.py` to `app/settings.py` and adjust the settings you would like.
     * Provide `APP_SECRET_KEY` and `APP_DATABASE_URI` in `app/settings.py`
   * app/luclient must contian a copy of an unpacked client
