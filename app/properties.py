@@ -360,6 +360,8 @@ def prebuilt(content, file_format, lod):
     )
     if filename:
         filename = filename[0].split("\\\\")[-1].lower().split(".")[0]
+        if "/" in filename:
+            filename = filename.split("/")[-1].lower()
     else:
         return f"No filename for LOT {content.lot}"
 
@@ -372,11 +374,12 @@ def prebuilt(content, file_format, lod):
 
     elif file_format in ["obj", "mtl"]:
         cache = pathlib.Path(f'app/cache/BrickModels/{filename}.lod{lod}.{file_format}')
-        cache.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod)  # convert to OBJ
-        except Exception as e:
-            current_app.logger.error(f"ERROR on {cache}:\n {e}")
+        if not cache.is_file():
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod)  # convert to OBJ
+            except Exception as e:
+                current_app.logger.error(f"ERROR on {cache}:\n {e}")
 
         with open(str(cache.as_posix()), 'r') as file:
             cache_data = file.read()
