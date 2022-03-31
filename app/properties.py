@@ -123,8 +123,9 @@ def get(status="all"):
         ColumnDT(Property.time_claimed),        # 9
         ColumnDT(Property.rejection_reason),    # 10
         ColumnDT(Property.reputation),          # 11
-        ColumnDT(Property.zone_id),             # 12
-        ColumnDT(Account.username)              # 13
+        ColumnDT(Property.performance_cost),    # 12
+        ColumnDT(Property.zone_id),             # 13
+        ColumnDT(Account.username)              # 14
     ]
 
     query = None
@@ -146,6 +147,7 @@ def get(status="all"):
     rowTable = DataTables(params, query, columns)
 
     data = rowTable.output_result()
+    print(data)
     for property_data in data["data"]:
         id = property_data["0"]
 
@@ -181,7 +183,7 @@ def get(status="all"):
         if property_data["4"] == "":
             property_data["4"] = query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
-                [property_data["12"]],
+                [property_data["13"]],
                 one=True
             )
 
@@ -200,9 +202,9 @@ def get(status="all"):
         else:
             property_data["7"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
-        property_data["12"] = query_cdclient(
+        property_data["13"] = query_cdclient(
             'select DisplayDescription from ZoneTable where zoneID = ?',
-            [property_data["12"]],
+            [property_data["13"]],
             one=True
         )
 

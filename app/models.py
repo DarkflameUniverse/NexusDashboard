@@ -8,6 +8,7 @@ from flask_sqlalchemy import BaseQuery
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import OperationalError, StatementError
 from sqlalchemy.types import JSON
+from sqlalchemy.ext.hybrid import hybrid_property
 from time import sleep
 import random
 import string
@@ -692,6 +693,15 @@ class Property(db.Model):
     reputation = db.Column(
         mysql.BIGINT(unsigned=True),
         nullable=False,
+    )
+
+    performance_cost = db.Column(
+        mysql.DOUBLE(
+            precision=20,
+            scale=15,
+            asdecimal=False
+        ),
+        server_default='0.0'
     )
 
     zone_id = db.Column(
