@@ -120,6 +120,9 @@ def reject(id):
 
         # send rejection reason to their mailbox
         # cause the game doesn't present it otherwise
+        mail_message = "Rejected Property " + \
+            f"{property_data.name if property_data.name else zone_name} " + \
+            f"with reason \"{form.rejection_reason.data}\""""
         Mail(
             sender_id=0,
             sender_name=f"[GM] {current_user.username}",
@@ -127,7 +130,7 @@ def reject(id):
             receiver_name=char_name,
             time_sent=time.time(),
             subject=f"Property {property_data.name} on {zone_name} Rejected",
-            body=message,
+            body=mail_message,
             attachment_id=0,
             attachment_lot=0,
             attachment_count=0
