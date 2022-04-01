@@ -8,36 +8,38 @@
   Property Management
 {% endblock content_before %}
 
-{% block content %}
-  {% if message %}
-    <div class="row">
-      <div class="col text-center">
-        <h3>{{ message }}</h3>
+{% block content_override %}
+  <div class="mx-5">
+    {% if message %}
+      <div class="row">
+        <div class="col text-center">
+          <h3>{{ message }}</h3>
+        </div>
       </div>
-    </div>
-    <br/>
-  {% endif %}
-  <table class="table table-dark table-striped table-bordered table-hover" id="properties_table">
-    <thead>
-        <tr>
-            <th>Actions</th>
-            <th>Owner</th>
-            <th>Template ID</th>
-            <th>Clone ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Privacy</th>
-            <th>Approved</th>
-            <th>Updated</th>
-            <th>Claimed</th>
-            <th>Rejection Reason</th>
-            <th>Reputation</th>
-            <th>Performance Cost</th>
-            <th>Location</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <br/>
+    {% endif %}
+    <table class="table table-dark table-striped table-bordered table-hover" id="properties_table">
+      <thead>
+          <tr>
+              <th>Actions</th>
+              <th>Owner</th>
+              <th>Template ID</th>
+              <th>Clone ID</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Privacy</th>
+              <th>Approved</th>
+              <th>Updated</th>
+              <th>Claimed</th>
+              <th>Rejection Reason</th>
+              <th>Reputation</th>
+              <th>Performance Cost</th>
+              <th>Location</th>
+          </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 {% endblock  %}
 
 

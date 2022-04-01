@@ -12,10 +12,11 @@ from flask import (
 from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import time
-from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account
+from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account, Mail
 from app.schemas import PropertySchema
 from app import gm_level, log_audit
 from app.luclient import query_cdclient
+from app.forms import RejectPropertyForm
 
 import zlib
 import app.pylddlib as ldd
@@ -70,7 +71,7 @@ def approve(id):
         log_audit(message)
         flash(
             message,
-            "danger"
+            "warning"
         )
 
     property_data.save()
@@ -86,6 +87,67 @@ def approve(id):
         go_to = url_for('main.index')
 
     return redirect(go_to)
+
+
+@property_blueprint.route('/reject/<id>', methods=['GET', 'POST'])
+@login_required
+@gm_level(3)
+def reject(id):
+
+    property_data = Property.query.filter(Property.id == id).first()
+
+    form = RejectPropertyForm()
+
+    if form.validate_on_submit():
+        char_name = CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name
+        zone_name = query_cdclient(
+            'select DisplayDescription from ZoneTable where zoneID = ?',
+            [property_data.zone_id],
+            one=True
+        )[0]
+        property_data.mod_approved = False
+        property_data.rejection_reason = form.rejection_reason.data
+        message = f"""Rejected Property
+            {property_data.name if property_data.name else zone_name}
+            from {char_name} with reason \"{form.rejection_reason.data}\""""
+        log_audit(message)
+        flash(
+            message,
+            "danger"
+        )
+
+        property_data.save()
+
+        # send rejection reason to their mailbox
+        # cause the game doesn't present it otherwise
+        Mail(
+            sender_id=0,
+            sender_name=f"[GM] {current_user.username}",
+            receiver_id=property_data.owner_id,
+            receiver_name=char_name,
+            time_sent=time.time(),
+            subject=f"Property {property_data.name} on {zone_name} Rejected",
+            body=message,
+            attachment_id=0,
+            attachment_lot=0,
+            attachment_count=0
+        ).save()
+
+        go_to = ""
+
+        if request.referrer:
+            if "view_models" in request.referrer:
+                go_to = url_for('properties.view', id=id)
+            else:
+                go_to = url_for('properties.index')
+        else:
+            go_to = url_for('main.index')
+
+        return redirect(go_to)
+
+    form.rejection_reason.data = property_data.rejection_reason
+
+    return render_template('properties/reject.html.j2', property_data=property_data, form=form)
 
 
 @property_blueprint.route('/view/<id>', methods=['GET'])
@@ -170,6 +232,13 @@ def get(status="all"):
                 <a role="button" class="btn btn-danger btn btn-block"
                     href='{url_for('properties.approve', id=id)}'>
                     Unapprove
+                </a>
+            """
+        if not property_data["10"]:
+            property_data["0"] += f"""
+                <a role="button" class="btn btn-danger btn btn-block"
+                    href='{url_for('properties.reject', id=id)}'>
+                    Reject
                 </a>
             """
 

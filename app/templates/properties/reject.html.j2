@@ -1,0 +1,32 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+  Viewing {{property_data.owner.name}}'s
+  {% if property_data.name %}
+    {{ property_data.name }}
+  {% else %}
+    {{ property_data.zone_id|get_zone_name }}
+  {% endif %}
+{% endblock %}
+
+{% block content_before %}
+  Viewing {{property_data.owner.name}}'s
+  {% if property_data.name %}
+    {{ property_data.name }}
+  {% else %}
+    {{ property_data.zone_id|get_zone_name }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <form method=post>
+    {{ form.csrf_token }}
+    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 20rem;">
+      <div class="card-body">
+        {{ helper.render_field(form.rejection_reason) }}
+        {{ helper.render_submit_field(form.submit) }}
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+

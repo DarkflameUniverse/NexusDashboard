@@ -68,7 +68,7 @@ def get(status):
     elif status == "resolved":
         query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time is not None)
     elif status == "unresolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time is None)
+        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == "")
     else:
         raise Exception("Not a valid filter")
 

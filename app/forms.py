@@ -187,3 +187,13 @@ class RescueForm(FlaskForm):
     )
 
     submit = SubmitField('Submit')
+
+
+class RejectPropertyForm(FlaskForm):
+    rejection_reason = StringField(
+        'Rejection Reason',
+        widget=TextArea(),
+        validators=[validators.DataRequired()]
+    )
+
+    submit = SubmitField('Submit')
