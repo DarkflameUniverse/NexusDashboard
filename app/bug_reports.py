@@ -54,21 +54,22 @@ def resolve(id):
 def get(status):
     columns = [
         ColumnDT(BugReport.id),                 # 0
-        ColumnDT(BugReport.body),               # 1
-        ColumnDT(BugReport.client_version),     # 2
-        ColumnDT(BugReport.other_player_id),    # 3
-        ColumnDT(BugReport.selection),          # 4
-        ColumnDT(BugReport.submitted),          # 5
-        ColumnDT(BugReport.resolved_time),      # 6
+        ColumnDT(BugReport.reporter_id),        # 1
+        ColumnDT(BugReport.body),               # 2
+        ColumnDT(BugReport.client_version),     # 3
+        ColumnDT(BugReport.other_player_id),    # 4
+        ColumnDT(BugReport.selection),          # 5
+        ColumnDT(BugReport.submitted),          # 6
+        ColumnDT(BugReport.resolved_time),      # 7
     ]
 
     query = None
     if status == "all":
         query = db.session.query().select_from(BugReport)
     elif status == "resolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time is not None)
+        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time != None)
     elif status == "unresolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == "")
+        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == None)
     else:
         raise Exception("Not a valid filter")
 
@@ -86,31 +87,44 @@ def get(status):
             </a>
         """
 
-        if not report["6"]:
+        if report["7"] is not None:
             report["0"] += f"""
-            <a role="button" class="btn btn-danger btn btn-block"
-                href='{url_for('bug_reports.resolve', id=id)}'>
-                Resolve
-            </a>
-        """
-
-        if report["3"] == "0":
-            report["3"] = "None"
+                <a role="button" class="btn btn-danger btn btn-block"
+                    href='{url_for('bug_reports.resolve', id=id)}'>
+                    Resolve
+                </a>
+            """
         else:
-            character = CharacterInfo.query.filter(CharacterInfo.id == int(report["3"]) & 0xFFFFFFFF).first()
+            report["7"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
+
+        if report["1"]:
+            report["1"] = "None"
+        else:
+            character = CharacterInfo.query.filter(CharacterInfo.id == int(report["1"])).first()
             if character:
-                report["3"] = f"""
+                report["1"] = f"""
                     <a role="button" class="btn btn-primary btn btn-block"
-                        href='{url_for('characters.view', id=(int(report["3"]) & 0xFFFFFFFF))}'>
+                        href='{url_for('characters.view', id=report['1'])}'>
                         {character.name}
                     </a>
                 """
             else:
-                report["3"] = "Player Deleted"
+                report["1"] = "Player Deleted"
 
-        report["4"] = translate_from_locale(report["4"][2:-1])
+        if report["4"] == "0":
+            report["4"] = "None"
+        else:
+            character = CharacterInfo.query.filter(CharacterInfo.id == int(report["4"]) & 0xFFFFFFFF).first()
+            if character:
+                report["4"] = f"""
+                    <a role="button" class="btn btn-primary btn btn-block"
+                        href='{url_for('characters.view', id=(int(report["4"]) & 0xFFFFFFFF))}'>
+                        {character.name}
+                    </a>
+                """
+            else:
+                report["4"] = "Player Deleted"
 
-        if not report["6"]:
-            report["6"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
+        report["5"] = translate_from_locale(report["5"][2:-1])
 
     return data

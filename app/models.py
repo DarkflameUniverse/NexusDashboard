@@ -8,7 +8,6 @@ from flask_sqlalchemy import BaseQuery
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import OperationalError, StatementError
 from sqlalchemy.types import JSON
-from sqlalchemy.ext.hybrid import hybrid_property
 from time import sleep
 import random
 import string
@@ -954,6 +953,12 @@ class BugReport(db.Model):
     resolution = db.Column(
         mysql.TEXT,
         nullable=True
+    )
+
+    reporter_id = db.Column(
+        mysql.INTEGER(),
+        nullable=False,
+        server_default='0'
     )
 
     def save(self):

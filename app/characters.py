@@ -228,9 +228,9 @@ def get(status):
     if status == "all":
         query = db.session.query().select_from(CharacterInfo).join(Account)
     elif status == "approved":
-        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename is False))
+        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename == False))
     elif status == "unapproved":
-        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename is True))
+        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename == True))
     else:
         raise Exception("Not a valid filter")
 
