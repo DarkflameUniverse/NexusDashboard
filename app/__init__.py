@@ -1,5 +1,5 @@
 import os
-from flask import Flask, url_for, g, redirect, render_template
+from flask import Flask, url_for, g, redirect
 from functools import wraps
 from flask_assets import Environment
 from webassets import Bundle
@@ -12,7 +12,14 @@ from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import register_luclient_jinja_helpers
 
-from app.commands import init_db, init_accounts, load_property, gen_image_cache, gen_model_cache
+from app.commands import (
+    init_db,
+    init_accounts,
+    load_property,
+    gen_image_cache,
+    gen_model_cache,
+    fix_clone_ids
+)
 from app.models import Account, AccountInvitation, AuditLog
 
 import logging
@@ -90,6 +97,7 @@ def create_app():
     app.cli.add_command(load_property)
     app.cli.add_command(gen_image_cache)
     app.cli.add_command(gen_model_cache)
+    app.cli.add_command(fix_clone_ids)
 
     register_logging(app)
     register_settings(app)

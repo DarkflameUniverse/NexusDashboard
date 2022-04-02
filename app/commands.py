@@ -47,6 +47,23 @@ def init_accounts():
     return
 
 
+@click.command("fix_clone_ids")
+@with_appcontext
+def fix_clone_ids():
+    """Fix incorrect prop_clone_id's"""
+    properties = Property.query.all()
+    count = 0
+    for prop in properties:
+        char = CharacterInfo.query.filter(CharacterInfo.id == prop.owner_id).first()
+        if char.prop_clone_id != prop.clone_id:
+            count += 1
+            prop.clone_id = char.prop_clone_id
+            prop.save()
+
+    print(f"Fixed {count} props")
+    return
+
+
 @click.command("load_property")
 @click.argument('zone')
 @click.argument('player')
