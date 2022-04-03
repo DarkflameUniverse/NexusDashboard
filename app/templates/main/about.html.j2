@@ -3,19 +3,13 @@
 {% block title %}About{% endblock %}
 
 {% block content_before %}
- About {{ config.APP_NAME }}
+  Online Players: {{ online }}
 {% endblock %}
 
 {% block content %}
   <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
     <div class="card-body">
-      <h4 class="text-center">Contributors</h4>
-
-      <div class="row">
-        <div class="col text-center">
-          Online Players: {{ online }}
-        </div>
-      </div>
+      <h4 class="text-center">Staff</h4>
 
       {% for mod in mods %}
         <div class="row">
