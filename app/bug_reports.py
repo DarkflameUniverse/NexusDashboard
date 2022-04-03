@@ -97,7 +97,7 @@ def get(status):
         else:
             report["7"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
 
-        if report["1"]:
+        if not report["1"]:
             report["1"] = "None"
         else:
             character = CharacterInfo.query.filter(CharacterInfo.id == int(report["1"])).first()
