@@ -28,7 +28,7 @@ def index():
 @login_required
 def about():
     """About Page"""
-    mods = Account.query.filter(Account.gm_level > 0).all()
+    mods = Account.query.filter(Account.gm_level > 0).order_by(Account.gm_level.desc()).all()
     online = 0
     chars = CharacterInfo.query.all()
     for char in chars:
