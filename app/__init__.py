@@ -82,7 +82,6 @@ def create_app():
         if cdclient is not None:
             cdclient.close()
 
-
     # add the commands to flask cli
     app.cli.add_command(init_db)
     app.cli.add_command(init_accounts)

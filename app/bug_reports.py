@@ -55,7 +55,6 @@ def resolve(id):
 
 @bug_report_blueprint.route('/get/<status>', methods=['GET'])
 @login_required
-@gm_level(3)
 def get(status):
     columns = [
         ColumnDT(BugReport.id),                 # 0
