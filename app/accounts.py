@@ -61,15 +61,17 @@ def edit_gm_level(id):
 @gm_level(3)
 def lock(id):
     account = Account.query.filter(Account.id == id).first()
-    account.locked = not account.locked
-    account.active = account.locked
-    account.save()
-    if account.locked:
+    if not account.locked:
+        account.locked = True
+        account.active = False
         log_audit(f"Locked ({account.id}){account.username}")
         flash("Locked Account", "danger")
     else:
+        account.locked = False
+        account.active = True
         log_audit(f"Unlocked ({account.id}){account.username}")
         flash("Unlocked account", "success")
+    account.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
 
@@ -80,13 +82,18 @@ def ban(id):
     account = Account.query.filter(Account.id == id).first()
     account.banned = not account.banned
     account.active = account.banned
-    account.save()
-    if account.banned:
+
+    if not account.banned:
+        account.banned = True
+        account.active = False
         log_audit(f"Banned ({account.id}){account.username}")
         flash("Banned Account", "danger")
     else:
+        account.banned = False
+        account.active = True
         log_audit(f"Unbanned ({account.id}){account.username}")
         flash("Unbanned account", "success")
+    account.save()
     return redirect(request.referrer if request.referrer else url_for("main.index"))
 
 
