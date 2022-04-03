@@ -80,16 +80,18 @@
           </li>
         {% endif %}
         {% if current_user.is_authenticated %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bug Reports</a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='unresolved') }}'>Unresolved Reports</a>
-              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='resolved') }}'>Resolved Reports</a>
-              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='all') }}'>All Reports</a>
-            </div>
-          </li>
+          {% if current_user.gm_level == 0 %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bug Reports</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='unresolved') }}'>Unresolved Reports</a>
+                <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='resolved') }}'>Resolved Reports</a>
+                <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='all') }}'>All Reports</a>
+              </div>
+            </li>
+          {% endif %}
           {# About always right most #}
-        <a id='main-about' class='nav-link' href='{{ url_for('main.about') }}'>About</a>
+          <a id='main-about' class='nav-link' href='{{ url_for('main.about') }}'>About</a>
         {% endif %}
 
 
