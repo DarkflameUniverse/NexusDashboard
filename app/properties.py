@@ -194,9 +194,7 @@ def get(status="all"):
     ]
 
     query = None
-    if status == "all":
-        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id == Property.owner_id).join(Account)
-    elif status == "approved":
+    if status == "approved":
         query = db.session.query().select_from(Property).join(
             CharacterInfo, CharacterInfo.id == Property.owner_id
         ).join(Account).filter(Property.mod_approved == True).filter(Property.privacy_option == 2)
@@ -205,7 +203,7 @@ def get(status="all"):
             CharacterInfo, CharacterInfo.id == Property.owner_id
         ).join(Account).filter(Property.mod_approved == False).filter(Property.privacy_option == 2)
     else:
-        raise Exception("Not a valid filter")
+        query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id == Property.owner_id).join(Account)
 
     params = request.args.to_dict()
 

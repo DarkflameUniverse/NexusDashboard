@@ -69,27 +69,23 @@ def get(status):
 
     query = None
     if current_user.gm_level > 0:
-        if status == "all":
-            query = db.session.query().select_from(BugReport)
-        elif status == "resolved":
+        if status == "resolved":
             query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time != None)
         elif status == "unresolved":
             query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == None)
         else:
-            raise Exception("Not a valid filter")
+            query = db.session.query().select_from(BugReport)
     else:
         chars = CharacterInfo.query.with_entities(CharacterInfo.id).filter(CharacterInfo.account_id == current_user.id).all()
         char_ids = []
         for char in chars:
             char_ids.append(char[0])
-        if status == "all":
-            query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids))
-        elif status == "resolved":
+        if status == "resolved":
             query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids)).filter(BugReport.resolved_time != None)
         elif status == "unresolved":
             query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids)).filter(BugReport.resolved_time == None)
         else:
-            raise Exception("Not a valid filter")
+            query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids))
 
     params = request.args.to_dict()
 

@@ -54,14 +54,12 @@ def get_pets(status="all"):
     ]
 
     query = None
-    if status == "all":
-        query = db.session.query().select_from(PetNames)
-    elif status == "approved":
+    if status == "approved":
         query = db.session.query().select_from(PetNames).filter(PetNames.approved == 2)
     elif status == "unapproved":
         query = db.session.query().select_from(PetNames).filter(PetNames.approved == 1)
     else:
-        raise Exception("Not a valid filter")
+        query = db.session.query().select_from(PetNames)
 
     params = request.args.to_dict()
 

@@ -225,14 +225,12 @@ def get(status):
     ]
 
     query = None
-    if status == "all":
-        query = db.session.query().select_from(CharacterInfo).join(Account)
-    elif status == "approved":
+    if status == "approved":
         query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename == False))
     elif status == "unapproved":
         query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename == True))
     else:
-        raise Exception("Not a valid filter")
+        query = db.session.query().select_from(CharacterInfo).join(Account)
 
     params = request.args.to_dict()
 
