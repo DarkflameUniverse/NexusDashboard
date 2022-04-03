@@ -108,7 +108,6 @@ def get(status):
                     Resolve
                 </a>
             """
-        else:
             report["7"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
 
         if not report["1"]:
