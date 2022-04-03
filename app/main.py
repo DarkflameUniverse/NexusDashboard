@@ -37,7 +37,7 @@ def about():
         ).filter(
             ActivityLog.character_id == char.id
         ).order_by(ActivityLog.id.desc()).first()
-        print(last_log)
+
         if last_log:
             if last_log[0] == 0:
                 online += 1
