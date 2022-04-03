@@ -8,7 +8,7 @@
   Resolve Report {{ report.id }}
 {% endblock content_before %}
 
-{% block content %}
+{% block content_override %}
   <form method=post>
     {{ form.csrf_token }}
     <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 80vw;">
@@ -75,4 +75,4 @@
       </div>
     </div>
   </form>
-{% endblock content %}
+{% endblock content_override %}
