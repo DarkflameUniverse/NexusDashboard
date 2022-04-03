@@ -101,7 +101,7 @@ def get(status):
             </a>
         """
 
-        if report["7"] is not None:
+        if report["7"] is None:
             report["0"] += f"""
                 <a role="button" class="btn btn-danger btn btn-block"
                     href='{url_for('bug_reports.resolve', id=id)}'>
