@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, redirect, url_for, request, flash
+from flask import render_template, Blueprint, redirect, url_for, request, flash, redirect
 from flask_user import login_required, current_user
 from app.models import db, BugReport, CharacterInfo
 from datatables import ColumnDT, DataTables
@@ -11,16 +11,21 @@ bug_report_blueprint = Blueprint('bug_reports', __name__)
 
 @bug_report_blueprint.route('/<status>', methods=['GET'])
 @login_required
-@gm_level(3)
 def index(status):
     return render_template('bug_reports/index.html.j2', status=status)
 
 
 @bug_report_blueprint.route('/view/<id>', methods=['GET'])
 @login_required
-@gm_level(3)
 def view(id):
     report = BugReport.query.filter(BugReport.id == id).first()
+    if current_user.gm_level < 3:
+        chars = CharacterInfo.query.with_entities(CharacterInfo.id).filter(CharacterInfo.account_id == current_user.id).all()
+        char_ids = []
+        for char in chars:
+            char_ids.append(char[0])
+        if report.reporter_id not in char_ids:
+            return redirect(url_for('bug_reports.index', status=all))
     if report.resoleved_by:
         rb = report.resoleved_by.username
     else:
@@ -64,14 +69,28 @@ def get(status):
     ]
 
     query = None
-    if status == "all":
-        query = db.session.query().select_from(BugReport)
-    elif status == "resolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time != None)
-    elif status == "unresolved":
-        query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == None)
+    if current_user.gm_level > 0:
+        if status == "all":
+            query = db.session.query().select_from(BugReport)
+        elif status == "resolved":
+            query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time != None)
+        elif status == "unresolved":
+            query = db.session.query().select_from(BugReport).filter(BugReport.resolved_time == None)
+        else:
+            raise Exception("Not a valid filter")
     else:
-        raise Exception("Not a valid filter")
+        chars = CharacterInfo.query.with_entities(CharacterInfo.id).filter(CharacterInfo.account_id == current_user.id).all()
+        char_ids = []
+        for char in chars:
+            char_ids.append(char[0])
+        if status == "all":
+            query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids))
+        elif status == "resolved":
+            query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids)).filter(BugReport.resolved_time != None)
+        elif status == "unresolved":
+            query = db.session.query().select_from(BugReport).filter(BugReport.reporter_id.in_(char_ids)).filter(BugReport.resolved_time == None)
+        else:
+            raise Exception("Not a valid filter")
 
     params = request.args.to_dict()
 
@@ -116,12 +135,15 @@ def get(status):
         else:
             character = CharacterInfo.query.filter(CharacterInfo.id == int(report["4"]) & 0xFFFFFFFF).first()
             if character:
-                report["4"] = f"""
-                    <a role="button" class="btn btn-primary btn btn-block"
-                        href='{url_for('characters.view', id=(int(report["4"]) & 0xFFFFFFFF))}'>
-                        {character.name}
-                    </a>
-                """
+                if current_user.gm_level > 3:
+                    report["4"] = f"""
+                        <a role="button" class="btn btn-primary btn btn-block"
+                            href='{url_for('characters.view', id=(int(report["4"]) & 0xFFFFFFFF))}'>
+                            {character.name}
+                        </a>
+                    """
+                else:
+                    report["4"] = character.name
             else:
                 report["4"] = "Player Deleted"
 

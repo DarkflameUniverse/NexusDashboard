@@ -73,6 +73,15 @@
               {% endif %}
             </div>
           </li>
+        {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bug Reports</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='unresolved') }}'>Unresolved Reports</a>
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='resolved') }}'>Resolved Reports</a>
+              <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='all') }}'>All Reports</a>
+            </div>
+          </li>
         {% endif %}
 
         {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
