@@ -12,49 +12,23 @@
       <h4 class="text-center">Contributors</h4>
 
       <div class="row">
-        <div class="col text-right">
-          Developer:
-        </div>
-        <div class="col">
-          Aronwk (Aaron Kimbrell)
+        <div class="col text-center">
+          Online Players: {{ online }}
         </div>
       </div>
 
-      <div class="row">
-        <div class="col text-right">
-          Developer:
+      {% for mod in mods %}
+        <div class="row">
+          <div class="col text-right">
+            {{ mod.username }}
+          </div>
+          <div class="col">
+            {% with gm_level=mod.gm_level %}
+              {% include 'partials/_gm_level.html.j2' %}
+            {% endwith %}
+          </div>
         </div>
-        <div class="col">
-          Wincent
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col text-right">
-          Logo Designer:
-        </div>
-        <div class="col">
-          BlasterBuilder
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col text-right">
-          LDD/LXFML Rendering:
-        </div>
-        <div class="col">
-          m2m/sttng
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col text-right">
-          Developer:
-        </div>
-        <div class="col">
-          Jett.
-        </div>
-      </div>
+      {% endfor %}
 
       <hr>
       <div class="row">

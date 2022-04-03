@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, send_from_directory
-from flask_user import current_user
+from flask_user import current_user, login_required
 
-from app.models import Account
+from app.models import Account, CharacterInfo, ActivityLog
 from app.schemas import AccountSchema, CharacterInfoSchema
 
 main_blueprint = Blueprint('main', __name__)
@@ -25,9 +25,24 @@ def index():
 
 
 @main_blueprint.route('/about')
+@login_required
 def about():
     """About Page"""
-    return render_template('main/about.html.j2')
+    mods = Account.query.filter(Account.gm_level > 0).all()
+    online = 0
+    chars = CharacterInfo.query.all()
+    for char in chars:
+        last_log = ActivityLog.query.with_entities(
+            ActivityLog.activity
+        ).filter(
+            ActivityLog.character_id == char.id
+        ).order_by(ActivityLog.id.desc()).first()
+        print(last_log)
+        if last_log:
+            if last_log[0] == 0:
+                online += 1
+
+    return render_template('main/about.html.j2', mods=mods, online=online)
 
 
 @main_blueprint.route('/favicon.ico')

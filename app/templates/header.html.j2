@@ -46,6 +46,11 @@
           <a id='property-index' class='nav-link' href='{{ url_for('properties.index') }}'>Properties</a>
         {% endif %}
 
+        {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
+          {# Play Keys #}
+          <a id='play_keys-index' class='nav-link' href='{{ url_for('play_keys.index') }}'>Play Keys</a>
+        {% endif %}
+
         {% if current_user.is_authenticated and current_user.gm_level >= 2 %}
           <a id='report-index' class='nav-link' href='{{ url_for('reports.index') }}'>Reports</a>
           <li class="nav-item dropdown">
@@ -73,7 +78,8 @@
               {% endif %}
             </div>
           </li>
-        {% elif current_user.is_authenticated %}
+        {% endif %}
+        {% if current_user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Bug Reports</a>
             <div class="dropdown-menu">
@@ -82,15 +88,11 @@
               <a class="dropdown-item text-center" href='{{ url_for('bug_reports.index', status='all') }}'>All Reports</a>
             </div>
           </li>
-        {% endif %}
-
-        {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
-          {# Play Keys #}
-          <a id='play_keys-index' class='nav-link' href='{{ url_for('play_keys.index') }}'>Play Keys</a>
-        {% endif %}
-
-        {# About always right most #}
+          {# About always right most #}
         <a id='main-about' class='nav-link' href='{{ url_for('main.about') }}'>About</a>
+        {% endif %}
+
+
 
         {# Only show logout if unauthenticated #}
         {% if current_user.is_authenticated %}
