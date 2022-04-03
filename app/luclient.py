@@ -76,7 +76,10 @@ def get_icon_lot(id):
         one=True
     )[0]
 
-    filename = filename.replace("..\\", "").replace("\\", "/")
+    if filename:
+        filename = filename.replace("..\\", "").replace("\\", "/")
+    else:
+        return redirect(url_for('luclient.unknown'))
 
     cache = f'app/cache/{filename.split(".")[0]}.png'
 

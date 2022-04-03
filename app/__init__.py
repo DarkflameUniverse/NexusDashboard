@@ -82,14 +82,6 @@ def create_app():
         if cdclient is not None:
             cdclient.close()
 
-    # @app.errorhandler(Exception)
-    # def handle_exception(e):
-    #     app.logger.error(e)
-    #     # pass through HTTP errors
-    #     if isinstance(e, HTTPException):
-    #         return e
-    #     # now you're handling non-HTTP exceptions only
-    #     return render_template("status_codes/500.html.j2", exception=e), 500
 
     # add the commands to flask cli
     app.cli.add_command(init_db)
