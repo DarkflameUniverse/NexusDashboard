@@ -20,9 +20,9 @@ def index():
 @login_required
 @gm_level(9)
 def create(count=1, uses=1):
-    PlayKey.create(count=count, uses=uses)
+    key = PlayKey.create(count=count, uses=uses)
     log_audit(f"Created {count} Play Key(s) with {uses} uses!")
-    flash(f"Created {count} Play Key(s) with {uses} uses!", "success")
+    flash(f"Created {count} Play Key(s) with {uses} uses! {key}", "success")
     return redirect(url_for('play_keys.index'))
 
 
