@@ -127,7 +127,7 @@ def pet_name_maintenance():
     with scheduler.app.app_context():
         # associate pet names to characters
         # current_app.logger.info("Started Pet Name Maintenance")
-        unassociated_pets = PetNames.query.filter(PetNames.owner_id is None).all()
+        unassociated_pets = PetNames.query.filter(PetNames.owner_id == None).all()
         if unassociated_pets:
             current_app.logger.info("Found un-associated pets")
             for pet in unassociated_pets:
