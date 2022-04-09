@@ -80,9 +80,6 @@ def lock(id):
 @gm_level(3)
 def ban(id):
     account = Account.query.filter(Account.id == id).first()
-    account.banned = not account.banned
-    account.active = account.banned
-
     if not account.banned:
         account.banned = True
         account.active = False
