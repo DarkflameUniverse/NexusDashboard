@@ -201,7 +201,7 @@ def get(status="all"):
     elif status == "unapproved":
         query = db.session.query().select_from(Property).join(
             CharacterInfo, CharacterInfo.id == Property.owner_id
-        ).join(Account).filter(Property.mod_approved == False).filter(Property.privacy_option == 2)
+        ).join(Account).filter(Property.mod_approved == False).filter(Property.privacy_option == 2).filter(Property.rejection_reason == "")
     else:
         query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id == Property.owner_id).join(Account)
 
