@@ -5,7 +5,7 @@ import string
 import datetime
 from flask_user import current_app
 from app import db
-from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC
+from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC, Mail
 import pathlib
 import zlib
 from wand import image
@@ -14,7 +14,7 @@ import app.pylddlib as ldd
 from multiprocessing import Pool
 from functools import partial
 from sqlalchemy import func
-
+import time
 
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
@@ -51,7 +51,13 @@ def init_accounts():
 @click.command("fix_clone_ids")
 @with_appcontext
 def fix_clone_ids():
-    """Fix incorrect prop_clone_id's"""
+    """
+        Fix incorrect prop_clone_id's
+        Remove duplicate properties
+            Either the one with most models or most recently claimed
+        Retuen Pre-built models via mail
+        (May have errors and need to be run multiple times)
+    """
     properties = Property.query.all()
     count = 0
     for prop in properties:
@@ -103,7 +109,22 @@ def fix_clone_ids():
                                 for content in contents:
                                     if content.lot == 14:
                                         UGC.query.filter(content.ugc_id).first().delete()
-                                    content.delete()
+                                        content.delete()
+                                    else:
+                                        Mail(
+                                            sender_id=0,
+                                            sender_name="System",
+                                            receiver_id=char.id,
+                                            receiver_name=char.name,
+                                            time_sent=time.time(),
+                                            subject="Returned Model",
+                                            body="This model was returned to you from a property cleanup script",
+                                            attachment_id=0,
+                                            attachment_lot=content.lot,
+                                            attachment_count=1
+                                        ).save()
+                                        content.delete()
+                            time.sleep(1)
                             Property.query.filter(Property.id == data[0]).first().delete()
     return
 
