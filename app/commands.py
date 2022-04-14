@@ -13,6 +13,7 @@ from wand.exceptions import BlobError as BE
 import app.pylddlib as ldd
 from multiprocessing import Pool
 from functools import partial
+from sqlalchemy import func
 
 
 @click.command("init_db")
@@ -60,7 +61,50 @@ def fix_clone_ids():
             prop.clone_id = char.prop_clone_id
             prop.save()
 
-    print(f"Fixed {count} props")
+    print(f"Fixed {count} props where clone id did not match owner's clone id")
+
+    dupes = 0
+    characters = CharacterInfo.query.all()
+    for char in characters:
+        props = Property.query.with_entities(
+            Property.zone_id, func.count(Property.zone_id)
+        ).group_by(Property.zone_id).filter(
+            Property.owner_id == char.id
+        ).all()
+        for prop in props:
+            if prop[1] != 1:
+                dupes += 1
+                print(f"found dupe on {char.name}'s {prop[0]}")
+                dupe_props = Property.query.filter(
+                    Property.owner_id == char.id
+                ).filter(
+                    Property.zone_id == prop[0]).all()
+                dupe_data = []
+                # id, content_count
+                for dprop in dupe_props:
+                    dupe_data.append(
+                        [
+                            dprop.id,
+                            PropertyContent.query.filter(PropertyContent.property_id == dprop.id).count(),
+                            dprop.time_claimed
+                        ]
+                    )
+                max_models = max(dupe_data, key=lambda x: x[1])
+                if max_models[1] == 0:
+                    newest = max(dupe_data, key=lambda x: x[2])
+                    for data in dupe_data:
+                        if data[2] != newest[2]:
+                            Property.query.filter(Property.id == data[0]).first().delete()
+                else:
+                    for data in dupe_data:
+                        if data[1] != max_models[1]:
+                            contents = PropertyContent.query.filter(PropertyContent.property_id == dprop.id).all()
+                            if contents:
+                                for content in contents:
+                                    if content.lot == 14:
+                                        UGC.query.filter(content.ugc_id).first().delete()
+                                    content.delete()
+                            Property.query.filter(Property.id == data[0]).first().delete()
     return
 
 
