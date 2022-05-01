@@ -21,7 +21,7 @@
     Credit to sttng
     </a>
     <br/>
-    {% if property_data %}
+    {% if (property_data and gm_level >= 3) %}
       <a role="button" class="btn text-{% if property_data.mod_approved %}danger{% else %}success{% endif %} btn-block"
         href='{{url_for('properties.approve', id=property_data.id)}}'>
         {% if property_data.mod_approved %} Unapprove {% else %} Approve {% endif %}
