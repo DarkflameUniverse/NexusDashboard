@@ -2,7 +2,20 @@ from flask import render_template, Blueprint, redirect, url_for, request, curren
 from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import datetime
-from app.models import Account, db
+from app.models import (
+    Account,
+    CharacterInfo,
+    ActivityLog,
+    Leaderboard,
+    Mail,
+    Property,
+    PropertyContent,
+    UGC,
+    AuditLog,
+    BugReport,
+    AccountInvitation,
+    db
+)
 from app.schemas import AccountSchema
 from app import gm_level, log_audit
 from app.forms import EditGMLevelForm
@@ -111,6 +124,48 @@ def mute(id, days=0):
     account.save()
 
     return redirect(request.referrer if request.referrer else url_for("main.index"))
+
+
+@accounts_blueprint.route('/delete/<id>/', methods=['GET', 'POST'])
+@login_required
+@gm_level(9)
+def delete(id):
+    account = Account.query.filter(Account.id == id).first()
+    message = f"Deleted Account ({account.id}){account.username}"
+    chars = CharacterInfo.query.filter(CharacterInfo.account_id == id).all()
+    for char in chars:
+        activities = ActivityLog.query.filter(ActivityLog.character_id == char.id).all()
+        for activity in activities:
+            activity.delete()
+        lb_entries = Leaderboard.query.filter(Leaderboard.character_id == char.id).all()
+        for lb_entry in lb_entries:
+            lb_entry.delete()
+        mails = Mail.query.filter(Mail.receiver_id == char.id).all()
+        for mail in mails:
+            mail.delete()
+        props = Property.query.filter(Property.owner_id == char.id).all()
+        for prop in props:
+            prop_contents = PropertyContent.query.filter(PropertyContent.property_id == prop.id).all()
+            for prop_content in prop_contents:
+                if prop_content.lot == "14":
+                    UGC.query.filter(UGC.id == prop.ugc_id).first().delete()
+                prop_content.delete()
+            prop.delete()
+        char.delete()
+    # This is for GM stuff, it will be permnently delete logs
+    bugs = BugReport.query.filter(BugReport.resolve_by_id == id).all()
+    for bug in bugs:
+        bug.delete()
+    audits = AuditLog.query.filter(AuditLog.account_id == id).all()
+    for audit in audits:
+        audit.delete()
+    invites = AccountInvitation.query.filter(AccountInvitation.invited_by_user_id == id).all()
+    for invite in invites:
+        invite.delete()
+    account.delete()
+    flash(message, "danger")
+    log_audit(message)
+    return redirect(url_for("main.index"))
 
 
 @accounts_blueprint.route('/get', methods=['GET'])
