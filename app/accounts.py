@@ -18,7 +18,7 @@ from app.models import (
 )
 from app.schemas import AccountSchema
 from app import gm_level, log_audit
-from app.forms import EditGMLevelForm
+from app.forms import EditGMLevelForm, EditEmailForm
 
 accounts_blueprint = Blueprint('accounts', __name__)
 
@@ -67,6 +67,22 @@ def edit_gm_level(id):
     form.gm_level.data = account_data.gm_level
 
     return render_template('accounts/edit_gm_level.html.j2', form=form, username=account_data.username)
+
+
+@accounts_blueprint.route('/edit_email/<id>', methods=('GET', 'POST'))
+@login_required
+@gm_level(8)
+def edit_email(id):
+    account_data = Account.query.filter(Account.id == id).first()
+    form = EditEmailForm()
+    if form.validate_on_submit():
+        log_audit(f"Changed ({account_data.id}){account_data.username}'s Email from {account_data.email} to {form.email.data}")
+        account_data.email = form.email.data
+        account_data.save()
+        return redirect(url_for('accounts.view', id=account_data.id))
+
+    form.email.data = account_data.email
+    return render_template('accounts/edit_email.html.j2', form=form, username=account_data.username)
 
 
 @accounts_blueprint.route('/lock/<id>', methods=['GET'])

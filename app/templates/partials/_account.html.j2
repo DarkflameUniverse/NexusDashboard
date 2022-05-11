@@ -23,6 +23,12 @@
         <br/>
         <div class="col">
           {{ account_data.email }}
+          {% if current_user.gm_level >= 8  and not(current_user.gm_level == 8 and account_data.gm_level == 8)%}
+            <a role="button" class="btn btn-primary"
+              href='{{ url_for('accounts.edit_email', id=account_data.id) }}'>
+              Edit
+            </a>
+          {% endif %}
         </div>
       </div>
     {% endif %}

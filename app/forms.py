@@ -119,11 +119,23 @@ class EditPlayKeyForm(FlaskForm):
 
 class EditGMLevelForm(FlaskForm):
 
-    gm_level = IntegerField(
+    email = IntegerField(
         'GM Level',
         widget=NumberInput(min=0, max=9)
     )
 
+    submit = SubmitField('Submit')
+
+
+class EditEmailForm(FlaskForm):
+    email = StringField(
+        'E-Mail',
+        validators=[
+            Optional(),
+            validators.Email('Invalid email address'),
+            unique_email_validator,
+        ]
+    )
     submit = SubmitField('Submit')
 
 
