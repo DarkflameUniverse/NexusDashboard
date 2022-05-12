@@ -16,6 +16,7 @@ from functools import partial
 from sqlalchemy import func
 import time
 
+
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
 @with_appcontext
