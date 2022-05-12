@@ -99,7 +99,7 @@ def reject(id):
     form = RejectPropertyForm()
 
     if form.validate_on_submit():
-        char_name = CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name
+        char_name = CharacterInfo.query.filter(CharacterInfo.id == property_data.owner_id).first().name
         zone_name = query_cdclient(
             'select DisplayDescription from ZoneTable where zoneID = ?',
             [property_data.zone_id],
@@ -197,11 +197,11 @@ def get(status="all"):
     if status == "approved":
         query = db.session.query().select_from(Property).join(
             CharacterInfo, CharacterInfo.id == Property.owner_id
-        ).join(Account).filter(Property.mod_approved == True).filter(Property.privacy_option == 2)
+        ).join(Account).filter(Property.mod_approved == True).filter(Property.privacy_option == 2) # noqa
     elif status == "unapproved":
         query = db.session.query().select_from(Property).join(
             CharacterInfo, CharacterInfo.id == Property.owner_id
-        ).join(Account).filter(Property.mod_approved == False).filter(Property.privacy_option == 2).filter(Property.rejection_reason == "")
+        ).join(Account).filter(Property.mod_approved == False).filter(Property.privacy_option == 2).filter(Property.rejection_reason == "") # noqa
     else:
         query = db.session.query().select_from(Property).join(CharacterInfo, CharacterInfo.id == Property.owner_id).join(Account)
 

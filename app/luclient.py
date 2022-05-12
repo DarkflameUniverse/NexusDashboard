@@ -3,7 +3,9 @@ from flask import (
     send_file,
     g,
     redirect,
-    url_for
+    url_for,
+    make_response,
+    abort
 )
 from flask_user import login_required
 from app.models import CharacterInfo
@@ -12,6 +14,7 @@ import os
 from wand import image
 from wand.exceptions import BlobError as BE
 import pathlib
+import json
 
 import sqlite3
 import xml.etree.ElementTree as ET
@@ -121,6 +124,42 @@ def get_icon_iconid(id):
             return redirect(url_for('luclient.unknown'))
 
     return send_file(pathlib.Path(cache).resolve())
+
+
+@luclient_blueprint.route('/ldddb/')
+@login_required
+def brick_list():
+    brick_list = []
+    if len(brick_list) == 0:
+        suffixes = [".g", ".g1", ".g2", ".g3", ".xml"]
+        res = pathlib.Path('app/luclient/res/')
+        # Load g files
+        for path in res.rglob("*.*"):
+            if str(path.suffix) in suffixes:
+                brick_list.append(
+                    {
+                        "type": "file",
+                        "name": str(path.as_posix()).replace("app/luclient/res/", "")
+                    }
+                )
+    response = make_response(json.dumps(brick_list))
+    response.headers.set('Content-Type', 'application/json')
+    return response
+
+
+@luclient_blueprint.route('/ldddb/<path>')
+def dir_listing(path):
+    # Joining the base and the requested path
+    rel_path = pathlib.Path(str(pathlib.Path(f'app/luclient/res/{path}').resolve()))
+    # Return 404 if path doesn't exist
+    if not rel_path.exists():
+        return abort(404)
+
+    # Check if path is a file and serve
+    if rel_path.is_file():
+        return send_file(rel_path)
+    else:
+        return abort(404)
 
 
 @luclient_blueprint.route('/unknown')
