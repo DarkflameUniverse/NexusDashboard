@@ -147,10 +147,11 @@ def brick_list():
     return response
 
 
-@luclient_blueprint.route('/ldddb/<path>')
-def dir_listing(path):
+@luclient_blueprint.route('/ldddb/', defaults={'req_path': ''})
+@luclient_blueprint.route('/ldddb/<path:req_path>')
+def dir_listing(req_path):
     # Joining the base and the requested path
-    rel_path = pathlib.Path(str(pathlib.Path(f'app/luclient/res/{path}').resolve()))
+    rel_path = pathlib.Path(str(pathlib.Path(f'app/luclient/res/{req_path}').resolve()))
     # Return 404 if path doesn't exist
     if not rel_path.exists():
         return abort(404)
