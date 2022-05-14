@@ -8,9 +8,11 @@
 
   * Account Management:
     * Ban, Lock, and Mute accounts (This Mute affects all Characters)
-    * Email (all optional):
+    * Account Deletion
+    * Email ( all optional ):
       * Require email verification
       * Reset Password via Email
+      * Edit Email ( by Admin only )
       * User Registration
       * Invitations ( TODO: Implement this )
       * Invitation Only Registration ( TODO: Implement this )
