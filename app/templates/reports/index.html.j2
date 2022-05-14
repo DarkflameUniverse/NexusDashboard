@@ -13,7 +13,7 @@
     <div class="col">
       Items:
       <a role="button" class="btn btn-primary btn btn-block"
-        href='{{url_for('reports.items_graph')}}'>
+        href='{{url_for('reports.items_graph', start=1, end=0)}}'>
         Graph
       </a><br/>
       {% for report in reports_items|reverse %}
@@ -26,7 +26,7 @@
     <div class="col">
       Currency:
       <a role="button" class="btn btn-primary btn btn-block"
-        href='{{url_for('reports.currency_graph')}}'>
+        href='{{url_for('reports.currency_graph', start=1, end=0)}}'>
         Graph
       </a><br/>
       {% for report in reports_currency|reverse %}
@@ -39,7 +39,7 @@
     <div class="col">
       U-Score:
       <a role="button" class="btn btn-primary btn btn-block"
-        href='{{url_for('reports.uscore_graph')}}'>
+        href='{{url_for('reports.uscore_graph', start=1, end=0)}}'>
         Graph
       </a><br/>
       {% for report in reports_uscore|reverse %}

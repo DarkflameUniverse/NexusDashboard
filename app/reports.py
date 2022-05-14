@@ -49,14 +49,15 @@ def items_by_date(date):
     return render_template('reports/items/by_date.html.j2', data=data, date=date)
 
 
-@reports_blueprint.route('/items/graph', methods=['GET', 'POST'])
+@reports_blueprint.route('/items/graph/<start>/<end>', methods=['GET', 'POST'])
 @login_required
 @gm_level(3)
-def items_graph():
-    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+def items_graph(start, end):
+    start_date = datetime.date.today() - datetime.timedelta(weeks=int(start))
+    end_date = datetime.date.today() - datetime.timedelta(weeks=int(end))
     entries = Reports.query.filter(
         Reports.report_type == "items"
-    ).filter(Reports.date >= thirty_days_ago).all()
+    ).filter(Reports.date.between(start_date, end_date)).all()
     # transform data for chartjs
     labels = []
     items = dict()
@@ -74,20 +75,27 @@ def items_graph():
                 data.append(entry.data[key])
             else:
                 data.append(0)
-        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-        datasets.append({
-            "label": value,
-            "data": data,
-            "backgroundColor": color,
-            "borderColor": color
-        })
+        color = "#" + value.encode("utf-8").hex()[1:7]
+        if max(data) > 10:
+            datasets.append({
+                "label": value,
+                "data": data,
+                "backgroundColor": color,
+                "borderColor": color
+            })
 
     return render_template(
         'reports/graph.html.j2',
         labels=labels,
         datasets=datasets,
-        name="Item"
+        name="Item",
+        start=start,
+        end=end,
+        data_type="items",
+        start_date=start_date,
+        end_date=end_date
     )
+
 
 @reports_blueprint.route('/currency/by_date/<date>', methods=['GET', 'POST'])
 @login_required
@@ -97,14 +105,15 @@ def currency_by_date(date):
     return render_template('reports/currency/by_date.html.j2', data=data, date=date)
 
 
-@reports_blueprint.route('/currency/graph', methods=['GET', 'POST'])
+@reports_blueprint.route('/currency/graph/<start>/<end>', methods=['GET', 'POST'])
 @login_required
 @gm_level(3)
-def currency_graph():
-    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+def currency_graph(start, end):
+    start_date = datetime.date.today() - datetime.timedelta(weeks=int(start))
+    end_date = datetime.date.today() - datetime.timedelta(weeks=int(end))
     entries = Reports.query.filter(
         Reports.report_type == "currency"
-    ).filter(Reports.date >= thirty_days_ago).all()
+    ).filter(Reports.date.between(start_date, end_date)).all()
     characters = CharacterInfo.query.options(load_only(CharacterInfo.name)).all()
     labels = []
     datasets = []
@@ -118,18 +127,24 @@ def currency_graph():
                 data.append(entry.data[character.name])
             else:
                 data.append(0)
-        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-        datasets.append({
-            "label": character.name,
-            "data": data,
-            "backgroundColor": color,
-            "borderColor": color
-        })
+        color = "#" + character.name.encode("utf-8").hex()[1:7]
+        if max(data) > 10000:
+            datasets.append({
+                "label": character.name,
+                "data": data,
+                "backgroundColor": color,
+                "borderColor": color
+            })
     return render_template(
         'reports/graph.html.j2',
         labels=labels,
         datasets=datasets,
-        name="Currency"
+        name="Currency",
+        start=start,
+        end=end,
+        data_type="currency",
+        start_date=start_date,
+        end_date=end_date
     )
 
 
@@ -141,14 +156,15 @@ def uscore_by_date(date):
     return render_template('reports/uscore/by_date.html.j2', data=data, date=date)
 
 
-@reports_blueprint.route('/uscore/graph', methods=['GET', 'POST'])
+@reports_blueprint.route('/uscore/graph/<start>/<end>', methods=['GET', 'POST'])
 @login_required
 @gm_level(3)
-def uscore_graph():
-    thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+def uscore_graph(start, end):
+    start_date = datetime.date.today() - datetime.timedelta(weeks=int(start))
+    end_date = datetime.date.today() - datetime.timedelta(weeks=int(end))
     entries = Reports.query.filter(
         Reports.report_type == "uscore"
-    ).filter(Reports.date >= thirty_days_ago).all()
+    ).filter(Reports.date.between(start_date, end_date)).all()
     characters = CharacterInfo.query.options(load_only(CharacterInfo.name)).all()
     labels = []
     datasets = []
@@ -162,18 +178,24 @@ def uscore_graph():
                 data.append(entry.data[character.name])
             else:
                 data.append(0)
-        color = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-        datasets.append({
-            "label": character.name,
-            "data": data,
-            "backgroundColor": color,
-            "borderColor": color
-        })
+        color = "#" + character.name.encode("utf-8").hex()[1:7]
+        if max(data) > 1000:
+            datasets.append({
+                "label": character.name,
+                "data": data,
+                "backgroundColor": color,
+                "borderColor": color
+            })
     return render_template(
         'reports/graph.html.j2',
         labels=labels,
         datasets=datasets,
-        name="U-Score"
+        name="U-Score",
+        start=start,
+        end=end,
+        data_type="uscore",
+        start_date=start_date,
+        end_date=end_date
     )
 
 

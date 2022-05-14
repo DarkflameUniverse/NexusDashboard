@@ -1,14 +1,65 @@
 {% extends 'base.html.j2' %}
 
 {% block title %}
-  {{ name }} History for the Last 30 Days
+  {{ name }} History for {{start_date}} to {{end_date}}
 {% endblock title %}
 
 {% block content_before %}
-  {{ name }} History for the Last 30 Days
+  {{ name }} History for {{start_date}} to {{end_date}}
 {% endblock content_before %}
 
 {% block content %}
+  <div class ="row">
+    {% if data_type == "items" %}
+      <div class="col">
+        <a role="button" class="btn btn-primary btn btn-block"
+          href='{{url_for('reports.items_graph', start=(start|int+1), end=(end|int+1))}}'>
+          Previous
+        </a>
+      </div>
+      {% if end|int > 0 %}
+        <div class="col">
+          <a role="button" class="btn btn-primary btn btn-block"
+            href='{{url_for('reports.items_graph', start=(start|int-1), end=(end|int-1))}}'>
+            Next
+          </a>
+        </div>
+      {% endif %}
+    {% elif data_type == "currency" %}
+      <div class="col">
+        <a role="button" class="btn btn-primary btn btn-block"
+          href='{{url_for('reports.currency_graph', start=(start|int+1), end=(end|int+1))}}'>
+          Previous
+        </a>
+      </div>
+      {% if end|int > 0 %}
+        <div class="col">
+          <a role="button" class="btn btn-primary btn btn-block"
+            href='{{url_for('reports.currency_graph', start=(start|int-1), end=(end|int-1))}}'>
+            Next
+          </a>
+        </div>
+      {% endif %}
+    {% elif data_type == "uscore" %}
+      <div class="col">
+        <a role="button" class="btn btn-primary btn btn-block"
+          href='{{url_for('reports.uscore_graph', start=(start|int+1), end=(end|int+1))}}'>
+          Previous
+        </a>
+      </div>
+      {% if end|int > 0 %}
+        <div class="col">
+          <a role="button" class="btn btn-primary btn btn-block"
+            href='{{url_for('reports.uscore_graph', start=(start|int-1), end=(end|int-1))}}'>
+            Next
+          </a>
+        </div>
+      {% endif %}
+    {% else %}
+      <h1> INVALID DATA TYPE </h1>
+    {% endif %}
+  </div>
+  <hr/>
   <canvas id="item_chart"></canvas>
 {% endblock  %}
 
@@ -27,18 +78,18 @@
           plugins: { legend: { display: false }, },
           scales: {
             x: {
+              display: true,
               title: {
                 display: true,
                 text: 'Date'
-              },
-              display: true
+              }
             },
             y: {
               display: true,
-             title: {
+              title: {
                 display: true,
                 text: '{{ name }}'
-              },
+              }
             }
           }
         }
