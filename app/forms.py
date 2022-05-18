@@ -119,7 +119,7 @@ class EditPlayKeyForm(FlaskForm):
 
 class EditGMLevelForm(FlaskForm):
 
-    email = IntegerField(
+    gm_level = IntegerField(
         'GM Level',
         widget=NumberInput(min=0, max=9)
     )
