@@ -23,5 +23,11 @@ if APP_THEME == "Green":
 if APP_THEME == "Yellow":
     HEX_CODE = "#FFCC00"
     openFile(HEX_CODE)
+if APP_THEME == "Black":
+    HEX_CODE = "#000000"
+    openFile(HEX_CODE)
+if APP_THEME == "Purple":
+    HEX_CODE = "#A020F0"
+    openFile(HEX_CODE)
 
 
