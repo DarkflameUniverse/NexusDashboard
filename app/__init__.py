@@ -11,6 +11,7 @@ from flask_user import user_registered, current_user, user_logged_in
 from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import register_luclient_jinja_helpers
+import app.themes
 
 from app.commands import (
     init_db,
