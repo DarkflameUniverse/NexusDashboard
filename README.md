@@ -68,6 +68,8 @@
   * Analytics:
     * Provide reporting to Developers to help better solve issues
     * Disabled by default. Set `ALLOW_ANALYTICS` to true to enable.
+  * Themes:
+    * Choose a color scheme for your dashboard
 
 # Deployment
 
@@ -218,6 +220,9 @@ Run the following commands one at a time
 ##### Running the site
 You can run the site with
 `gunicorn -b :8000 -w 4 wsgi:app`
+
+# Configuring Dashboard
+If you want to change the theme of your dashboard, go into the `app` folder and open `themes.py` and change `APP_THEME` to the color you want. For example, `APP_THEME = "Blue"`
 
 # Development
 
