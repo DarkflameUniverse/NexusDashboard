@@ -4,9 +4,11 @@ APP_THEME = "Blue"
 def openFile(theme):
     with open("static/scss/site.scss", 'r') as f:
         lines = f.readlines()
-        primary = lines[2]
-        print(primary)
-        print("        \"primary\": " + theme + ",")
+        newline = "        \"primary\": " + theme + "," + "\n"
+    with open("static/scss/site.scss", 'w') as f:
+        lines[2] = newline
+        f.writelines(lines)
+        f.close()
 
 
 if APP_THEME == "Blue":
