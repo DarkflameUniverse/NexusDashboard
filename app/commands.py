@@ -15,6 +15,8 @@ from multiprocessing import Pool
 from functools import partial
 from sqlalchemy import func
 import time
+import xml.etree.ElementTree as ET
+import xmltodict
 
 
 @click.command("init_db")
@@ -267,3 +269,120 @@ def find_or_create_account(name, email, password, gm_level=9):
         db.session.add(play_key)
         db.session.commit()
     return  # account
+
+
+@click.command("split_ugc")
+@click.argument('path')
+def split_ugc(path):
+    base = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<LXFML versionMajor="5" versionMinor="0">
+<Meta>
+    <Application name="LEGO Universe" versionMajor="0" versionMinor="0"/>
+    <Brand name="LEGOUniverse"/>
+    <BrickSet version="457"/>
+</Meta>
+<Bricks>
+</Bricks>
+<RigidSystems>
+</RigidSystems>
+<GroupSystems>
+    <GroupSystem>
+    </GroupSystem>
+</GroupSystems>
+</LXFML>
+"""
+    # create element tree object
+    orig_lxfml = ET.parse(path)
+
+    rigidsystems = orig_lxfml.findall('.//RigidSystem')
+    # print(len(rigidsystems))
+    rigids_parts = {}
+    i = 0
+    for rigidsytem in rigidsystems:
+        rigids = rigidsytem.findall('.//Rigid')
+        rigids_parts[i] = []
+        for rigid in rigids:
+            rigids_parts[i].extend(rigid.attrib['boneRefs'].split(','))
+        i += 1
+    # print(rigids_parts)
+    groups = orig_lxfml.findall('.//Group')
+
+    # print(len(groups))
+    groups_parts = []
+    for group in groups:
+        groups_parts.append(group.attrib['partRefs'].split(','))
+    # print(groups_parts)
+
+    # our output
+    models = []
+    g = 0
+    # get things by group
+    if len(groups_parts) > 0:
+        for group in groups_parts:
+            tmp_model = {"bricks": [], "rigidsystems": [], "group": g}
+
+            for brick in group:
+                # find rigids
+                rigid = None
+                for k, v in rigids_parts.items():
+                    if brick in v:
+                        tmp_model["rigidsystems"].extend(str(k))
+                        tmp_model["bricks"].extend(rigids_parts[k])
+                        # delete the rigid so that we do dupe it in the next step
+                        del rigids_parts[k]
+                        break
+            models.append(tmp_model)
+        g += 1
+    # get stuff by rigids
+    if len(rigids_parts) > 0:
+        for k, v in rigids_parts.items():
+            tmp_model = {"bricks": [], "rigidsystems": []}
+            tmp_model["rigidsystems"].extend(str(k))
+            tmp_model["bricks"].extend(rigids_parts[k])
+            models.append(tmp_model)
+    # print(models)
+
+    # make out lxfml files
+    output_xmls = []
+    if len(models) > 0:
+        for model in models:
+            new_xml = ET.fromstring(base)
+            for key, v in model.items():
+                if key == "bricks":
+                    bricks = new_xml.find(".//Bricks")
+                    for brick in model[key]:
+                        # get brick and then add it to our new xml
+                        bricks.append(orig_lxfml.find(f".//Brick[@refID='{brick}']"))
+                if key == "rigidsystems":
+                    new_rigidsystems = new_xml.find(".//RigidSystems")
+                    for rigidsystem in model[key]:
+                        new_rigidsystems.append(rigidsystems[int(rigidsystem)])
+                if key == "group":
+                    new_groupsystem = new_xml.find(".//GroupSystem")
+                    new_groupsystem.append(groups[v])
+            output_xmls.append(new_xml)
+    else:
+        raise Exception("WHY ARE THERE NO MODELS????")
+
+    for xml in output_xmls:
+        rigidsystems = xml.findall('.//RigidSystem')
+        rigids_parts = {}
+        i = 0
+        for rigidsytem in rigidsystems:
+            rigids = rigidsytem.findall('.//Rigid')
+            for rigid in rigids:
+                bricks = rigid.attrib['boneRefs'].split(',')
+                transformation = list(map(float, rigid.attrib['transformation'].split(',')))
+                print(f"x: {transformation[-3]}")
+                print(f"y: {transformation[-2]}")
+                print(f"z: {transformation[-1]}")
+                for brickID in bricks:
+                    brick = xml.find(f".//Bone[@refID='{brickID}']")
+                    old_transform = list(map(float, brick.attrib['transformation'].split(',')))
+                    old_transform[-1] = old_transform[-1] - transformation[-1]
+                    old_transform[-2] = old_transform[-2] - transformation[-2]
+                    old_transform[-3] = old_transform[-3] - transformation[-3]
+                    new_transform = ','.join(map(str, old_transform))
+                    brick.set("transformation", new_transform)
+
+        print(ET.tostring(xml))
