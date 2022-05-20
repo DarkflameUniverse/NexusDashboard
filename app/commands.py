@@ -304,14 +304,14 @@ def split_ugc(path):
         for rigid in rigids:
             rigids_parts[i].extend(rigid.attrib['boneRefs'].split(','))
         i += 1
-    # print(rigids_parts)
+    print(rigids_parts)
     groups = orig_lxfml.findall('.//Group')
 
     # print(len(groups))
     groups_parts = []
     for group in groups:
         groups_parts.append(group.attrib['partRefs'].split(','))
-    # print(groups_parts)
+    print(groups_parts)
 
     # our output
     models = []
@@ -366,27 +366,27 @@ def split_ugc(path):
 
     filename = 0
     for xml in output_xmls:
-        rigidsystems = xml.findall('.//RigidSystem')
         rigids_parts = {}
         i = 0
-        for rigidsytem in rigidsystems:
-            rigids = rigidsytem.findall('.//Rigid')
-            bricks = xml.findall('.//Bone')
-            transformation = list(map(float, rigids[0].attrib['transformation'].split(',')))
-            print(f"x: {transformation[-3]}")
-            print(f"y: {transformation[-2]}")
-            print(f"z: {transformation[-1]}")
-            for brick in bricks:
-                old_transform = list(map(float, brick.attrib['transformation'].split(',')))
-                old_transform[-1] = old_transform[-1] - transformation[-1]
-                old_transform[-2] = old_transform[-2] - transformation[-2]
-                old_transform[-3] = old_transform[-3] - transformation[-3]
-                new_transform = ','.join(map(str, old_transform))
-                brick.set("transformation", new_transform)
-            # only do it once
-            break
+        rigids = xml.findall('.//Rigid')
+        bricks = xml.findall('.//Bone')
+        transformation = list(map(float, rigids[0].attrib['transformation'].split(',')))
+        print(f"x: {transformation[-3]}")
+        print(f"y: {transformation[-2]}")
+        print(f"z: {transformation[-1]}")
+        for brick in bricks:
+            old_transform = list(map(float, brick.attrib['transformation'].split(',')))
+            old_transform[-1] = old_transform[-1] - transformation[-1]
+            old_transform[-2] = old_transform[-2] - transformation[-2]
+            old_transform[-3] = old_transform[-3] - transformation[-3]
+            new_transform = ','.join(map(str, old_transform))
+            brick.set("transformation", new_transform)
         f = open(f"{filename}.bin", "ab")
         out = ET.tostring(xml).replace(b"\n", b"").replace(b"  ", b"")
         f.write(zlib.compress(out))
+        f.close()
+        f = open(f"{filename}.lxfml", "ab")
+        out = ET.tostring(xml).replace(b"\n", b"").replace(b"  ", b"")
+        f.write(out)
         f.close()
         filename += 1
