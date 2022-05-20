@@ -132,6 +132,7 @@ Now let's open the settings file we just created and configure some of the setti
 
 <br>
 Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial I will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like
+
 >*Note: Enabling the email option will require further setup that is outside the scope of this tutorial*
 
 The two important settings to configure are `APP_SECRET_KEY` and `APP_DATABASE_URI`
