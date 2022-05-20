@@ -364,25 +364,29 @@ def split_ugc(path):
     else:
         raise Exception("WHY ARE THERE NO MODELS????")
 
+    filename = 0
     for xml in output_xmls:
         rigidsystems = xml.findall('.//RigidSystem')
         rigids_parts = {}
         i = 0
         for rigidsytem in rigidsystems:
             rigids = rigidsytem.findall('.//Rigid')
-            for rigid in rigids:
-                bricks = rigid.attrib['boneRefs'].split(',')
-                transformation = list(map(float, rigid.attrib['transformation'].split(',')))
-                print(f"x: {transformation[-3]}")
-                print(f"y: {transformation[-2]}")
-                print(f"z: {transformation[-1]}")
-                for brickID in bricks:
-                    brick = xml.find(f".//Bone[@refID='{brickID}']")
-                    old_transform = list(map(float, brick.attrib['transformation'].split(',')))
-                    old_transform[-1] = old_transform[-1] - transformation[-1]
-                    old_transform[-2] = old_transform[-2] - transformation[-2]
-                    old_transform[-3] = old_transform[-3] - transformation[-3]
-                    new_transform = ','.join(map(str, old_transform))
-                    brick.set("transformation", new_transform)
-
-        print(ET.tostring(xml))
+            bricks = xml.findall('.//Bone')
+            transformation = list(map(float, rigids[0].attrib['transformation'].split(',')))
+            print(f"x: {transformation[-3]}")
+            print(f"y: {transformation[-2]}")
+            print(f"z: {transformation[-1]}")
+            for brick in bricks:
+                old_transform = list(map(float, brick.attrib['transformation'].split(',')))
+                old_transform[-1] = old_transform[-1] - transformation[-1]
+                old_transform[-2] = old_transform[-2] - transformation[-2]
+                old_transform[-3] = old_transform[-3] - transformation[-3]
+                new_transform = ','.join(map(str, old_transform))
+                brick.set("transformation", new_transform)
+            # only do it once
+            break
+        f = open(f"{filename}.bin", "ab")
+        out = ET.tostring(xml).replace(b"\n", b"").replace(b"  ", b"")
+        f.write(zlib.compress(out))
+        f.close()
+        filename += 1
