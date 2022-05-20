@@ -205,17 +205,19 @@ res
 We will also need to copy the `CDServer.sqlite` database file from the server to the `~/NexusDashboard/app/luclient/res` folder
 
 Once the file is moved over, you will need to rename it to `cdclient.sqlite`
-`mv ~/NexusDashboard/app/luclient/res/CDServer.sqlite ~/NexusDashboard/app/luclient/res/cdclient.sqlite`
+```bash
+mv ~/NexusDashboard/app/luclient/res/CDServer.sqlite ~/NexusDashboard/app/luclient/res/cdclient.sqlite
+```
 
 
 ##### Remaining Setup
 Run the following commands one at a time
-
-`cd ~/NexusDashboard`
-`pip install -r requirements.txt`
-`pip install gunicorn`
-`flask db upgrade`
-
+```bash
+cd ~/NexusDashboard
+pip install -r requirements.txt
+pip install gunicorn
+flask db upgrade
+```
 ##### Running the site
 You can run the site with
 `gunicorn -b :8000 -w 4 wsgi:app`
