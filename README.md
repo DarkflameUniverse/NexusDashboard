@@ -134,6 +134,7 @@ Now let's open the settings file we just created and configure some of the setti
 
 <br>
 Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial I will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like
+
 >*Note: Enabling the email option will require further setup that is outside the scope of this tutorial*
 
 The two important settings to configure are `APP_SECRET_KEY` and `APP_DATABASE_URI`
@@ -206,17 +207,19 @@ res
 We will also need to copy the `CDServer.sqlite` database file from the server to the `~/NexusDashboard/app/luclient/res` folder
 
 Once the file is moved over, you will need to rename it to `cdclient.sqlite`
-`mv ~/NexusDashboard/app/luclient/res/CDServer.sqlite ~/NexusDashboard/app/luclient/res/cdclient.sqlite`
+```bash
+mv ~/NexusDashboard/app/luclient/res/CDServer.sqlite ~/NexusDashboard/app/luclient/res/cdclient.sqlite
+```
 
 
 ##### Remaining Setup
 Run the following commands one at a time
-
-`cd ~/NexusDashboard`
-`pip install -r requirements.txt`
-`pip install gunicorn`
-`flask db upgrade`
-
+```bash
+cd ~/NexusDashboard
+pip install -r requirements.txt
+pip install gunicorn
+flask db upgrade
+```
 ##### Running the site
 You can run the site with
 `gunicorn -b :8000 -w 4 wsgi:app`
