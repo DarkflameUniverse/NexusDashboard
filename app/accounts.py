@@ -169,7 +169,7 @@ def delete(id):
             prop.delete()
         char.delete()
     # This is for GM stuff, it will be permnently delete logs
-    bugs = BugReport.query.filter(BugReport.resolve_by_id == id).all()
+    bugs = BugReport.query.filter(BugReport.resoleved_by_id == id).all()
     for bug in bugs:
         bug.delete()
     audits = AuditLog.query.filter(AuditLog.account_id == id).all()
