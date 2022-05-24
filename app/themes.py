@@ -3,20 +3,20 @@ FONT_THEME = "Nunito"
 
 
 def openFile(theme):
-    with open("app/static/scss/site.scss", 'r') as f:
+    with open("static/scss/site.scss", 'r') as f:
         lines = f.readlines()
         newline = "        \"primary\": " + theme + "," + "\n"
-    with open("app/static/scss/site.scss", 'w') as f:
+    with open("static/scss/site.scss", 'w') as f:
         lines[2] = newline
         f.writelines(lines)
         f.close()
 
 def newFont(font_url, font):
-    with open("app/static/scss/site.scss", 'r') as f:
+    with open("static/scss/site.scss", 'r') as f:
         lines = f.readlines()
         importline = "@import url(" + font_url + ");" + "\n"
         bodyline = "body { font-family:'" + font + "', Helvetica, Arial, sans-serif; }" + "\n"
-    with open("app/static/scss/site.scss", 'w') as f:
+    with open("static/scss/site.scss", 'w') as f:
         lines[10] = importline
         lines[12] = bodyline
         f.writelines(lines)
@@ -58,6 +58,8 @@ if FONT_THEME == "Righteous":
     URL = "https://fonts.googleapis.com/css2?family=Righteous&display=swap"
     FONT_NAME = "Righteous"
     newFont(URL, FONT_NAME)
+
+print("Updated Dashboard Theme")
 
 
 
