@@ -1,3 +1,4 @@
+from urllib import parse
 # Settings common to all environments (development|staging|production)
 
 # Application settings
@@ -6,6 +7,14 @@ APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
 APP_SECRET_KEY = ""
 APP_DATABASE_URI = "mysql+pymysql://<username>:<password>@<host>:<port>/<database>"
+
+# Discord settings
+DISCORD_INTEGRATION = True
+TOKEN = "INSERT DISCORD TOKEN HERE"
+CLIENT_SECRET = "INSERT DISCORD CLIENT SECRET KEY HERE"
+REDIRECT_URI = "ADD A REDIRECT"
+OAUTH_URL = f"ADD DISCORD OAUTH LINK HERE" 
+# example for OAUTH_URL https://discord.com/api/oauth2/authorize?client_id=123&redirect_uri={parse.quote(REDIRECT_URI)}&response_type=code&scope=identify%20guilds
 
 # Send Analytics for Developers to better fix issues
 ALLOW_ANALYTICS = False
