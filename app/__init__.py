@@ -1,5 +1,5 @@
 import os
-from flask import Flask, url_for, g, redirect
+from flask import Flask, url_for, redirect
 from functools import wraps
 from flask_assets import Environment
 from webassets import Bundle
@@ -24,8 +24,6 @@ from app.models import Account, AccountInvitation, AuditLog
 
 import logging
 from logging.handlers import RotatingFileHandler
-
-from werkzeug.exceptions import HTTPException
 
 # Instantiate Flask extensions
 csrf_protect = CSRFProtect()
@@ -75,12 +73,6 @@ def create_app():
     @app.template_filter('debug')
     def debug(text):
         print(text)
-
-    @app.teardown_appcontext
-    def close_connection(exception):
-        cdclient = getattr(g, '_cdclient', None)
-        if cdclient is not None:
-            cdclient.close()
 
     # add the commands to flask cli
     app.cli.add_command(init_db)
@@ -194,6 +186,9 @@ def register_settings(app):
         'APP_DATABASE_URI',
         app.config['APP_DATABASE_URI']
     )
+    app.config['SQLALCHEMY_BINDS'] = {
+        'cdclient': 'sqlite:///luclient/res/cdclient.sqlite'
+    }
 
     # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(
@@ -224,14 +219,6 @@ def register_settings(app):
         'ALLOW_ANALYTICS',
         app.config['ALLOW_ANALYTICS']
     )
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 2,
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_use_lifo": True
-    }
     app.config['MAIL_SERVER'] = os.getenv(
         'MAIL_SERVER',
         app.config['MAIL_SERVER']

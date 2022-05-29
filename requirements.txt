@@ -49,6 +49,7 @@ six==1.16.0
 snowballstemmer==2.2.0
 SQLAlchemy==1.4.22
 sqlalchemy-datatables==2.0.1
+SQLAlchemy-Utils==0.38.2
 toml==0.10.2
 tzdata==2021.5
 tzlocal==4.1

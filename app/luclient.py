@@ -9,6 +9,7 @@ from flask import (
 )
 from flask_user import login_required
 from app.models import CharacterInfo
+from app.cdclient import Objects
 import glob
 import os
 from wand import image
@@ -247,13 +248,9 @@ def get_lot_name(lot_id):
         return "Missing"
     name = translate_from_locale(f'Objects_{lot_id}_name')
     if name == f'Objects_{lot_id}_name':
-        intermed = query_cdclient(
-            'select * from Objects where id = ?',
-            [lot_id],
-            one=True
-        )
+        intermed = Objects.query.filter(Objects.id == lot_id).first()
         if intermed:
-            name = intermed[7] if (intermed[7] != "None" and intermed[7] != "" and intermed[7] is None) else intermed[1]
+            name = intermed.displayName if (intermed.displayName != "None" and intermed.displayName != "" and intermed.displayName is None) else intermed.name
     return name
 
 
