@@ -15,7 +15,7 @@ import time
 from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account, Mail
 from app.schemas import PropertySchema
 from app import gm_level, log_audit
-from app.luclient import query_cdclient
+from app.cdclient import ZoneTable
 from app.forms import RejectPropertyForm
 
 import zlib
@@ -49,11 +49,9 @@ def approve(id):
 
     if property_data.mod_approved:
         message = f"""Approved Property
-            {property_data.name if property_data.name else query_cdclient(
-                'select DisplayDescription from ZoneTable where zoneID = ?',
-                [property_data.zone_id],
-                one=True
-            )[0]}
+            {property_data.name if property_data.name else ZoneTable.query.filter(
+                ZoneTable.zoneID == property_data.zone_id
+            ).first().DisplayDescription}
             from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
         log_audit(message)
         flash(
@@ -62,11 +60,9 @@ def approve(id):
         )
     else:
         message = f"""Unapproved Property
-            {property_data.name if property_data.name else query_cdclient(
-                'select DisplayDescription from ZoneTable where zoneID = ?',
-                [property_data.zone_id],
-                one=True
-            )[0]}
+            {property_data.name if property_data.name else ZoneTable.query.filter(
+                ZoneTable.zoneID == property_data.zone_id
+            ).first().DisplayDescription}
             from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
         log_audit(message)
         flash(
@@ -100,11 +96,9 @@ def reject(id):
 
     if form.validate_on_submit():
         char_name = CharacterInfo.query.filter(CharacterInfo.id == property_data.owner_id).first().name
-        zone_name = query_cdclient(
-            'select DisplayDescription from ZoneTable where zoneID = ?',
-            [property_data.zone_id],
-            one=True
-        )[0]
+        zone_name = ZoneTable.query.filter(
+            ZoneTable.zoneID == property_data.zone_id
+        ).first().DisplayDescription
         property_data.mod_approved = False
         property_data.rejection_reason = form.rejection_reason.data
         message = f"""Rejected Property
@@ -251,11 +245,9 @@ def get(status="all"):
         """
 
         if property_data["4"] == "":
-            property_data["4"] = query_cdclient(
-                'select DisplayDescription from ZoneTable where zoneID = ?',
-                [property_data["13"]],
-                one=True
-            )
+            property_data["4"] = ZoneTable.query.filter(
+                ZoneTable.zoneID == property_data.zone_id
+            ).first().DisplayDescription
 
         if property_data["6"] == 0:
             property_data["6"] = "Private"
@@ -272,11 +264,9 @@ def get(status="all"):
         else:
             property_data["7"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
-        property_data["13"] = query_cdclient(
-            'select DisplayDescription from ZoneTable where zoneID = ?',
-            [property_data["13"]],
-            one=True
-        )
+        property_data["13"] = ZoneTable.query.filter(
+            ZoneTable.zoneID == property_data.zone_id
+        ).first().DisplayDescription
 
     return data
 

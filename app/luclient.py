@@ -9,7 +9,11 @@ from flask import (
 )
 from flask_user import login_required
 from app.models import CharacterInfo
-from app.cdclient import Objects
+from app.cdclient import (
+    Objects,
+    Icons,
+    ItemSets
+)
 import glob
 import os
 from wand import image
@@ -19,6 +23,7 @@ import json
 
 import sqlite3
 import xml.etree.ElementTree as ET
+from sqlalchemy import or_
 
 luclient_blueprint = Blueprint('luclient', __name__)
 locale = {}
@@ -104,11 +109,7 @@ def get_icon_lot(id):
 @login_required
 def get_icon_iconid(id):
 
-    filename = query_cdclient(
-        'select IconPath from Icons where IconID = ?',
-        [id],
-        one=True
-    )[0]
+    filename = Icons.query.filter(Icons.IconID == id).first().IconPath
 
     filename = filename.replace("..\\", "").replace("\\", "/")
 
@@ -182,32 +183,6 @@ def unknown():
             return redirect(url_for('luclient.unknown'))
 
     return send_file(pathlib.Path(cache).resolve())
-
-
-def get_cdclient():
-    """Connect to CDClient from file system Relative Path
-
-    Args:
-        None
-    """
-    cdclient = getattr(g, '_cdclient', None)
-    if cdclient is None:
-        cdclient = g._database = sqlite3.connect('app/luclient/res/cdclient.sqlite')
-    return cdclient
-
-
-def query_cdclient(query, args=(), one=False):
-    """Run sql queries on CDClient
-
-    Args:
-        query   (string)    : SQL query
-        args    (list)      : List of args to place in query
-        one     (bool)      : Return only on result or all results
-    """
-    cur = get_cdclient().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
 
 
 def translate_from_locale(trans_string):
@@ -322,11 +297,8 @@ def register_luclient_jinja_helpers(app):
             return "Missing"
         desc = translate_from_locale(f'Objects_{lot_id}_description')
         if desc == f'Objects_{lot_id}_description':
-            desc = query_cdclient(
-                'select description from Objects where id = ?',
-                [lot_id],
-                one=True
-            )
+            desc = Objects.query.filter(Objects.id == id).first().description
+
             if desc in ("", None):
                 desc = None
             else:
@@ -341,11 +313,14 @@ def register_luclient_jinja_helpers(app):
     def check_if_in_set(lot_id):
         if not lot_id:
             return None
-        item_set = query_cdclient(
-            'select * from ItemSets where itemIDs like ? or itemIDs like ? or itemIDs like ?',
-            [f'{lot_id}%', f'%, {lot_id}%', f'%,{lot_id}%'],
-            one=True
-        )
+        item_set = ItemSets.query.filter(
+            or_(
+                ItemSets.itemIDs.like(f'{lot_id}%'),
+                ItemSets.itemIDs.like(f'%, {lot_id}%'),
+                ItemSets.itemIDs.like(f'%,{lot_id}%')
+            )
+        ).first()
+
         if item_set in ("", None):
             return None
         else:
@@ -377,14 +352,6 @@ def register_luclient_jinja_helpers(app):
 
         return consolidate_stats(stats)
 
-    @app.template_filter('query_cdclient')
-    def jinja_query_cdclient(query, items):
-        print(query, items)
-        return query_cdclient(
-            query,
-            items,
-            one=True
-        )[0]
 
     @app.template_filter('lu_translate')
     def lu_translate(to_translate):

@@ -3,7 +3,8 @@ from flask_user import login_required, current_user
 from app.models import Mail, CharacterInfo
 from app.forms import SendMailForm
 from app import gm_level, log_audit
-from app.luclient import translate_from_locale, query_cdclient
+from app.luclient import translate_from_locale
+from app.cdclient import Objects
 import time
 
 mail_blueprint = Blueprint('mail', __name__)
@@ -68,15 +69,12 @@ def send():
     for character in recipients:
         form.recipient.choices.append((character.id, character.name))
 
-    items = query_cdclient(
-        'Select id, name, displayName from Objects where type = ?',
-        ["Loot"]
-    )
+    items = Objects.query.filter(Objects.type == "Loot").all()
 
     for item in items:
         name = translate_from_locale(f'Objects_{item[0]}_name')
-        if name == f'Objects_{item[0]}_name':
-            name = (item[2] if (item[2] != "None" and item[2] != "" and item[2] is not None) else item[1])
+        if name == f'Objects_{item.id}_name':
+            name = (item.displayName if (item.displayName != "None" and item.displayName != "" and item.displayName is not None) else item.name)
         form.attachment.choices.append(
             (
                 item[0],

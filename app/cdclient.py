@@ -167,7 +167,7 @@ class Activities(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -258,7 +258,7 @@ class ActivityText(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -1203,7 +1203,7 @@ class CelebrationParameters(db.Model):
 
     backgroundObject = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id)
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -1224,7 +1224,7 @@ class CelebrationParameters(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -1380,7 +1380,7 @@ class CollectibleComponent(db.Model):
 
     requirement_mission = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Missions.id),
+        db.ForeignKey("Missions.id"),
         nullable=True
     )
 
@@ -1391,7 +1391,7 @@ class ComponentsRegistry(db.Model):
 
     id = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id)
+        db.ForeignKey("Objects.id"),
         nullable=False,
         primary_key=True
     )
@@ -1553,7 +1553,7 @@ class CurrencyDenominations(db.Model):
 
     objectid = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id)
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -1644,7 +1644,7 @@ class DeletionRestrictions(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -1661,7 +1661,7 @@ class DestructibleComponent(db.Model):
 
     faction = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Factions.faction)
+        db.ForeignKey("Factions.faction"),
         nullable=True
     )
 
@@ -1791,7 +1791,7 @@ class Emotes(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -2335,37 +2335,37 @@ class ItemSets(db.Model):
 
     kitImage = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID)
+        db.ForeignKey("Icons.IconID"),
         nullable=True
     )
 
     skillSetWith2 = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ItemSetSkills.id),
+        db.ForeignKey("ItemSetSkills.SkillSetID"),
         nullable=True
     )
 
     skillSetWith3 = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ItemSetSkills.id),
+        db.ForeignKey("ItemSetSkills.SkillSetID"),
         nullable=True
     )
 
     skillSetWith4 = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ItemSetSkills.id),
+        db.ForeignKey("ItemSetSkills.SkillSetID"),
         nullable=True
     )
 
     skillSetWith5 = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ItemSetSkills.id),
+        db.ForeignKey("ItemSetSkills.SkillSetID"),
         nullable=True
     )
 
     skillSetWith6 = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ItemSetSkills.id),
+        db.ForeignKey("ItemSetSkills.SkillSetID"),
         nullable=True
     )
 
@@ -2376,7 +2376,7 @@ class ItemSets(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
     # ???
@@ -2418,13 +2418,13 @@ class JetPackPadComponent(db.Model):
 
     lotBlocker = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id),
+        db.ForeignKey("Objects.id"),
         nullable=True
     )
 
     lotWarningVolume = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id),
+        db.ForeignKey("Objects.id"),
         nullable=True
     )
 
@@ -2476,7 +2476,7 @@ class LUPExhibitModelData(db.Model):
 
     LOT = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id),
+        db.ForeignKey("Objects.id"),
         nullable=False,
         primary_key=True
     )
@@ -2513,7 +2513,7 @@ class LUPZoneIDs(db.Model):
 
     zoneID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(ZoneTabe.zoneID)
+        db.ForeignKey("ZoneTable.zoneID"),
         nullable=False,
         primary_key=True
     )
@@ -2561,6 +2561,7 @@ class LootMatrix(db.Model):
     __tablename__ = 'LootMatrix'
     __bind_key__ = 'cdclient'
 
+    # FK?
     LootMatrixIndex = db.Column(
         sqlite.INTEGER(),
         nullable=False,
@@ -2606,7 +2607,7 @@ class LootMatrix(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -2694,7 +2695,7 @@ class MinifigComponent(db.Model):
 
     legs = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(MinifigDecals_Legs.id),
+        db.ForeignKey("MinifigDecals_Legs.ID"),
         nullable=False
     )
 
@@ -2710,7 +2711,7 @@ class MinifigComponent(db.Model):
 
     chestdecal = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(MinifigDecals_Torsos.id),
+        db.ForeignKey("MinifigDecals_Torsos.ID"),
         nullable=False
     )
 
@@ -2731,19 +2732,19 @@ class MinifigComponent(db.Model):
 
     eyebrowstyle = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(MinifigDecals_Eyebrows.id),
+        db.ForeignKey("MinifigDecals_Eyebrows.ID"),
         nullable=False
     )
 
     eyesstyle = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(MinifigDecals_Eyes.id),
+        db.ForeignKey("MinifigDecals_Eyes.ID"),
         nullable=False
     )
 
     mouthstyle = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(MinifigDecals_Mouths.id),
+        db.ForeignKey("MinifigDecals_Mouths.ID"),
         nullable=False
     )
 
@@ -2925,7 +2926,7 @@ class MissionEmail(db.Model):
 
     missionID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Missions.id),
+        db.ForeignKey("Missions.id"),
         nullable=False
     )
 
@@ -2933,7 +2934,7 @@ class MissionEmail(db.Model):
 
     attachmentLOT = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Objects.id),
+        db.ForeignKey("Objects.id"),
         nullable=True
     )
 
@@ -2951,7 +2952,7 @@ class MissionEmail(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -2968,7 +2969,7 @@ class MissionNPCComponent(db.Model):
 
     missionID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Missions.id),
+        db.ForeignKey("Missions.id"),
         nullable=False
     )
 
@@ -2984,7 +2985,7 @@ class MissionNPCComponent(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -3036,7 +3037,7 @@ class MissionTasks(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -3059,7 +3060,7 @@ class MissionTasks(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -3091,7 +3092,7 @@ class MissionText(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -3219,7 +3220,7 @@ class MissionText(db.Model):
 
     turnInIconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -3237,7 +3238,7 @@ class MissionText(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -3296,9 +3297,10 @@ class Missions(db.Model):
         sqlite.BOOLEAN(),
         nullable=False
     )
-    # FK
+
     reward_item1 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3306,9 +3308,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item2 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3316,9 +3319,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item3 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3326,9 +3330,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item4 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3336,24 +3341,28 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_emote = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Emotes.id"),
         nullable=False
     )
-    # FK
+
     reward_emote2 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Emotes.id"),
         nullable=False
     )
-    # FK
+
     reward_emote3 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Emotes.id"),
         nullable=True
     )
-    # FK
+
     reward_emote4 = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Emotes.id"),
         nullable=True
     )
 
@@ -3396,9 +3405,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=True
     )
-    # FK
+
     reward_item1_repeatable = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3406,9 +3416,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item2_repeatable = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3416,9 +3427,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item3_repeatable = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3426,9 +3438,10 @@ class Missions(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     reward_item4_repeatable = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3449,12 +3462,13 @@ class Missions(db.Model):
 
     missionIconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
     missionIcon = db.relationship("Icons")
-    # FK
+
+    # pipe SV of missions?
     prereqMissionID = db.Column(
         sqlite.TEXT(),
         nullable=True
@@ -3484,15 +3498,15 @@ class Missions(db.Model):
         sqlite.TEXT(),
         nullable=True
     )
-    # FK
+    # FK ?
     UIPrereqID = db.Column(
         sqlite.INTEGER(),
         nullable=True
     )
-    # FK
+
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -3550,6 +3564,7 @@ class ModularBuildComponent(db.Model):
 
     createdLOT = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3777,9 +3792,10 @@ class NpcIcons(db.Model):
         sqlite.FLOAT(),
         nullable=False
     )
-    # FK
+
     LOT = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False
     )
 
@@ -3902,12 +3918,14 @@ class ObjectSkills(db.Model):
 
     objectTemplate = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("Objects.id"),
         nullable=False,
         primary_key=True
     )
-    # FK
+
     skillID = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("SkillBehavior.skillID"),
         nullable=False
     )
 
@@ -3956,7 +3974,7 @@ class Objects(db.Model):
         sqlite.BOOLEAN(),
         nullable=False
     )
-
+    # FK?
     npcTemplateID = db.Column(
         sqlite.INTEGER(),
         nullable=True
@@ -3989,7 +4007,7 @@ class Objects(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -4008,13 +4026,14 @@ class PackageComponent(db.Model):
         nullable=False,
         primary_key=True
     )
-    # FK
+
     LootMatrixIndex = db.Column(
         sqlite.INTEGER(),
+        db.ForeignKey("LootMatrix.LootMatrixIndex"),
         nullable=False,
         primary_key=True
     )
-
+    # Enum?
     packageType = db.Column(
         sqlite.INTEGER(),
         nullable=False
@@ -4122,6 +4141,7 @@ class PetComponent(db.Model):
         nullable=True
     )
 
+    # CSV of BuffDefinitions.ID's ?
     buffIDs = db.Column(
         sqlite.TEXT(),
         nullable=True
@@ -4275,10 +4295,10 @@ class PlayerStatistics(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK
+
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -4396,7 +4416,7 @@ class Preconditions(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -4419,7 +4439,7 @@ class Preconditions(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -4469,7 +4489,7 @@ class PropertyTemplate(db.Model):
         sqlite.INTEGER(),
         nullable=False
     )
-    # FK ZoneTabe
+    # FK ZoneTable
     vendorMapID = db.Column(
         sqlite.INTEGER(),
         nullable=False
@@ -4557,7 +4577,7 @@ class PropertyTemplate(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -4620,7 +4640,7 @@ class ProximityTypes(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -4961,7 +4981,7 @@ class RenderComponent(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -5215,7 +5235,7 @@ class RewardCodes(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -5457,7 +5477,7 @@ class SkillBehavior(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -5616,7 +5636,7 @@ class SpeedchatMenu(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -5950,7 +5970,7 @@ class UGBehaviorSounds(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -6555,7 +6575,7 @@ class WhatsCoolItemSpotlight(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -6577,7 +6597,7 @@ class WhatsCoolNewsAndTips(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False
     )
 
@@ -6595,7 +6615,7 @@ class WhatsCoolNewsAndTips(db.Model):
     # FK
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -7101,7 +7121,7 @@ class ZoneTable(db.Model):
 
     gate_version = db.Column(
         sqlite.TEXT(),
-        db.ForeignKey(FeatureGating.featureName),
+        db.ForeignKey("FeatureGating.featureName"),
         nullable=True
     )
 
@@ -7238,7 +7258,7 @@ class mapIcon(db.Model):
 
     IconID = db.Column(
         sqlite.INTEGER(),
-        db.ForeignKey(Icons.IconID),
+        db.ForeignKey("Icons.IconID"),
         nullable=False,
         primary_key=True
     )
