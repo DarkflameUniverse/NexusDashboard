@@ -30,14 +30,20 @@ def approve_name(id, action):
     character = CharacterInfo.query.filter(CharacterInfo.id == id).first()
 
     if action == "approve":
-        log_audit(f"Approved ({character.id}){character.pending_name} from {character.name}")
-        flash(
-            f"Approved ({character.id}){character.pending_name} from {character.name}",
-            "success"
-        )
         if character.pending_name:
             character.name = character.pending_name
             character.pending_name = ""
+            log_audit(f"Approved ({character.id}){character.pending_name} from {character.name}")
+            flash(
+                f"Approved ({character.id}){character.pending_name} from {character.name}",
+                "success"
+            )
+        else:
+            log_audit("Cannot make character name empty")
+            flash(
+                "Cannot make character name empty",
+                "danger"
+            )
         character.needs_rename = False
 
     elif action == "rename":
