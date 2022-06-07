@@ -204,7 +204,7 @@ def get(status="all"):
     rowTable = DataTables(params, query, columns)
 
     data = rowTable.output_result()
-    print(data)
+
     for property_data in data["data"]:
         id = property_data["0"]
 
@@ -246,7 +246,7 @@ def get(status="all"):
 
         if property_data["4"] == "":
             property_data["4"] = ZoneTable.query.filter(
-                ZoneTable.zoneID == property_data.zone_id
+                ZoneTable.zoneID == property_data["13"]
             ).first().DisplayDescription
 
         if property_data["6"] == 0:
@@ -265,7 +265,7 @@ def get(status="all"):
             property_data["7"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
         property_data["13"] = ZoneTable.query.filter(
-            ZoneTable.zoneID == property_data.zone_id
+            ZoneTable.zoneID == property_data["13"]
         ).first().DisplayDescription
 
     return data

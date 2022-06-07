@@ -225,7 +225,9 @@ def get_lot_name(lot_id):
     if name == f'Objects_{lot_id}_name':
         intermed = Objects.query.filter(Objects.id == lot_id).first()
         if intermed:
-            name = intermed.displayName if (intermed.displayName != "None" and intermed.displayName != "" and intermed.displayName is None) else intermed.name
+            name = intermed.displayName if (intermed.displayName != "None" or intermed.displayName != "" or intermed.displayName == None) else intermed.name
+    if not name:
+        name = f'Objects_{lot_id}_name'
     return name
 
 

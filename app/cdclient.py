@@ -3096,7 +3096,7 @@ class MissionText(db.Model):
         nullable=False
     )
 
-    Icon = db.relationship("Icons")
+    Icon = db.relationship("Icons", foreign_keys=[IconID])
 
     state_1_anim = db.Column(
         sqlite.TEXT(),
@@ -3224,7 +3224,7 @@ class MissionText(db.Model):
         nullable=False
     )
 
-    turnInIcon = db.relationship("Icons")
+    turnInIcon = db.relationship("Icons", foreign_keys=[turnInIconID])
 
     localize = db.Column(
         sqlite.BOOLEAN(),
