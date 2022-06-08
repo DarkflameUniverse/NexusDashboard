@@ -264,6 +264,26 @@ def register_settings(app):
         'USER_EMAIL_SENDER_EMAIL',
         app.config['USER_EMAIL_SENDER_EMAIL']
     )
+    app.config['DISCORD_INTEGRATION'] = os.getenv(
+        'DISCORD_INTEGRATION',
+        app.config['DISCORD_INTEGRATION']
+    )
+    app.config['TOKEN'] = os.getenv(
+        'TOKEN',
+        app.config['TOKEN']
+    )
+    app.config['CLIENT_SECRET'] = os.getenv(
+        'CLIENT_SECRET',
+        app.config['CLIENT_SECRET']
+    )
+    app.config['REDIRECT_URI'] = os.getenv(
+        'REDIRECT_URI',
+        app.config['REDIRECT_URI']
+    )
+    app.config['OAUTH_URL'] = os.getenv(
+        'OAUTH_URL',
+        app.config['OAUTH_URL']
+    )
 
 
 def gm_level(gm_level):
