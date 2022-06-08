@@ -114,7 +114,7 @@ class PlayKey(db.Model):
             )
             db.session.add(new_key)
             db.session.commit()
-            return key
+        return key
 
     def delete(self):
         db.session.delete(self)
