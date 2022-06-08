@@ -111,9 +111,6 @@ First you will want to install the following packages by executing the following
 `sudo apt-get update`
 `sudo apt-get install -y python3 python3-pip sqlite3 git unzip libmagickwand-dev`
 
-Then install the Zenora library for python by executing this command
-`pip install Zenora`
-
 > *Note: If  you are having issues with installing `sqlite3`, change it to `sqlite`*
 
 <br>
