@@ -21,17 +21,33 @@
           Count
         </th>
         <th scope="col">
+          Breakdown
+        </th>
+        <th scope="col">
           Rarity
         </th>
       </thead>
       <tbody>
-        {% for lot, count in data.items() %}
+        {% for lot, details in data.items() %}
           <tr>
             <td>
               {{ lot|get_lot_name }}
             </td>
             <td>
-              {{ count }}
+              {% if details.chars %}
+                {{ details.item_count }}
+              {% else %}
+                {{ details }}
+              {% endif %}
+            </td>
+            <td>
+              {% if details.chars %}
+                {% for char, value in details.chars|dictsort(false, 'value')|reverse %}
+                  {{char}}: {{value}}<br/>
+                {% endfor %}
+              {% else %}
+                Missing
+              {% endif %}
             </td>
             <td>
               {{ lot|get_lot_rarity }}

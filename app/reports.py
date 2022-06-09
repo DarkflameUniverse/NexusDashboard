@@ -6,7 +6,6 @@ from app import gm_level, scheduler
 from sqlalchemy.orm import load_only
 import datetime
 import xmltodict
-import random
 
 reports_blueprint = Blueprint('reports', __name__)
 
@@ -32,7 +31,6 @@ def index():
     ).filter(
         Reports.report_type == "uscore"
     ).group_by(Reports.date).options(load_only(Reports.date)).all()
-
     return render_template(
         'reports/index.html.j2',
         reports_items=reports_items,
@@ -69,20 +67,24 @@ def items_graph(start, end):
             items[key] = get_lot_name(key)
     # make it
     for key, value in items.items():
-        data = []
-        for entry in entries:
-            if key in entry.data.keys():
-                data.append(entry.data[key])
-            else:
-                data.append(0)
-        color = "#" + value.encode("utf-8").hex()[1:7]
-        if max(data) > 10:
-            datasets.append({
-                "label": value,
-                "data": data,
-                "backgroundColor": color,
-                "borderColor": color
-            })
+        if value:
+            data = []
+            for entry in entries:
+                if key in entry.data.keys():
+                    if not isinstance(entry.data[key], int):
+                        data.append(entry.data[key]["item_count"])
+                    else:
+                        data.append(entry.data[key])
+                else:
+                    data.append(0)
+            color = "#" + value.encode("utf-8").hex()[1:7]
+            if max(data) > 10:
+                datasets.append({
+                    "label": value,
+                    "data": data,
+                    "backgroundColor": color,
+                    "borderColor": color
+                })
 
     return render_template(
         'reports/graph.html.j2',
@@ -224,6 +226,7 @@ def gen_item_report():
             report_data = {}
 
             for char_xml in char_xmls:
+                name = CharacterInfo.query.filter(CharacterInfo.id == char_xml.id).first().name
                 try:
                     character_json = xmltodict.parse(
                         char_xml.xml_data,
@@ -233,9 +236,13 @@ def gen_item_report():
                         if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"]) == 0 or int(inv["attr_t"]) == 1):
                             for item in inv["i"]:
                                 if item["attr_l"] in report_data:
-                                    report_data[item["attr_l"]] = report_data[item["attr_l"]] + int(item["attr_c"])
+                                    report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + int(item["attr_c"])
                                 else:
-                                    report_data[item["attr_l"]] = int(item["attr_c"])
+                                    report_data[item["attr_l"]] = {"item_count": int(item["attr_c"]), "chars": {}}
+                                if name in report_data[item["attr_l"]]["chars"]:
+                                    report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + int(item["attr_c"])
+                                else:
+                                    report_data[item["attr_l"]]["chars"][name] = int(item["attr_c"])
                 except Exception as e:
                     current_app.logger.error(f"REPORT::ITEMS - ERROR PARSING CHARACTER {char_xml.id}")
                     current_app.logger.error(f"REPORT::ITEMS - {e}")
