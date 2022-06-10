@@ -13,6 +13,7 @@ from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import time
 from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account, Mail
+from app.cdclient import ComponentsRegistry, ComponentType, RenderComponent
 from app.schemas import PropertySchema
 from app import gm_level, log_audit
 from app.cdclient import ZoneTable
@@ -409,17 +410,12 @@ def ugc(content):
 def prebuilt(content, file_format, lod):
     # translate LOT to component id
     # we need to get a type of 2 because reasons
-    render_component_id = query_cdclient(
-        'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
-        [content.lot],
-        one=True
-    )[0]
-    # find the asset from rendercomponent given the  component id
-    filename = query_cdclient(
-        'select render_asset from RenderComponent where id = ?',
-        [render_component_id],
-        one=True
-    )
+    filename = RenderComponent.query.filter(
+        RenderComponent.id == ComponentsRegistry.query.filter(
+            ComponentsRegistry.component_type == ComponentType.COMPONENT_TYPE_RENDER
+        ).filter(ComponentsRegistry.id == id).first().component_id
+    ).first().render_asset
+
     if filename:
         filename = filename[0].split("\\\\")[-1].lower().split(".")[0]
         if "/" in filename:

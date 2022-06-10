@@ -12,7 +12,13 @@ from app.models import CharacterInfo
 from app.cdclient import (
     Objects,
     Icons,
-    ItemSets
+    ItemSets,
+    ComponentsRegistry,
+    ComponentType,
+    RenderComponent,
+    ItemComponent,
+    ObjectSkills,
+    SkillBehavior
 )
 import glob
 import os
@@ -21,7 +27,6 @@ from wand.exceptions import BlobError as BE
 import pathlib
 import json
 
-import sqlite3
 import xml.etree.ElementTree as ET
 from sqlalchemy import or_
 
@@ -71,32 +76,24 @@ def get_dds(filename):
 @luclient_blueprint.route('/get_icon_lot/<id>')
 @login_required
 def get_icon_lot(id):
+    icon_path = RenderComponent.query.filter(
+        RenderComponent.id == ComponentsRegistry.query.filter(
+            ComponentsRegistry.component_type == ComponentType.COMPONENT_TYPE_RENDER
+        ).filter(ComponentsRegistry.id == id).first().component_id
+    ).first().icon_asset
 
-    render_component_id = query_cdclient(
-        'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
-        [id],
-        one=True
-    )[0]
-
-    # find the asset from rendercomponent given the  component id
-    filename = query_cdclient(
-        'select icon_asset from RenderComponent where id = ?',
-        [render_component_id],
-        one=True
-    )[0]
-
-    if filename:
-        filename = filename.replace("..\\", "").replace("\\", "/")
+    if icon_path:
+        icon_path = icon_path.replace("..\\", "").replace("\\", "/")
     else:
         return redirect(url_for('luclient.unknown'))
 
-    cache = f'app/cache/{filename.split(".")[0]}.png'
+    cache = f'app/cache/{icon_path.split(".")[0]}.png'
 
     if not os.path.exists(cache):
         root = 'app/luclient/res/'
         try:
             pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
-            with image.Image(filename=f'{root}{filename}'.lower()) as img:
+            with image.Image(filename=f'{root}{icon_path}'.lower()) as img:
                 img.compression = "no"
                 img.save(filename=cache)
         except BE:
@@ -278,21 +275,11 @@ def register_luclient_jinja_helpers(app):
     def get_lot_rarity(lot_id):
         if not lot_id:
             return "Missing"
-        render_component_id = query_cdclient(
-            'select component_id from ComponentsRegistry where component_type = 11 and id = ?',
-            [lot_id],
-            one=True
-        )
-        if render_component_id:
-            render_component_id = render_component_id[0]
-
-        rarity = query_cdclient(
-            'select rarity from ItemComponent where id = ?',
-            [render_component_id],
-            one=True
-        )
-        if rarity:
-            rarity = rarity[0]
+        rarity = ItemComponent.query.filter(
+            ItemComponent.id == ComponentsRegistry.query.filter(
+                ComponentsRegistry.component_type == ComponentType.COMPONENT_TYPE_ITEM
+            ).filter(ComponentsRegistry.id == id).first().component_id
+        ).first().rarity
         return rarity
 
     @app.template_filter('get_lot_desc')
@@ -301,12 +288,12 @@ def register_luclient_jinja_helpers(app):
             return "Missing"
         desc = translate_from_locale(f'Objects_{lot_id}_description')
         if desc == f'Objects_{lot_id}_description':
-            desc = Objects.query.filter(Objects.id == id).first().description
+            desc = Objects.query.filter(Objects.id == lot_id).first()
 
             if desc in ("", None):
                 desc = None
             else:
-                desc = desc[0]
+                desc = desc.description
                 if desc in ("", None):
                     desc = None
         if desc:
@@ -334,12 +321,19 @@ def register_luclient_jinja_helpers(app):
     def get_lot_stats(lot_id):
         if not lot_id:
             return None
-        stats = query_cdclient(
-            'SELECT imBonusUI, lifeBonusUI, armorBonusUI, skillID, skillIcon FROM SkillBehavior WHERE skillID IN (\
-                SELECT skillID FROM ObjectSkills WHERE objectTemplate=?\
-                )',
-            [lot_id]
-        )
+        stats = SkillBehavior.query.with_entities(
+            SkillBehavior.imBonusUI,
+            SkillBehavior.lifeBonusUI,
+            SkillBehavior.armorBonusUI,
+            SkillBehavior.skillID,
+            SkillBehavior.skillIcon
+        ).filter(
+            SkillBehavior.skillID in ObjectSkills.query.with_entities(
+                ObjectSkills.skillID
+            ).filter(
+                ObjectSkills.objectTemplate == lot_id
+            ).all()
+        ).all()
 
         return consolidate_stats(stats)
 
@@ -347,12 +341,19 @@ def register_luclient_jinja_helpers(app):
     def get_set_stats(lot_id):
         if not lot_id:
             return "Missing"
-        stats = query_cdclient(
-            'SELECT imBonusUI, lifeBonusUI, armorBonusUI, skillID, skillIcon FROM SkillBehavior WHERE skillID IN (\
-                SELECT skillID FROM ItemSetSkills WHERE SkillSetID=?\
-                )',
-            [lot_id]
-        )
+        stats = SkillBehavior.query.with_entities(
+            SkillBehavior.imBonusUI,
+            SkillBehavior.lifeBonusUI,
+            SkillBehavior.armorBonusUI,
+            SkillBehavior.skillID,
+            SkillBehavior.skillIcon
+        ).filter(
+            SkillBehavior.skillID == ObjectSkills.query.with_entities(
+                ObjectSkills.skillID
+            ).filter(
+                ObjectSkills.objectTemplate == lot_id
+            ).all()
+        ).all()
 
         return consolidate_stats(stats)
 
@@ -364,26 +365,18 @@ def register_luclient_jinja_helpers(app):
 
 def consolidate_stats(stats):
 
-    if len(stats) > 1:
+    if stats:
         consolidated_stats = {"im": 0, "life": 0, "armor": 0, "skill": []}
         for stat in stats:
-            if stat[0]:
-                consolidated_stats["im"] += stat[0]
-            if stat[1]:
-                consolidated_stats["life"] += stat[1]
-            if stat[2]:
-                consolidated_stats["armor"] += stat[2]
-            if stat[3]:
-                consolidated_stats["skill"].append([stat[3], stat[4]])
-
+            if stat.imBonusUI:
+                consolidated_stats["im"] += stat.imBonusUI
+            if stat.lifeBonusUI:
+                consolidated_stats["life"] += stat.lifeBonusUI
+            if stat.armorBonusUI:
+                consolidated_stats["armor"] += stat.armorBonusUI
+            if stat.skillID:
+                consolidated_stats["skill"].append([stat.skillID, stat.skillIcon])
         stats = consolidated_stats
-    elif len(stats) == 1:
-        stats = {
-            "im": stats[0][0] if stats[0][0] else 0,
-            "life": stats[0][1] if stats[0][1] else 0,
-            "armor": stats[0][2] if stats[0][2] else 0,
-            "skill": [[stats[0][3], stats[0][4]]] if stats[0][3] else None,
-        }
     else:
         stats = None
     return stats
