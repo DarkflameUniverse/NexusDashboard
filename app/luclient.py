@@ -191,7 +191,7 @@ def get_cdclient():
     """
     cdclient = getattr(g, '_cdclient', None)
     if cdclient is None:
-        cdclient = g._database = sqlite3.connect('app/luclient/res/cdclient.sqlite')
+        cdclient = g._database = sqlite3.connect('app/luclient/res/CDServer.sqlite')
     return cdclient
 
 
