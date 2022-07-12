@@ -169,10 +169,10 @@ def delete(id):
                     UGC.query.filter(UGC.id == prop.ugc_id).first().delete()
                 prop_content.delete()
             prop.delete()
-        char.delete()
         friends = Friends.query.filter(or_(Friends.player_id == char.id, Friends.friend_id == char.id)).all()
         for friend in friends:
             friend.delete()
+        char.delete()
     # This is for GM stuff, it will be permnently delete logs
     bugs = BugReport.query.filter(BugReport.resoleved_by_id == id).all()
     for bug in bugs:
