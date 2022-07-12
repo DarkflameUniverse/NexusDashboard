@@ -14,11 +14,13 @@ from app.models import (
     AuditLog,
     BugReport,
     AccountInvitation,
-    db
+    db,
+    Friends
 )
 from app.schemas import AccountSchema
 from app import gm_level, log_audit
 from app.forms import EditGMLevelForm, EditEmailForm
+from sqlalchemy import or_
 
 accounts_blueprint = Blueprint('accounts', __name__)
 
@@ -168,6 +170,9 @@ def delete(id):
                 prop_content.delete()
             prop.delete()
         char.delete()
+        friends = Friends.query.filter(or_(Friends.player_id == char.id, Friends.friend_id == char.id)).all()
+        for friend in friends:
+            friend.delete()
     # This is for GM stuff, it will be permnently delete logs
     bugs = BugReport.query.filter(BugReport.resoleved_by_id == id).all()
     for bug in bugs:
