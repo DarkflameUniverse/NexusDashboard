@@ -7,6 +7,11 @@ APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 APP_SECRET_KEY = ""
 APP_DATABASE_URI = "mysql+pymysql://<username>:<password>@<host>:<port>/<database>"
 
+CONFIG_LINK = False
+CONFIG_LINK_TITLE = ""
+CONFIG_LINK_HREF = ""
+CONFIG_LINK_TEXT = ""
+
 # Send Analytics for Developers to better fix issues
 ALLOW_ANALYTICS = False
 

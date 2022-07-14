@@ -18,7 +18,11 @@ from app.commands import (
     load_property,
     gen_image_cache,
     gen_model_cache,
-    fix_clone_ids
+    fix_clone_ids,
+    parse_lucache,
+    makeup_unlisted_objects,
+    gen_new_locales,
+    xref_scripts
 )
 from app.models import Account, AccountInvitation, AuditLog
 
@@ -81,6 +85,10 @@ def create_app():
     app.cli.add_command(gen_image_cache)
     app.cli.add_command(gen_model_cache)
     app.cli.add_command(fix_clone_ids)
+    app.cli.add_command(parse_lucache)
+    app.cli.add_command(makeup_unlisted_objects)
+    app.cli.add_command(gen_new_locales)
+    app.cli.add_command(xref_scripts)
 
     register_logging(app)
     register_settings(app)

@@ -24,7 +24,27 @@
         </div>
       {% endfor %}
 
-      <hr>
+    </div>
+  </div>
+
+  <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
+    <div class="card-body">
+      <h4 class="text-center">Links</h4>
+
+      {% if config.CONFIG_LINK %}
+        <div class="row">
+          <div class="col text-right">
+            {{ config.CONFIG_LINK_TITLE }}
+          </div>
+          <div class="col">
+            <a href="{{ url_for('static', filename=config.CONFIG_LINK_HREF) }}">
+              {{ config.CONFIG_LINK_TEXT }}
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+
       <div class="row">
         <div class="col text-right">
           Source
