@@ -57,3 +57,6 @@ USER_PASSLIB_CRYPTCONTEXT_SCHEMES = ['bcrypt']  # bcrypt for password hashing
 # Flask-User routing settings
 USER_AFTER_LOGIN_ENDPOINT = "main.index"
 USER_AFTER_LOGOUT_ENDPOINT = "main.index"
+
+# Option will be removed once this feature is full implemeted
+ENABLE_CHAR_XML_UPLOAD = False
