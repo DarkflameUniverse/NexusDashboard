@@ -1,7 +1,9 @@
 from flask import render_template, Blueprint, redirect, url_for, request, current_app, flash
 from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
+import bcrypt
 import datetime
+import secrets
 from app.models import (
     Account,
     CharacterInfo,
@@ -152,10 +154,14 @@ def delete(id):
     message = f"Deleted Account ({account.id}){account.username}"
     chars = CharacterInfo.query.filter(CharacterInfo.account_id == id).all()
     for char in chars:
-        activities = ActivityLog.query.filter(ActivityLog.character_id == char.id).all()
+        activities = ActivityLog.query.filter(
+            ActivityLog.character_id == char.id
+        ).all()
         for activity in activities:
             activity.delete()
-        lb_entries = Leaderboard.query.filter(Leaderboard.character_id == char.id).all()
+        lb_entries = Leaderboard.query.filter(
+            Leaderboard.character_id == char.id
+        ).all()
         for lb_entry in lb_entries:
             lb_entry.delete()
         mails = Mail.query.filter(Mail.receiver_id == char.id).all()
@@ -163,13 +169,17 @@ def delete(id):
             mail.delete()
         props = Property.query.filter(Property.owner_id == char.id).all()
         for prop in props:
-            prop_contents = PropertyContent.query.filter(PropertyContent.property_id == prop.id).all()
+            prop_contents = PropertyContent.query.filter(
+                PropertyContent.property_id == prop.id
+            ).all()
             for prop_content in prop_contents:
                 if prop_content.lot == "14":
                     UGC.query.filter(UGC.id == prop.ugc_id).first().delete()
                 prop_content.delete()
             prop.delete()
-        friends = Friends.query.filter(or_(Friends.player_id == char.id, Friends.friend_id == char.id)).all()
+        friends = Friends.query.filter(
+            or_(Friends.player_id == char.id, Friends.friend_id == char.id)
+        ).all()
         for friend in friends:
             friend.delete()
         char.delete()
@@ -180,13 +190,35 @@ def delete(id):
     audits = AuditLog.query.filter(AuditLog.account_id == id).all()
     for audit in audits:
         audit.delete()
-    invites = AccountInvitation.query.filter(AccountInvitation.invited_by_user_id == id).all()
+    invites = AccountInvitation.query.filter(
+        AccountInvitation.invited_by_user_id == id).all()
     for invite in invites:
         invite.delete()
     account.delete()
     flash(message, "danger")
     log_audit(message)
     return redirect(url_for("main.index"))
+
+
+@accounts_blueprint.route('/pass_reset/<id>', methods=['GET', 'POST'])
+@login_required
+@gm_level(9)
+def pass_reset(id):
+    # get the account
+    account = Account.query.filter(Account.id == id).first()
+    # make a random pass of length 12 using secrets
+    raw_pass = secrets.token_urlsafe(12)
+    # generate the hash
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(str.encode(raw_pass), salt)
+    # save the has
+    account.password = hashed
+    account.save()
+    # display for the admin to get and log that the action was done
+    flash(f"Set password for account {account.username} to {raw_pass}", "success")
+    log_audit(f"Reset password for {account.username}")
+
+    return redirect(request.referrer if request.referrer else url_for("main.index"))
 
 
 @accounts_blueprint.route('/get', methods=['GET'])
