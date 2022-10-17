@@ -264,6 +264,10 @@ def register_settings(app):
         'USER_EMAIL_SENDER_EMAIL',
         app.config['USER_EMAIL_SENDER_EMAIL']
     )
+    app.config['ENABLE_CHAR_XML_UPLOAD'] = os.getenv(
+        'ENABLE_CHAR_XML_UPLOAD',
+        app.config['ENABLE_CHAR_XML_UPLOAD']
+    )
 
 
 def gm_level(gm_level):

@@ -209,3 +209,13 @@ class RejectPropertyForm(FlaskForm):
     )
 
     submit = SubmitField('Submit')
+
+
+class CharXMLUploadForm(FlaskForm):
+    char_xml = StringField(
+        'Paste minified charxml here:',
+        widget=TextArea(),
+        validators=[validators.DataRequired()]
+    )
+
+    submit = SubmitField('Submit')

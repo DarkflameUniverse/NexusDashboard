@@ -1,10 +1,10 @@
-from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, make_response
+from flask import render_template, Blueprint, redirect, url_for, request, abort, flash, make_response, current_app
 from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import time
 from app.models import CharacterInfo, CharacterXML, Account, db
 from app.schemas import CharacterInfoSchema
-from app.forms import RescueForm
+from app.forms import RescueForm, CharXMLUploadForm
 from app import gm_level, log_audit
 from app.luclient import translate_from_locale
 import xmltodict
@@ -214,6 +214,30 @@ def rescue(id):
         return redirect(url_for('characters.view', id=id))
 
     return render_template("character/rescue.html.j2", form=form)
+
+
+@character_blueprint.route('/upload/<id>', methods=['GET', 'POST'])
+@login_required
+@gm_level(9)
+def upload(id):
+    if not current_app.config["USER_ENABLE_EMAIL"]:
+        flash("You must enable this setting to do this", "danger")
+        return redirect(url_for('characters.view', id=id))
+
+    form = CharXMLUploadForm()
+
+    character_data = CharacterXML.query.filter(
+        CharacterXML.id == id
+    ).first()
+
+    if form.validate_on_submit():
+        character_data.xml_data = form.char_xml.data
+        character_data.save()
+        flash("You accept all consequences from these actions", "danger")
+        log_audit(f"Updated {character_data.name}'s xml data")
+        return redirect(url_for('characters.view', id=id))
+    form.char_xml.data = character_data.xml_data
+    return render_template("character/upload.html.j2", form=form)
 
 
 @character_blueprint.route('/get/<status>', methods=['GET'])
