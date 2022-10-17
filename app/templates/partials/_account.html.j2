@@ -108,7 +108,7 @@
           </div>
         {% endif %}
       </div>
-    {% elif current_user.gm_level = 9%}
+    {% elif current_user.gm_level == 9 %}
       <div class="col">
         <a role="button" class="btn btn-danger btn btn-block" href='{{ url_for('accounts.pass_reset', id= account_data.id) }}'>
           Reset User's Password
