@@ -108,6 +108,12 @@
           </div>
         {% endif %}
       </div>
+    {% elif current_user.gm_level = 9%}
+      <div class="col">
+        <a role="button" class="btn btn-danger btn btn-block" href='{{ url_for('accounts.pass_reset', id= account_data.id) }}'>
+          Reset User's Password
+        </a>
+      </div>
     {% endif %}
 
     {% if account_data.play_key and current_user.gm_level > 3 and config.REQUIRE_PLAY_KEY %}
