@@ -220,7 +220,7 @@ def rescue(id):
 @login_required
 @gm_level(9)
 def upload(id):
-    if not current_app.config["USER_ENABLE_EMAIL"]:
+    if not current_app.config["ENABLE_CHAR_XML_UPLOAD"]:
         flash("You must enable this setting to do this", "danger")
         return redirect(url_for('characters.view', id=id))
 
