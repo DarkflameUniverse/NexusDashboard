@@ -63,9 +63,13 @@
         Play time:
       </div>
       <div class="col">
+        {% if character_json.obj.char.attr_time %}
           {{ (character_json.obj.char.attr_time|int/60/60/24)|int }} Days
           {{ (character_json.obj.char.attr_time|int/60/60)|int - ((character_json.obj.char.attr_time|int/60/60/24)|int) * 24}} Hours
           {{ (character_json.obj.char.attr_time|int/60 - (character_json.obj.char.attr_time|int/60/60)|int*60)|int }} Minutes
+        {% else %}
+          None
+        {% endif %}
       </div>
     </div>
     <hr class="bg-primary"/>
@@ -110,9 +114,15 @@
             {# Inv ID 0 - Index: 0 #}
             {% for item in character_json.obj.inv.holdings.in %}
               {% if item.attr_t == "0" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -120,9 +130,15 @@
             {# Inv ID 1 - Index: 1 #}
             {% for item in character_json.obj.inv.holdings.in %}
               {% if item.attr_t == "1" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -130,9 +146,15 @@
             {# Inv ID 14 - Index: 10 #}
             {% for item in character_json.obj.inv.holdings.in %}
               {% if item.attr_t == "14" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -140,9 +162,15 @@
             {# Inv ID 2 - Index: 2 #}
             {% for item in character_json.obj.inv.holdings.in %}
               {% if item.attr_t == "2" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -150,19 +178,31 @@
             {# Inv ID 5 - Index: 6 #}
             {% for item in character_json.obj.inv.holdings.in %}
               {% if item.attr_t == "5" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
           <div class="tab-pane fade" id="nav-behaviors" role="tabpanel" aria-labelledby="nav-behaviors-tab">
             {# Inv ID 7 - Index: 8 #}
             {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "7" %}
-                {% for inv_item in item.i %}
-                  {% include 'partials/charxml/_inv_grid.html.j2' %}
-                {% endfor %}
+              {% if item.attr_t == "1" %}
+                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
+                  {% for inv_item in item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endfor %}
+                {% else %}
+                  {% with inv_item=item.i %}
+                    {% include 'partials/charxml/_inv_grid.html.j2' %}
+                  {% endwith %}
+                {% endif %}
               {% endif %}
             {% endfor %}
           </div>
@@ -187,10 +227,14 @@
         </button>
       </div>
       <div class="modal-body">
-        {% for zone in character_json.obj.char.zs.s %}
-          {% include 'partials/charxml/_zone_stats.html.j2' %}
-          {{ '<hr class="bg-primary"/>' if not loop.last else "" }}
-        {% endfor %}
+        {% if character_json.obj.char.zs %}
+          {% for zone in character_json.obj.char.zs.s %}
+            {% include 'partials/charxml/_zone_stats.html.j2' %}
+            {{ '<hr class="bg-primary"/>' if not loop.last else "" }}
+          {% endfor %}
+        {% else %}
+          No Stats Yet
+        {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

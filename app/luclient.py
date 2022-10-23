@@ -281,6 +281,7 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('parse_lzid')
     def parse_lzid(lzid):
+        if not lzid: return [1000, 1000, 1000]
         return[
             (int(lzid) & ((1 << 16) - 1)),
             ((int(lzid) >> 16) & ((1 << 16) - 1)),

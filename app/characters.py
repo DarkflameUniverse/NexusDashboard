@@ -9,6 +9,7 @@ from app import gm_level, log_audit
 from app.luclient import translate_from_locale
 import xmltodict
 import xml.etree.ElementTree as ET
+import json
 
 
 character_blueprint = Blueprint('characters', __name__)
@@ -78,7 +79,7 @@ def view(id):
     character_json = xmltodict.parse(
         CharacterXML.query.filter(
             CharacterXML.id == id
-        ).first().xml_data,
+        ).first().xml_data.replace("\"stt=", "\" stt="),
         attr_prefix="attr_"
     )
 
@@ -91,9 +92,10 @@ def view(id):
     # stupid fix for jinja parsing
     character_json["obj"]["inv"]["holdings"] = character_json["obj"]["inv"].pop("items")
     # sort by items slot index
-    for inv in character_json["obj"]["inv"]["holdings"]["in"]:
-        if "i" in inv.keys() and type(inv["i"]) == list:
-            inv["i"] = sorted(inv["i"], key=lambda i: int(i['attr_s']))
+    if type(character_json["obj"]["inv"]["holdings"]["in"]) == list:
+        for inv in character_json["obj"]["inv"]["holdings"]["in"]:
+                if "i" in inv.keys() and type(inv["i"]) == list:
+                    inv["i"] = sorted(inv["i"], key=lambda i: int(i['attr_s']))
 
     return render_template(
         'character/view.html.j2',
@@ -119,7 +121,7 @@ def view_xml(id):
 
     character_xml = CharacterXML.query.filter(
         CharacterXML.id == id
-    ).first().xml_data
+    ).first().xml_data.replace("\"stt=", "\" stt=")
 
     response = make_response(character_xml)
     response.headers.set('Content-Type', 'text/xml')
@@ -190,7 +192,7 @@ def rescue(id):
         CharacterXML.id == id
     ).first()
 
-    character_xml = ET.XML(character_data.xml_data)
+    character_xml = ET.XML(character_data.xml_data.replace("\"stt=", "\" stt="))
     for zone in character_xml.findall('.//r'):
         if int(zone.attrib["w"]) % 100 == 0:
             form.save_world.choices.append(
