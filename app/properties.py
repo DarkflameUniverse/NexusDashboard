@@ -411,10 +411,20 @@ def download_model(id):
 
 def ugc(content):
     ugc_data = UGC.query.filter(UGC.id == content.ugc_id).first()
-    uncompressed_lxfml = zlib.decompress(ugc_data.lxfml)
+    uncompressed_lxfml = decompress(ugc_data.lxfml)
     response = make_response(uncompressed_lxfml)
     return response, ugc_data.filename
 
+def decompress(data):
+	assert data[:5] == b"sd0\x01\xff"
+	pos = 5
+	out = b""
+	while pos < len(data):
+		length = int.from_bytes(data[pos:pos+4], "little")
+		pos += 4
+		out += zlib.decompress(data[pos:pos+length])
+		pos += length
+	return out
 
 def prebuilt(content, file_format, lod):
     # translate LOT to component id
