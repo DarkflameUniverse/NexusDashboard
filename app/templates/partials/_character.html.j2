@@ -41,35 +41,35 @@
       </div>
     </div>
     {% if request.endpoint != "characters.view" %}
-    <br/>
-    <div class="row">
-      <div class="col text-center">
-          <a role="button" class="btn btn-primary btn-block"
-            href='{{ url_for('characters.view', id=character.id) }}'>
-            View Character
-          </a>
+      <br/>
+      <div class="row">
+        <div class="col text-center">
+            <a role="button" class="btn btn-primary btn-block"
+              href='{{ url_for('characters.view', id=character.id) }}'>
+              View Character
+            </a>
+        </div>
       </div>
-    </div>
     {% else %}
-    <br/>
-    <a role="button" class="btn btn-primary btn-block"
-      href='{{ url_for('characters.view_xml', id=character.id) }}'>
-      View XML
-    </a>
-    <a role="button" class="btn btn-primary btn-block"
-      href='{{ url_for('characters.get_xml', id=character.id) }}'>
-      Download XML
-    </a>
-    {% if config.ENABLE_CHAR_XML_UPLOAD %}
+      <br/>
       <a role="button" class="btn btn-primary btn-block"
-        href='{{ url_for('characters.upload', id=character.id) }}'>
-        Upload XML
+        href='{{ url_for('characters.view_xml', id=character.id) }}'>
+        View XML
       </a>
-    {% endif %}
-    <a role="button" class="btn btn-primary btn-block"
-      href='{{ url_for('accounts.view', id=character.account_id) }}'>
-      View Account: {{character.account.username}}
-    </a>
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('characters.get_xml', id=character.id) }}'>
+        Download XML
+      </a>
+      {% if config.ENABLE_CHAR_XML_UPLOAD and current_user.gm_level == 9 %}
+        <a role="button" class="btn btn-primary btn-block"
+          href='{{ url_for('characters.upload', id=character.id) }}'>
+          Upload XML
+        </a>
+      {% endif %}
+      <a role="button" class="btn btn-primary btn-block"
+        href='{{ url_for('accounts.view', id=character.account_id) }}'>
+        View Account: {{character.account.username}}
+      </a>
     {% endif %}
 
     {% if current_user.gm_level > 2 %}
