@@ -220,7 +220,7 @@ def rescue(id):
 
 @character_blueprint.route('/upload/<id>', methods=['GET', 'POST'])
 @login_required
-@gm_level(9)
+@gm_level(8)
 def upload(id):
     if not current_app.config["ENABLE_CHAR_XML_UPLOAD"]:
         flash("You must enable this setting to do this", "danger")
