@@ -4,9 +4,47 @@
 
 {% block content_before %}
   Online Players: {{ online }}
+
 {% endblock %}
 
 {% block content %}
+
+  {# show general zone info to everyone #}
+  {% if zones %}
+    <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
+      <div class="card-body">
+        {% for zone, players in zones.items() %}
+          <div class="row">
+            <div class="col text-right">
+              {{ zone|get_zone_name }}
+            </div>
+            <div class="col">
+              {{ players }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {# only show this info to high level admina #}
+  {% if current_user.gm_level >= 8 and users|length > 0 %}
+    <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
+      <div class="card-body">
+        {% for user in users %}
+          <div class="row">
+            <div class="col text-right">
+              {{ user[0] }}
+            </div>
+            <div class="col">
+              {{ user[1]|get_zone_name }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
   <div class='card mx-auto mt-5 shadow-sm bg-dark border-primary'>
     <div class="card-body">
       <h4 class="text-center">Staff</h4>
