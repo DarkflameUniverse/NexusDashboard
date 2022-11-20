@@ -60,7 +60,7 @@
         href='{{ url_for('characters.get_xml', id=character.id) }}'>
         Download XML
       </a>
-      {% if config.ENABLE_CHAR_XML_UPLOAD and current_user.gm_level == 8 %}
+      {% if config.ENABLE_CHAR_XML_UPLOAD and current_user.gm_level >= 8 %}
         <a role="button" class="btn btn-primary btn-block"
           href='{{ url_for('characters.upload', id=character.id) }}'>
           Upload XML
