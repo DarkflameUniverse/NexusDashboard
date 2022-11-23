@@ -13,7 +13,11 @@
   >
   {% if inv_item.attr_c != "1" %}
     <span class="inventory-count text-bold">
-      {{ inv_item.attr_c }}
+      {%if inv_item.attr_c|int > 999 %}
+        +999
+      {% else %}
+        {{ inv_item.attr_c }}
+      {% endif %}
     </span>
   {% endif %}
   {% if inv_item.attr_b == "true" %}
