@@ -22,9 +22,7 @@
         <tr>
             <th>ID</th>
             <th>Account:Character</th>
-            <th>Activity</th>
-            <th>Time</th>
-            <th>Map</th>
+            <th>Command</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -40,7 +38,7 @@
             "order": [[0, "desc"]],
             "processing": true,
             "serverSide": true,
-            "ajax": "{{ url_for('log.get_activities') }}",
+            "ajax": "{{ url_for('log.get_commands') }}",
           });
         });
   </script>
