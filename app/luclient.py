@@ -191,7 +191,16 @@ def get_cdclient():
     """
     cdclient = getattr(g, '_cdclient', None)
     if cdclient is None:
-        cdclient = g._database = sqlite3.connect('app/luclient/res/cdclient.sqlite')
+        path = pathlib.Path('app/luclient/res/cdclient.sqlite')
+        if path.is_file():
+            cdclient = g._database = sqlite3.connect('app/luclient/res/cdclient.sqlite')
+            return cdclient
+
+        path = pathlib.Path('app/luclient/res/CDServer.sqlite')
+        if path.is_file():
+            cdclient = g._database = sqlite3.connect('app/luclient/res/CDServer.sqlite')
+            return cdclient
+
     return cdclient
 
 
