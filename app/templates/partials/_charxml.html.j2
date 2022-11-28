@@ -193,7 +193,7 @@
           <div class="tab-pane fade" id="nav-behaviors" role="tabpanel" aria-labelledby="nav-behaviors-tab">
             {# Inv ID 7 - Index: 8 #}
             {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "1" %}
+              {% if item.attr_t == "7" %}
                 {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
                   {% for inv_item in item.i %}
                     {% include 'partials/charxml/_inv_grid.html.j2' %}
