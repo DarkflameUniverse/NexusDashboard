@@ -46,7 +46,7 @@
           <a id='property-index' class='nav-link' href='{{ url_for('properties.index') }}'>Properties</a>
         {% endif %}
 
-        {% if current_user.is_authenticated and current_user.gm_level == 9 and config.REQUIRE_PLAY_KEY %}
+        {% if current_user.is_authenticated and current_user.gm_level >= 5 and config.REQUIRE_PLAY_KEY %}
           {# Play Keys #}
           <a id='play_keys-index' class='nav-link' href='{{ url_for('play_keys.index') }}'>Play Keys</a>
         {% endif %}

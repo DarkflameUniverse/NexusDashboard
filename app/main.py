@@ -31,7 +31,7 @@ def index():
 @login_required
 def about():
     """About Page"""
-    mods = Account.query.filter(Account.gm_level > 0).order_by(Account.gm_level.desc()).all()
+    mods = Account.query.filter(Account.gm_level > 1).order_by(Account.gm_level.desc()).all()
     online = 0
     users = []
     zones = {}

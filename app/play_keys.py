@@ -11,14 +11,14 @@ play_keys_blueprint = Blueprint('play_keys', __name__)
 # Key creation page
 @play_keys_blueprint.route('/', methods=['GET'])
 @login_required
-@gm_level(9)
+@gm_level(5)
 def index():
     return render_template('play_keys/index.html.j2')
 
 
 @play_keys_blueprint.route('/create/<count>/<uses>', methods=['GET'], defaults={'count': 1, 'uses': 1})
 @login_required
-@gm_level(9)
+@gm_level(5)
 def create(count=1, uses=1):
     key = PlayKey.create(count=count, uses=uses)
     log_audit(f"Created {count} Play Key(s) with {uses} uses!")
@@ -28,7 +28,7 @@ def create(count=1, uses=1):
 
 @play_keys_blueprint.route('/create/bulk', methods=('GET', 'POST'))
 @login_required
-@gm_level(9)
+@gm_level(5)
 def bulk_create():
     form = CreatePlayKeyForm()
     if form.validate_on_submit():
@@ -42,7 +42,7 @@ def bulk_create():
 
 @play_keys_blueprint.route('/delete/<id>', methods=('GET', 'POST'))
 @login_required
-@gm_level(9)
+@gm_level(5)
 def delete(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
     # associated_accounts = Account.query.filter(Account.play_key_id==id).all()
@@ -54,7 +54,7 @@ def delete(id):
 
 @play_keys_blueprint.route('/edit/<id>', methods=('GET', 'POST'))
 @login_required
-@gm_level(9)
+@gm_level(5)
 def edit(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
     form = EditPlayKeyForm()
@@ -81,7 +81,7 @@ def edit(id):
 
 @play_keys_blueprint.route('/view/<id>', methods=('GET', 'POST'))
 @login_required
-@gm_level(9)
+@gm_level(5)
 def view(id):
     key = PlayKey.query.filter(PlayKey.id == id).first()
     accounts = Account.query.filter(Account.play_key_id == id).all()
@@ -90,7 +90,7 @@ def view(id):
 
 @play_keys_blueprint.route('/get', methods=['GET'])
 @login_required
-@gm_level(9)
+@gm_level(5)
 def get():
     columns = [
         ColumnDT(PlayKey.id),
