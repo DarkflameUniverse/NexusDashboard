@@ -70,7 +70,8 @@ class CustomRegisterForm(FlaskForm):
         validators=[
             Optional(),
             validate_play_key,
-        ]
+        ],
+        default=''
     )
 
     password = PasswordField('Password', validators=[
