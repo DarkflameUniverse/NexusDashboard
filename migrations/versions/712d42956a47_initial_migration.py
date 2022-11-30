@@ -103,14 +103,13 @@ def upgrade():
             sa.Column('other_player_id', mysql.TEXT(), nullable=False),
             sa.Column('selection', mysql.TEXT(), nullable=False),
             sa.Column('submitted', mysql.TIMESTAMP(), server_default=sa.text('now()'), nullable=False),
-            sa.ForeignKeyConstraint(['resoleved_by_id'], ['accounts.id'], ondelete='CASCADE'),
             sa.PrimaryKeyConstraint('id')
         )
 
     op.add_column('bug_reports', sa.Column('resolved_time', mysql.TIMESTAMP(), nullable=True))
     op.add_column('bug_reports', sa.Column('resoleved_by_id', sa.Integer(), nullable=True))
     op.add_column('bug_reports', sa.Column('resolution', mysql.TEXT(), nullable=True))
-    op.create_foreign_key(None, 'bug_reports', 'accounts', ['resoleved_by_id'], ['id'])
+    op.create_foreign_key(None, 'bug_reports', 'accounts', ['resoleved_by_id'], ['id'], ondelete='CASCADE')
 
     if 'charinfo' not in tables:
         op.create_table('charinfo',
