@@ -25,7 +25,7 @@ def command():
 @log_blueprint.route('/system')
 @gm_level(8)
 def system():
-    with open('nexus_dashboard.log', 'r') as file:
+    with open('logs/nexus_dashboard.log', 'r') as file:
         logs = '</br>'.join(file.read().split('\n')[-100:])
     return render_template('logs/system.html.j2', logs=logs)
 

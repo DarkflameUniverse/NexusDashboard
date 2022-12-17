@@ -159,7 +159,7 @@ def register_blueprints(app):
 
 def register_logging(app):
     # file logger
-    file_handler = RotatingFileHandler('nexus_dashboard.log', maxBytes=1024 * 1024 * 100, backupCount=20)
+    file_handler = RotatingFileHandler('logs/nexus_dashboard.log', maxBytes=1024 * 1024 * 100, backupCount=20)
     file_handler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
