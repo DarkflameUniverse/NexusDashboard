@@ -4,7 +4,7 @@ resources.py
 __pycache__/
 venv/
 static/policy/
-app/static/site.css
+app/static/css/site.css
 app/static/.webassets-cache/**/*
 app/static/brickdb/*
 locale.json

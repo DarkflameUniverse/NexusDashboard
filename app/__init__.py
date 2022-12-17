@@ -120,7 +120,7 @@ def register_extensions(app):
 
     assets = Environment(app)
     assets.url = app.static_url_path
-    scss = Bundle('scss/site.scss', filters='libsass', output='site.css')
+    scss = Bundle('scss/site.scss', filters='libsass', output='css/site.css')
     assets.register('scss_all', scss)
 
 
