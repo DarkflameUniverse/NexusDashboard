@@ -269,27 +269,27 @@ def register_settings(app):
         'USER_EMAIL_SENDER_EMAIL',
         app.config['USER_EMAIL_SENDER_EMAIL']
     )
-    if "ENABLE_CHAR_XML_UPLOAD" in app.config:
-        app.config['ENABLE_CHAR_XML_UPLOAD'] = os.getenv(
-            'ENABLE_CHAR_XML_UPLOAD',
-            app.config['ENABLE_CHAR_XML_UPLOAD']
-        )
+    if "ENABLE_CHAR_XML_UPLOAD" not in app.config:
+        app.config['ENABLE_CHAR_XML_UPLOAD'] = False
+    app.config['ENABLE_CHAR_XML_UPLOAD'] = os.getenv(
+        'ENABLE_CHAR_XML_UPLOAD',
+        app.config['ENABLE_CHAR_XML_UPLOAD']
+    )
 
-    if "CLIENT_LOCATION" in app.config:
-        app.config['CLIENT_LOCATION'] = os.getenv(
-            'CLIENT_LOCATION',
-            app.config['CLIENT_LOCATION']
-        )
-    else:
+    if "CLIENT_LOCATION" not in app.config:
         app.config['CLIENT_LOCATION'] = 'app/luclient/'
+    app.config['CLIENT_LOCATION'] = os.getenv(
+        'CLIENT_LOCATION',
+        app.config['CLIENT_LOCATION']
+    )
 
-    if "CD_SQLITE_LOCATION" in app.config:
-        app.config['CD_SQLITE_LOCATION'] = os.getenv(
-            'CD_SQLITE_LOCATION',
-            app.config['CD_SQLITE_LOCATION']
-        )
-    else:
+    if "CD_SQLITE_LOCATION" not in app.config:
         app.config['CD_SQLITE_LOCATION'] = 'app/luclient/res/'
+    app.config['CD_SQLITE_LOCATION'] = os.getenv(
+        'CD_SQLITE_LOCATION',
+        app.config['CD_SQLITE_LOCATION']
+    )
+
 
 
 def gm_level(gm_level):
