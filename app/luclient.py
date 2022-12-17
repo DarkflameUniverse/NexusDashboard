@@ -42,7 +42,7 @@ def get_dds_as_png(filename):
 
         with image.Image(filename=path) as img:
             img.compression = "no"
-            img.save(filename='app/cache/' + filename.split('.')[0] + '.png')
+            img.save(filename=current_app.config["CACHE_LOCATION"] + filename.split('.')[0] + '.png')
 
     return send_file(cache)
 
@@ -90,7 +90,7 @@ def get_icon_lot(id):
     else:
         return redirect(url_for('luclient.unknown'))
 
-    cache = f'app/cache/{filename.split(".")[0]}.png'
+    cache = f'{current_app.config["CACHE_LOCATION"]}{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
         root = f"{current_app.config['CLIENT_LOCATION']}res/"
@@ -117,7 +117,7 @@ def get_icon_iconid(id):
 
     filename = filename.replace("..\\", "").replace("\\", "/")
 
-    cache = f'app/cache/{filename.split(".")[0]}.png'
+    cache = f'{current_app.config["CACHE_LOCATION"]}{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
         root = f"{current_app.config['CLIENT_LOCATION']}res/"
@@ -174,7 +174,7 @@ def dir_listing(req_path):
 def unknown():
     filename = "textures/ui/inventory/unknown.dds"
 
-    cache = f'app/cache/{filename.split(".")[0]}.png'
+    cache = f'{current_app.config["CACHE_LOCATION"]}{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
         root = f"{current_app.config['CLIENT_LOCATION']}res/"

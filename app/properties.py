@@ -460,7 +460,7 @@ def prebuilt(content, file_format, lod):
     # else we handle getting the files for lddviewer
     elif file_format in ["obj", "mtl"]:
         # check to see if the file exists
-        cache = pathlib.Path(f'app/cache/BrickModels/{filename}.lod{lod}.{file_format}')
+        cache = pathlib.Path(f'{current_app.config["CACHE_LOCATION"]}BrickModels/{filename}.lod{lod}.{file_format}')
         if not cache.is_file():
             # if not make it an store it for later
             cache.parent.mkdir(parents=True, exist_ok=True)

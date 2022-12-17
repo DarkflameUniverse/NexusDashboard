@@ -11,6 +11,7 @@ from flask_user import user_registered, current_user, user_logged_in
 from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import register_luclient_jinja_helpers
+import pathlib
 
 from app.commands import (
     init_db,
@@ -100,6 +101,15 @@ def create_app():
     register_extensions(app)
     register_blueprints(app)
     register_luclient_jinja_helpers(app)
+
+    # Extract the brickdb if it's not already extracted
+    materials = pathlib.Path(f'{app.config["CACHE_LOCATION"]}Materials.xml')
+    if not materials.is_file():
+        from zipfile import ZipFile
+        with ZipFile(f"{app.config['CLIENT_LOCATION']}res/brickdb.zip","r") as zip_ref:
+            zip_ref.extractall(app.config["CACHE_LOCATION"])
+        from shutil import copytree
+        copytree(f"{app.config['CLIENT_LOCATION']}res/brickprimitives", f"{app.config['CACHE_LOCATION']}brickprimitives")
 
     return app
 
@@ -269,6 +279,7 @@ def register_settings(app):
         'USER_EMAIL_SENDER_EMAIL',
         app.config['USER_EMAIL_SENDER_EMAIL']
     )
+
     if "ENABLE_CHAR_XML_UPLOAD" not in app.config:
         app.config['ENABLE_CHAR_XML_UPLOAD'] = False
     app.config['ENABLE_CHAR_XML_UPLOAD'] = os.getenv(
@@ -288,6 +299,13 @@ def register_settings(app):
     app.config['CD_SQLITE_LOCATION'] = os.getenv(
         'CD_SQLITE_LOCATION',
         app.config['CD_SQLITE_LOCATION']
+    )
+
+    if "CACHE_LOCATION" not in app.config:
+        app.config['CACHE_LOCATION'] = 'app/cache/'
+    app.config['CACHE_LOCATION'] = os.getenv(
+        'CACHE_LOCATION',
+        app.config['CACHE_LOCATION']
     )
 
 

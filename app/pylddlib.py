@@ -969,8 +969,8 @@ def main(lxf_filename, obj_filename, lod="2"):
     GEOMETRIEPATH = GEOMETRIEPATH + f"LOD{lod}/"
     converter = Converter()
     # print("Found DB folder. Will use this instead of db.lif!")
-    setDBFolderVars(dbfolderlocation=f"{current_app.config['CLIENT_LOCATION']}res/", lod=lod)
-    converter.LoadDBFolder(dbfolderlocation=f"{current_app.config['CLIENT_LOCATION']}res/")
+    setDBFolderVars(dbfolderlocation=f"{current_app.config['CACHE_LOCATION']}", lod=lod)
+    converter.LoadDBFolder(dbfolderlocation=f"{current_app.config['CACHE_LOCATION']}")
     converter.LoadScene(filename=lxf_filename)
     converter.Export(filename=obj_filename)
 
