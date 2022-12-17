@@ -65,12 +65,17 @@ def get_dds(filename):
 @luclient_blueprint.route('/get_icon_lot/<id>')
 @login_required
 def get_icon_lot(id):
-
+    if id is None:
+        redirect(url_for('luclient.unknown'))
     render_component_id = query_cdclient(
         'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
         [id],
         one=True
-    )[0]
+    )
+    if render_component_id is not None:
+        render_component_id = render_component_id[0]
+    else:
+        return redirect(url_for('luclient.unknown'))
 
     # find the asset from rendercomponent given the  component id
     filename = query_cdclient(

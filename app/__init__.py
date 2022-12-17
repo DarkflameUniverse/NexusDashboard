@@ -82,6 +82,11 @@ def create_app():
         if cdclient is not None:
             cdclient.close()
 
+    @app.template_filter()
+    def numberFormat(value):
+        return format(int(value), ',d')
+
+
     # add the commands to flask cli
     app.cli.add_command(init_db)
     app.cli.add_command(init_accounts)
@@ -269,6 +274,22 @@ def register_settings(app):
             'ENABLE_CHAR_XML_UPLOAD',
             app.config['ENABLE_CHAR_XML_UPLOAD']
         )
+
+    if "CLIENT_LOCATION" in app.config:
+        app.config['CLIENT_LOCATION'] = os.getenv(
+            'CLIENT_LOCATION',
+            app.config['CLIENT_LOCATION']
+        )
+    else:
+        app.config['CLIENT_LOCATION'] = 'app/luclient/'
+
+    if "CD_SQLITE_LOCATION" in app.config:
+        app.config['CD_SQLITE_LOCATION'] = os.getenv(
+            'CD_SQLITE_LOCATION',
+            app.config['CD_SQLITE_LOCATION']
+        )
+    else:
+        app.config['CD_SQLITE_LOCATION'] = 'app/luclient/res/'
 
 
 def gm_level(gm_level):
