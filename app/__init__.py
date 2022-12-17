@@ -105,11 +105,15 @@ def create_app():
     # Extract the brickdb if it's not already extracted
     materials = pathlib.Path(f'{app.config["CACHE_LOCATION"]}Materials.xml')
     if not materials.is_file():
+        # unzip the brickdb, and remove the import after
         from zipfile import ZipFile
         with ZipFile(f"{app.config['CLIENT_LOCATION']}res/brickdb.zip","r") as zip_ref:
             zip_ref.extractall(app.config["CACHE_LOCATION"])
+        del ZipFile
+        # copy over the brick primitives, and remove the import after
         from shutil import copytree
         copytree(f"{app.config['CLIENT_LOCATION']}res/brickprimitives", f"{app.config['CACHE_LOCATION']}brickprimitives")
+        del copytree
 
     return app
 
