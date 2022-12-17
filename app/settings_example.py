@@ -7,6 +7,10 @@ APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 APP_SECRET_KEY = ""
 APP_DATABASE_URI = "mysql+pymysql://<username>:<password>@<host>:<port>/<database>"
 
+CLIENT_LOCATION = 'app/luclient/'
+CD_SQLITE_LOCATION = 'app/luclient/res/'
+CACHE_LOCATION = 'app/cache/'
+
 CONFIG_LINK = False
 CONFIG_LINK_TITLE = ""
 CONFIG_LINK_HREF = ""

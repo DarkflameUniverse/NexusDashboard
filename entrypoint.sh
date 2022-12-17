@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# unzip brickdb from client to the right places
-unzip -n -q /app/luclient/res/brickdb.zip -d app/luclient/res/
-
 # TODO: preconvert images options
 # TODO: preconvery models options
 
