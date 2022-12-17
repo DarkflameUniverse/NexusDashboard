@@ -69,8 +69,7 @@ def send():
         form.recipient.choices.append((character.id, character.name))
 
     items = query_cdclient(
-        'Select id, name, displayName from Objects where type = ?',
-        ["Loot"]
+        'Select id, name, displayName from Objects where type = "Loot"'
     )
 
     for item in items:

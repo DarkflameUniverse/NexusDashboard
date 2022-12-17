@@ -5,7 +5,8 @@ from flask import (
     redirect,
     url_for,
     make_response,
-    abort
+    abort,
+    current_app
 )
 from flask_user import login_required
 from app.models import CharacterInfo
@@ -32,7 +33,7 @@ def get_dds_as_png(filename):
     cache = f'cache/{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
-        root = 'app/luclient/res/'
+        root = f"{current_app.config['CLIENT_LOCATION']}res/"
 
         path = glob.glob(
             root + f'**/{filename}',
@@ -52,7 +53,7 @@ def get_dds(filename):
     if filename.split('.')[-1] != 'dds':
         return 404
 
-    root = 'app/luclient/res/'
+    root = f"{current_app.config['CLIENT_LOCATION']}res/"
 
     dds = glob.glob(
         root + f'**/{filename}',
@@ -92,7 +93,7 @@ def get_icon_lot(id):
     cache = f'app/cache/{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
-        root = 'app/luclient/res/'
+        root = f"{current_app.config['CLIENT_LOCATION']}res/"
         try:
             pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
             with image.Image(filename=f'{root}{filename}'.lower()) as img:
@@ -119,7 +120,7 @@ def get_icon_iconid(id):
     cache = f'app/cache/{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
-        root = 'app/luclient/res/'
+        root = f"{current_app.config['CLIENT_LOCATION']}res/"
         try:
             pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
             with image.Image(filename=f'{root}{filename}'.lower()) as img:
@@ -137,14 +138,14 @@ def brick_list():
     brick_list = []
     if len(brick_list) == 0:
         suffixes = [".g", ".g1", ".g2", ".g3", ".xml"]
-        res = pathlib.Path('app/luclient/res/')
+        res = pathlib.Path(f"{current_app.config['CLIENT_LOCATION']}res/")
         # Load g files
         for path in res.rglob("*.*"):
             if str(path.suffix) in suffixes:
                 brick_list.append(
                     {
                         "type": "file",
-                        "name": str(path.as_posix()).replace("app/luclient/res/", "")
+                        "name": str(path.as_posix()).replace("{current_app.config['CLIENT_LOCATION']}res/", "")
                     }
                 )
     response = make_response(json.dumps(brick_list))
@@ -156,7 +157,7 @@ def brick_list():
 @luclient_blueprint.route('/ldddb/<path:req_path>')
 def dir_listing(req_path):
     # Joining the base and the requested path
-    rel_path = pathlib.Path(str(pathlib.Path(f'app/luclient/res/{req_path}').resolve()))
+    rel_path = pathlib.Path(str(pathlib.Path(f"{current_app.config['CLIENT_LOCATION']}res/{req_path}").resolve()))
     # Return 404 if path doesn't exist
     if not rel_path.exists():
         return abort(404)
@@ -176,7 +177,7 @@ def unknown():
     cache = f'app/cache/{filename.split(".")[0]}.png'
 
     if not os.path.exists(cache):
-        root = 'app/luclient/res/'
+        root = f"{current_app.config['CLIENT_LOCATION']}res/"
         try:
             pathlib.Path(os.path.dirname(cache)).resolve().mkdir(parents=True, exist_ok=True)
             with image.Image(filename=f'{root}{filename}'.lower()) as img:
@@ -196,14 +197,14 @@ def get_cdclient():
     """
     cdclient = getattr(g, '_cdclient', None)
     if cdclient is None:
-        path = pathlib.Path('app/luclient/res/cdclient.sqlite')
+        path = pathlib.Path(f"{current_app.config['CD_SQLITE_LOCATION']}cdclient.sqlite")
         if path.is_file():
-            cdclient = g._database = sqlite3.connect('app/luclient/res/cdclient.sqlite')
+            cdclient = g._database = sqlite3.connect(f"{current_app.config['CD_SQLITE_LOCATION']}cdclient.sqlite")
             return cdclient
 
-        path = pathlib.Path('app/luclient/res/CDServer.sqlite')
+        path = pathlib.Path(f"{current_app.config['CD_SQLITE_LOCATION']}CDServer.sqlite")
         if path.is_file():
-            cdclient = g._database = sqlite3.connect('app/luclient/res/CDServer.sqlite')
+            cdclient = g._database = sqlite3.connect(f"{current_app.config['CD_SQLITE_LOCATION']}CDServer.sqlite")
             return cdclient
 
     return cdclient
@@ -237,7 +238,7 @@ def translate_from_locale(trans_string):
     locale_data = ""
 
     if not locale:
-        locale_path = "app/luclient/locale/locale.xml"
+        locale_path = f"{current_app.config['CLIENT_LOCATION']}locale/locale.xml"
 
         with open(locale_path, 'r') as file:
             locale_data = file.read()

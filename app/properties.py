@@ -428,18 +428,20 @@ def decompress(data):
 
 def prebuilt(content, file_format, lod):
     # translate LOT to component id
-    # we need to get a type of 2 because reasons
+    # we need to get a type of 2 for the render component to find the filename
     render_component_id = query_cdclient(
         'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
         [content.lot],
         one=True
     )[0]
-    # find the asset from rendercomponent given the  component id
+    # find the asset from rendercomponent given the component id
     filename = query_cdclient(
         'select render_asset from RenderComponent where id = ?',
         [render_component_id],
         one=True
     )
+
+    # if we have a valie filename, coerce it
     if filename:
         filename = filename[0].split("\\\\")[-1].lower().split(".")[0]
         if "/" in filename:
@@ -447,25 +449,29 @@ def prebuilt(content, file_format, lod):
     else:
         return f"No filename for LOT {content.lot}"
 
-    lxfml = pathlib.Path(f'app/luclient/res/BrickModels/{filename.split(".")[0]}.lxfml')
+    # if we just want the lxfml, fine t and return it
+    lxfml = pathlib.Path(f'{current_app.config["CLIENT_LOCATION"]}res/BrickModels/{filename.split(".")[0]}.lxfml')
     if file_format == "lxfml":
 
         with open(lxfml, 'r') as file:
             lxfml_data = file.read()
         response = make_response(lxfml_data)
 
+    # else we handle getting the files for lddviewer
     elif file_format in ["obj", "mtl"]:
+        # check to see if the file exists
         cache = pathlib.Path(f'app/cache/BrickModels/{filename}.lod{lod}.{file_format}')
         if not cache.is_file():
+            # if not make it an store it for later
             cache.parent.mkdir(parents=True, exist_ok=True)
             try:
                 ldd.main(str(lxfml.as_posix()), str(cache.with_suffix("").as_posix()), lod)  # convert to OBJ
             except Exception as e:
                 current_app.logger.error(f"ERROR on {cache}:\n {e}")
-
+        # then just read it
         with open(str(cache.as_posix()), 'r') as file:
             cache_data = file.read()
-
+        # and serve it
         response = make_response(cache_data)
 
     else:
