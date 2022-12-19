@@ -260,7 +260,7 @@ def get(status):
     if status == "approved":
         query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name == "") & (CharacterInfo.needs_rename == False))
     elif status == "unapproved":
-        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") | (CharacterInfo.needs_rename == True))
+        query = db.session.query().select_from(CharacterInfo).join(Account).filter((CharacterInfo.pending_name != "") & (CharacterInfo.needs_rename == False))
     else:
         query = db.session.query().select_from(CharacterInfo).join(Account)
 
