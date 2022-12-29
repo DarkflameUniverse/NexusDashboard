@@ -75,10 +75,12 @@ class CustomRegisterForm(FlaskForm):
 
     password = PasswordField('Password', validators=[
         DataRequired(),
-        password_validator
+        password_validator,
+        validators.length(max=40, message="The maximum length of the password is 40 characters due to game client limitations")
     ])
     retype_password = PasswordField('Retype Password', validators=[
-        validators.EqualTo('password', message='Passwords did not match')
+        validators.EqualTo('password', message='Passwords did not match'),
+        validators.length(max=40, message="The maximum length of the password is 40 characters due to game client limitations")
     ])
 
     invite_token = HiddenField('Token')
