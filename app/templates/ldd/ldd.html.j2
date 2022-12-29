@@ -35,29 +35,6 @@
 
 <script type="text/javascript" src="{{ url_for('static', filename='lddviewer/base64-binary.js') }}"></script>
 
-{% if config.ALLOW_ANALYTICS %}
-  <script>
-    // Matomo JS analytics
-    var _paq = window._paq = window._paq || [];
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u="https://matomo.aronwk.com/";
-      _paq.push(['setTrackerUrl', u+'matomo.php']);
-      _paq.push(['setSiteId', '3']);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-      g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-{% endif %}
-
-{% if config.ALLOW_ANALYTICS %}
-  <!-- Matomo no js analytics -->
-  <noscript><p><img src="https://matomo.aronwk.com/matomo.php?idsite=3&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-{% endif %}
-
 <script type='module'>
   import {MTLLoader} from 'https://cdn.jsdelivr.net/npm/three@0.116.0/examples/jsm/loaders/MTLLoader.js'
   import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/three@0.116.0/examples/jsm/loaders/OBJLoader.js'

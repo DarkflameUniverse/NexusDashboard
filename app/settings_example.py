@@ -16,9 +16,6 @@ CONFIG_LINK_TITLE = ""
 CONFIG_LINK_HREF = ""
 CONFIG_LINK_TEXT = ""
 
-# Send Analytics for Developers to better fix issues
-ALLOW_ANALYTICS = False
-
 # Flask settings
 CSRF_ENABLED = True
 

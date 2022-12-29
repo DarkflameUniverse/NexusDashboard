@@ -65,14 +65,17 @@
       * Reports how much currency that characters posses
     * U-Score:
       * Reports how much U-Score that characters posses
-  * Analytics:
-    * Provide reporting to Developers to help better solve issues
-    * Disabled by default. Set `ALLOW_ANALYTICS` to true to enable.
 
 # Deployment
 
 > **NOTE: This tutorial assumes you have a working DLU server instance and**
 > **some knowledge of Linux**
+
+
+**It is highly recommended to setup a reverse proxy via nginx or some other tool and use ssl to secure your nexus dashboard instance**
+ * [How to setup nginx](https://www.digitalocean.com/community/tutorials/how-to-configure-nginx-as-a-reverse-proxy-on-ubuntu-22-04)
+ * [How to use certbot for ssl](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04)
+
 ## Docker
 
 ```bash

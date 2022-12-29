@@ -239,10 +239,6 @@ def register_settings(app):
         'USER_REQUIRE_INVITATION',
         app.config['USER_REQUIRE_INVITATION']
     )
-    app.config['ALLOW_ANALYTICS'] = os.getenv(
-        'ALLOW_ANALYTICS',
-        app.config['ALLOW_ANALYTICS']
-    )
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         "pool_pre_ping": True,
         "pool_size": 10,
