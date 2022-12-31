@@ -168,14 +168,15 @@ Once you are done making the changes, save and close the file
 
 We will need the following folders from the client
 ```
-locale  (all of the files inside)
+locale
+└───locale.xml
 
 res
-|_BrickModels
-|_brickprimitives
-|_textures
-|_ui
-|_brickdb.zip
+├───BrickModels
+├───brickprimitives
+├───textures
+├───ui
+├───brickdb.zip
 ```
 Put the two folders in `~/NexusDashboard/app/luclient`
 
@@ -187,24 +188,24 @@ Remove the `.zip` file after you have unzipped it, you can do that with
 
 In the `luclient` directory you should now have a file structure that looks like this
 ```
-local
-|_locale.xml
+locale
+└───locale.xml
 
 res
-|_BrickModels
-	|_...
-|_brickprimitives
-	|_...
-|_textures
-	|_...
-|_ui
-	|_...
-|_Assemblies
-	|_...
-|_Primitives
-	|_...
-|_Materials.xml
-|_info.xml
+├───BrickModels
+│   └─── ...
+├───brickprimitives
+│	└─── ...
+├───textures
+│	└─── ...
+├───ui
+│	└─── ...
+├───Assemblies
+│	└─── ...
+├───Primitives
+│	└─── ...
+├───Materials.xml
+└───info.xml
 ```
 
 We will also need to copy the `CDServer.sqlite` database file from the server to the `~/NexusDashboard/app/luclient/res` folder
@@ -226,6 +227,105 @@ flask db upgrade
 ##### Running the site
 Once all of the above is complete, you can run the site with the command
 `gunicorn -b :8000 -w 4 wsgi:app`
+
+## Manual Windows Setup
+
+While a lot of the setup on Windows is the same a lot of it can be completed with GUI interfaces and requires installing things from websites instead of the command line.
+
+### Setting Up The Environment
+You need to install the following prerequisites:
+
+  * [Python 3.8](https://www.python.org/downloads/release/python-380/)
+  * [Git](https://git-scm.com/downloads)
+  * [ImageMagick](https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows)
+  * [7-Zip](https://www.7-zip.org/download.html)
+
+Next you will need to clone the repository. You can clone it anywhere, but for the purpose of this tutorial, you will want to clone it to your desktop just for simplicity, it can be moved after.
+
+Open a command prompt and run `cd Desktop` (The command line should place you in your Home directory be default) to ensure that you are currently in the desktop directory then run the following command to clone the repository into our desktop directory
+
+Run the command to clone the repository `git clone https://github.com/DarkflameUniverse/NexusDashboard.git`
+
+You should now have a directory called `NexusDashboard` present pn your desktop.
+
+### Setting up 
+Now you need to rename the example settings file, you can perform this manually in the GUI or you can use the command line.
+
+  * `cd NexusDashboard\app`
+  * `copy settings_example.py settings.py`
+
+Now let's open the settings file we just created and configure some of the settings with the Windows default notepad. 
+* `notepad settings.py`
+
+Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial we will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like to fit your needs.
+
+> *Note: There are options in here that are related to email registration and password recovery among other features however those require extra setup not covered by this tutorial*
+
+The two important settings to configure are `APP_SECRET_KEY` and `APP_DATABASE_URI`
+
+For `APP_SECRET_KEY` you can just fill in any random 32 character string and for `APP_DATABASE_URI` you will need to fill in a connection string to your database. The connection string will look similar to this. You will need to fill in your own information for the username, password, host, port and database name.
+```
+APP_DATABASE_URI = "mysql+pymysql://<username>:<password>@<host>:<port>/<database>"
+```
+and the rest of the file can be left at the default values other than the `APP_SECRET_KEY` which you will need to fill in with random characters.
+
+Once you are done making the changes, save and close the file
+
+##### Client related files
+We will need the following folders from the client
+```
+locale
+└───locale.xml
+
+res
+├───BrickModels
+├───brickprimitives
+├───textures
+├───ui
+└───brickdb.zip
+```
+Put the two folders in `Desktop/NexusDashboard/app/luclient`
+
+Unzip the `brickdb.zip` in place using 7-Zip, you can do this by right clicking the file and selecting `7-Zip > Extract Here`.
+
+After doing this you can remove the `.zip`, simply delete the file.
+
+In the `luclient` directory you should now have a file structure that looks like this
+```
+locale
+└───locale.xml
+
+res
+├───BrickModels
+│   └─── ...
+├───brickprimitives
+│	└─── ...
+├───textures
+│	└─── ...
+├───ui
+│	└─── ...
+├───Assemblies
+│	└─── ...
+├───Primitives
+│	└─── ...
+├───Materials.xml
+└───info.xml
+```
+
+We will also need to copy the `CDServer.sqlite` database file from the server to the `Desktop/NexusDashboard/app/luclient/res` folder
+
+Once the file is moved over, you will need to rename it to `cdclient.sqlite`, this can be done by right clicking the file and selecting `Rename` and then changing the name to `cdclient.sqlite`
+
+##### Remaining Setup
+To finish this, we will need to install the python dependencies and run the database migrations, simply run the following commands one at a time in the root directory of the site, if you are not in the root directory you can run `cd Desktop/NexusDashboard` to get there (assuming you have opened a new terminal window)
+```bat
+pip install -r requirements.txt
+flask db upgrade
+```
+
+##### Running the site
+Once all of the above is complete, you can run the site with the command
+`flask run` however bare in mind that this is a development version of the site, at the moment running a production version of the site on Windows is not supported.
 
 # Development
 
