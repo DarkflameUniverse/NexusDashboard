@@ -244,13 +244,12 @@ Next you will need to clone the repository. You can clone it anywhere, but for t
 
 Open a command prompt and run `cd Desktop` (The command line should place you in your Home directory be default) to ensure that you are currently in the desktop directory then run the following command to clone the repository into our desktop directory
 
-Run the command to clone the repository `git clone https://github.com/DarkflameUniverse/NexusDashboard.git`
+Run the following command to clone the repository `git clone https://github.com/DarkflameUniverse/NexusDashboard.git`
 
-You should now have a directory called `NexusDashboard` present pn your desktop.
+You should now have a directory called `NexusDashboard` present on your desktop.
 
 ### Setting up 
-Now you need to rename the example settings file, you can perform this manually in the GUI or you can use the command line.
-
+Now that we have the repository cloned you need to rename the example settings file, you can perform this manually in the GUI or you can use the command line, to do the latter run the following commands
   * `cd NexusDashboard\app`
   * `copy settings_example.py settings.py`
 
