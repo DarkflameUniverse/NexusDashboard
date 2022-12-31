@@ -145,7 +145,7 @@ def brick_list():
                 brick_list.append(
                     {
                         "type": "file",
-                        "name": str(path.as_posix()).replace("{current_app.config['CACHE_LOCATION']}", "")
+                        "name": str(path.as_posix()).replace(f"{current_app.config['CACHE_LOCATION']}", "")
                     }
                 )
     response = make_response(json.dumps(brick_list))
