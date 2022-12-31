@@ -138,14 +138,14 @@ def brick_list():
     brick_list = []
     if len(brick_list) == 0:
         suffixes = [".g", ".g1", ".g2", ".g3", ".xml"]
-        res = pathlib.Path(f"{current_app.config['CLIENT_LOCATION']}res/")
+        cache = pathlib.Path(f"{current_app.config['CACHE_LOCATION']}")
         # Load g files
-        for path in res.rglob("*.*"):
+        for path in cache.rglob("*.*"):
             if str(path.suffix) in suffixes:
                 brick_list.append(
                     {
                         "type": "file",
-                        "name": str(path.as_posix()).replace("{current_app.config['CLIENT_LOCATION']}res/", "")
+                        "name": str(path.as_posix()).replace("{current_app.config['CACHE_LOCATION']}", "")
                     }
                 )
     response = make_response(json.dumps(brick_list))
@@ -157,7 +157,7 @@ def brick_list():
 @luclient_blueprint.route('/ldddb/<path:req_path>')
 def dir_listing(req_path):
     # Joining the base and the requested path
-    rel_path = pathlib.Path(str(pathlib.Path(f"{current_app.config['CLIENT_LOCATION']}res/{req_path}").resolve()))
+    rel_path = pathlib.Path(str(pathlib.Path(f"{current_app.config['CACHE_LOCATION']}/{req_path}").resolve()))
     # Return 404 if path doesn't exist
     if not rel_path.exists():
         return abort(404)
