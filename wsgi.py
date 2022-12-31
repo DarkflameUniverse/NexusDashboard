@@ -1,19 +1,23 @@
-
+from sys import platform
 from app import create_app
 
 app = create_app()
-
 
 @app.shell_context_processor
 def make_shell_context():
     """Extend the Flask shell context."""
     return {'app': app}
 
+running_directly = __name__ == "__main__"
+running_under_gunicorn = not running_directly and 'gunicorn' in __name__ and 'linux' in platform
 
-if __name__ == '__main__':
+# Configure development running
+if running_directly:
     with app.app_context():
         app.run(host='0.0.0.0')
-else:
+
+# Configure production running
+if running_under_gunicorn:
     import logging
     from logging.handlers import RotatingFileHandler
     gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -23,3 +27,7 @@ else:
     file_handler.setFormatter(formatter)
     app.logger.addHandler(file_handler)
     app.logger.setLevel(gunicorn_logger.level)
+
+# Error out if nothing has been setup
+if not running_directly and not running_under_gunicorn:
+    raise RuntimeError('Unsupported WSGI server')
