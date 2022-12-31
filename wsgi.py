@@ -8,7 +8,7 @@ def make_shell_context():
     """Extend the Flask shell context."""
     return {'app': app}
 
-running_directly = __name__ == "__main__"
+running_directly = __name__ == "wsgi" or __name__ == "__main__"
 running_under_gunicorn = not running_directly and 'gunicorn' in __name__ and 'linux' in platform
 
 # Configure development running
