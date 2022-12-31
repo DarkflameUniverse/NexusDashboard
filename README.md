@@ -69,17 +69,16 @@
 # Deployment
 
 > **NOTE: This tutorial assumes you have a working DLU server instance and**
-> **some knowledge of Linux**
+> **some knowledge of command line interfaces on your chosen platform**
 
 
-**It is highly recommended to setup a reverse proxy via nginx or some other tool and use ssl to secure your nexus dashboard instance**
- * [How to setup nginx](https://www.digitalocean.com/community/tutorials/how-to-configure-nginx-as-a-reverse-proxy-on-ubuntu-22-04)
- * [How to use certbot for ssl](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04)
+**It is highly recommended to setup a reverse proxy via Nginx or some other tool and use SSL to secure your Nexus Dashboard instance if you are going to be opening it up to any non-LANs**
+ * [How to setup Nginx](https://www.digitalocean.com/community/tutorials/how-to-configure-nginx-as-a-reverse-proxy-on-ubuntu-22-04)
+ * [How to use certbot for SSL](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04)
 
 ## Docker
 
 ```bash
-
 docker run -d \
     -e APP_SECRET_KEY='<secret_key>' \
     -e APP_DATABASE_URI='mysql+pymysql://<username>:<password>@<host>:<port>/<database>' \
@@ -89,7 +88,6 @@ docker run -d \
     -v /path/to/unpacked/client:/app/luclient:rw \
     -v /path/to/cachedir:/app/cache:rw \
     aronwk/nexus-dashboard:latest
-
 ```
 
  * `/app/luclient` must be mapped to the location of an unpacked client
@@ -106,37 +104,41 @@ Please Reference `app/settings_exmaple.py` to see all the variables
     * APP_DATABASE_URI (Must be provided)
   * Everything else is optional and has defaults
 
-## Manual
+## Manual Linux Installation
 
 Thanks to [HailStorm32](https://github.com/HailStorm32) for this manual install guide!
+
 ### Setting Up The Environment
-First you will want to install the following packages by executing the following commands
+First you will want to install the following packages by executing the following commands presuming you are on a Debian based system.
+
 `sudo apt-get update`
+
 `sudo apt-get install -y python3 python3-pip sqlite3 git unzip libmagickwand-dev`
 
 > *Note: If  you are having issues with installing `sqlite3`, change it to `sqlite`*
 
 <br>
-Next we will clone the repository. You can clone it anywhere, but for the purpose of this tutorial, we will be cloning it to the home directory.
+Next you will want to clone the repository. You can clone it anywhere, but for the purpose of this tutorial, we will be cloning it to the home directory.'
+<br></br>
 
-`cd` *make sure you are in the home directory*
+Run `cd ~` to ensure that you are currently in the home directory then run the following command to clone the repository into our home directory
 `git clone https://github.com/DarkflameUniverse/NexusDashboard.git`
 
-You should now have a directory called `NexusDashboard`
+You should now have a directory called `NexusDashboard` present in your home directory
 
 ### Setting up
 
 Rename the example settings file
 `cp ~/NexusDashboard/app/settings_example.py ~/NexusDashboard/app/settings.py`
 
-Now let's open the settings file we just created and configure some of the settings
-`vim ~/NexusDashboard/app/settings.py`
->*Feel free to use any text editor you are more comfortable with instead of vim*
+Now let's open the settings file we just created and configure some of the settings with nano as it is a simple text editor that is easy to use
+`nano ~/NexusDashboard/app/settings.py`
+>*Obviously you can replace this with a text editor of your choice, nano is just the most simple to use out of the ones available by default on most Linux distros*
 
 <br>
-Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial I will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like
+Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial we will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like to fit your needs.
 
->*Note: Enabling the email option will require further setup that is outside the scope of this tutorial*
+>*Note: There are options in here that are related to email registration and password recovery among other features however those require extra setup not covered by this tutorial*
 
 The two important settings to configure are `APP_SECRET_KEY` and `APP_DATABASE_URI`
 
@@ -166,55 +168,56 @@ Once you are done making the changes, save and close the file
 
 We will need the following folders from the client
 ```
-locale  (all of the files inside)
+locale
+└───locale.xml
 
 res
-|_BrickModels
-|_brickprimitives
-|_textures
-|_ui
-|_brickdb.zip
+├───BrickModels
+├───brickprimitives
+├───textures
+├───ui
+├───brickdb.zip
 ```
 Put the two folders in `~/NexusDashboard/app/luclient`
 
 Unzip the `brickdb.zip` in place
 `unzip brickdb.zip`
 
-Remove the `.zip` after you have unzipped it
+Remove the `.zip` file after you have unzipped it, you can do that with
 `rm brickdb.zip`
 
 In the `luclient` directory you should now have a file structure that looks like this
 ```
-local
-|_locale.xml
+locale
+└───locale.xml
 
 res
-|_BrickModels
-	|_...
-|_brickprimitives
-	|_...
-|_textures
-	|_...
-|_ui
-	|_...
-|_Assemblies
-	|_...
-|_Primitives
-	|_...
-|_Materials.xml
-|_info.xml
+├───BrickModels
+│   └─── ...
+├───brickprimitives
+│	└─── ...
+├───textures
+│	└─── ...
+├───ui
+│	└─── ...
+├───Assemblies
+│	└─── ...
+├───Primitives
+│	└─── ...
+├───Materials.xml
+└───info.xml
 ```
 
 We will also need to copy the `CDServer.sqlite` database file from the server to the `~/NexusDashboard/app/luclient/res` folder
 
-Once the file is moved over, you will need to rename it to `cdclient.sqlite`
+Once the file is moved over, you will need to rename it to `cdclient.sqlite`, this can be done with the following command
 ```bash
 mv ~/NexusDashboard/app/luclient/res/CDServer.sqlite ~/NexusDashboard/app/luclient/res/cdclient.sqlite
 ```
 
 
 ##### Remaining Setup
-Run the following commands one at a time
+To finish this, we will need to install the python dependencies and run the database migrations, simply run the following commands one at a time
 ```bash
 cd ~/NexusDashboard
 pip install -r requirements.txt
@@ -222,11 +225,109 @@ pip install gunicorn
 flask db upgrade
 ```
 ##### Running the site
-You can run the site with
+Once all of the above is complete, you can run the site with the command
 `gunicorn -b :8000 -w 4 wsgi:app`
+
+## Manual Windows Setup
+
+While a lot of the setup on Windows is the same a lot of it can be completed with GUI interfaces and requires installing things from websites instead of the command line.
+
+### Setting Up The Environment
+You need to install the following prerequisites:
+
+  * [Python 3.8](https://www.python.org/downloads/release/python-380/)
+  * [Git](https://git-scm.com/downloads)
+  * [ImageMagick](https://docs.wand-py.org/en/latest/guide/install.html#install-imagemagick-on-windows)
+  * [7-Zip](https://www.7-zip.org/download.html)
+
+Next you will need to clone the repository. You can clone it anywhere, but for the purpose of this tutorial, you will want to clone it to your desktop just for simplicity, it can be moved after.
+
+Open a command prompt and run `cd Desktop` (The command line should place you in your Home directory be default) to ensure that you are currently in the desktop directory then run the following command to clone the repository into our desktop directory
+
+Run the following command to clone the repository `git clone https://github.com/DarkflameUniverse/NexusDashboard.git`
+
+You should now have a directory called `NexusDashboard` present on your desktop.
+
+### Setting up 
+Now that we have the repository cloned you need to rename the example settings file, you can perform this manually in the GUI or you can use the command line, to do the latter run the following commands
+  * `cd NexusDashboard\app`
+  * `copy settings_example.py settings.py`
+
+Now let's open the settings file we just created and configure some of the settings with the Windows default notepad. 
+* `notepad settings.py`
+
+Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial we will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like to fit your needs.
+
+> *Note: There are options in here that are related to email registration and password recovery among other features however those require extra setup not covered by this tutorial*
+
+The two important settings to configure are `APP_SECRET_KEY` and `APP_DATABASE_URI`
+
+For `APP_SECRET_KEY` you can just fill in any random 32 character string and for `APP_DATABASE_URI` you will need to fill in a connection string to your database. The connection string will look similar to this. You will need to fill in your own information for the username, password, host, port and database name.
+```
+APP_DATABASE_URI = "mysql+pymysql://<username>:<password>@<host>:<port>/<database>"
+```
+and the rest of the file can be left at the default values other than the `APP_SECRET_KEY` which you will need to fill in with random characters.
+
+Once you are done making the changes, save and close the file
+
+##### Client related files
+We will need the following folders from the client
+```
+locale
+└───locale.xml
+
+res
+├───BrickModels
+├───brickprimitives
+├───textures
+├───ui
+└───brickdb.zip
+```
+Put the two folders in `Desktop/NexusDashboard/app/luclient`
+
+Unzip the `brickdb.zip` in place using 7-Zip, you can do this by right clicking the file and selecting `7-Zip > Extract Here`.
+
+After doing this you can remove the `.zip`, simply delete the file.
+
+In the `luclient` directory you should now have a file structure that looks like this
+```
+locale
+└───locale.xml
+
+res
+├───BrickModels
+│   └─── ...
+├───brickprimitives
+│	└─── ...
+├───textures
+│	└─── ...
+├───ui
+│	└─── ...
+├───Assemblies
+│	└─── ...
+├───Primitives
+│	└─── ...
+├───Materials.xml
+└───info.xml
+```
+
+We will also need to copy the `CDServer.sqlite` database file from the server to the `Desktop/NexusDashboard/app/luclient/res` folder
+
+Once the file is moved over, you will need to rename it to `cdclient.sqlite`, this can be done by right clicking the file and selecting `Rename` and then changing the name to `cdclient.sqlite`
+
+##### Remaining Setup
+To finish this, we will need to install the python dependencies and run the database migrations, simply run the following commands one at a time in the root directory of the site, if you are not in the root directory you can run `cd Desktop/NexusDashboard` to get there (assuming you have opened a new terminal window)
+```bat
+pip install -r requirements.txt
+flask db upgrade
+```
+
+##### Running the site
+Once all of the above is complete, you can run the site with the command
+`flask run` however bare in mind that this is a development version of the site, at the moment running a production version of the site on Windows is not supported.
 
 # Development
 
-Please use [Editor Config](https://editorconfig.org/)
+Please use [Editor Config](https://editorconfig.org/) to maintain a consistent coding style between different editors and different contributors.
 
-  * `flask run` to run local dev server
+  * `python3 -m flask run` to run a local dev server
