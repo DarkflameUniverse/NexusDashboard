@@ -87,7 +87,7 @@ docker run -d \
     -p 8000:8000/tcp
     -v /path/to/unpacked/client:/app/luclient:r \
     -v /path/to/cachedir:/app/cache:rw \
-    aronwk/nexus-dashboard:latest
+    ghcr.io/darkflameuniverse/nexusdashboard:latest
 ```
 
  * `/app/luclient` must be mapped to the location of an unpacked client
