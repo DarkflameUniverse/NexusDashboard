@@ -85,7 +85,7 @@ docker run -d \
     # you can include other optional Environment Variables from below like this
     -e REQUIRE_PLAY_KEY=True
     -p 8000:8000/tcp
-    -v /path/to/unpacked/client:/app/luclient:rw \
+    -v /path/to/unpacked/client:/app/luclient:r \
     -v /path/to/cachedir:/app/cache:rw \
     aronwk/nexus-dashboard:latest
 ```
@@ -248,12 +248,12 @@ Run the following command to clone the repository `git clone https://github.com/
 
 You should now have a directory called `NexusDashboard` present on your desktop.
 
-### Setting up 
+### Setting up
 Now that we have the repository cloned you need to rename the example settings file, you can perform this manually in the GUI or you can use the command line, to do the latter run the following commands
   * `cd NexusDashboard\app`
   * `copy settings_example.py settings.py`
 
-Now let's open the settings file we just created and configure some of the settings with the Windows default notepad. 
+Now let's open the settings file we just created and configure some of the settings with the Windows default notepad.
 * `notepad settings.py`
 
 Inside this file is where you can change certain settings like user registration, email support and other things. In this tutorial we will only be focusing on the bare minimum to get up and running, but feel free to adjust what you would like to fit your needs.
