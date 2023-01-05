@@ -85,7 +85,7 @@ docker run -d \
     # you can include other optional Environment Variables from below like this
     -e REQUIRE_PLAY_KEY=True
     -p 8000:8000/tcp
-    -v /path/to/unpacked/client:/app/luclient:r \
+    -v /path/to/unpacked/client:/app/luclient:ro \
     -v /path/to/cachedir:/app/cache:rw \
     ghcr.io/darkflameuniverse/nexusdashboard:latest
 ```
