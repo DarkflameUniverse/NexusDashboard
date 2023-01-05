@@ -83,8 +83,8 @@ docker run -d \
     -e APP_SECRET_KEY='<secret_key>' \
     -e APP_DATABASE_URI='mysql+pymysql://<username>:<password>@<host>:<port>/<database>' \
     # you can include other optional Environment Variables from below like this
-    -e REQUIRE_PLAY_KEY=True
-    -p 8000:8000/tcp
+    -e REQUIRE_PLAY_KEY=True \
+    -p 8000:8000/tcp \
     -v /path/to/unpacked/client:/app/luclient:ro \
     -v /path/to/cachedir:/app/cache:rw \
     ghcr.io/darkflameuniverse/nexusdashboard:latest
