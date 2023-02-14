@@ -253,7 +253,7 @@ def register_settings(app):
     )
     app.config['MAIL_PORT'] = int(
         os.getenv(
-        'MAIL_USE_SSL',
+        'MAIL_PORT',
         app.config['MAIL_PORT']
         )
     )
