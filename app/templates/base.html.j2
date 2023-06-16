@@ -84,6 +84,17 @@
   <script type="text/javascript" src="{{ url_for('static', filename='bootstrap-4.2.1/js/bootstrap.bundle.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='datatables/datatables.min.js') }}"></script>
   <script type="sytylesheet" src="{{ url_for('static', filename='datatables/datatables.min.css') }}"></script>
+  <script>
+    // set the active nav-link item
+    $(function () {
+      let target_nav = '#{{request.endpoint}}'.replace('\.', '-');
+      $(target_nav).addClass('active');
+    });
+    // make tooltips with data work
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 {% endblock %}
 
 </body>
