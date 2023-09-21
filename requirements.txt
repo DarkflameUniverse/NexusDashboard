@@ -7,7 +7,7 @@ blinker==1.4
 cffi==1.14.6
 click==8.0.1
 colorama==0.4.4
-cryptography==36.0.0
+cryptography==41.0.4
 dnspython==2.1.0
 dominate==2.6.0
 email-validator==1.1.3
