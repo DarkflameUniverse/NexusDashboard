@@ -4,7 +4,9 @@
     alt="{{ inv_item.attr_l|get_lot_name }}"
     class="border p-1 border-primary rounded m-1"
     width="60"
-    {% if inv_item.attr_eq == "true" %}style="background-color:#d16f05;"{% endif %}
+    {% if 'attr_eq' in inv_item %}
+      {% if inv_item.attr_eq == "true" %}style="background-color:#d16f05;"{% endif %}
+    {% endif %}
     height="60"
     data-html="true"
     data-toggle="tooltip"
@@ -20,9 +22,11 @@
       {% endif %}
     </span>
   {% endif %}
-  {% if inv_item.attr_b == "true" %}
-    <span class="inventory-lock">
-      <i class='fas fa-lock'></i>
-    </span>
+  {% if 'attr_b' in inv_item %}
+    {% if inv_item.attr_b == "true" %}
+      <span class="inventory-lock">
+        <i class='fas fa-lock'></i>
+      </span>
+    {% endif %}
   {% endif %}
 </div>
