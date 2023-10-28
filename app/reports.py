@@ -236,13 +236,25 @@ def gen_item_report():
                         if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"]) == 0 or int(inv["attr_t"]) == 1):
                             for item in inv["i"]:
                                 if item["attr_l"] in report_data:
-                                    report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + int(item["attr_c"])
+                                    if ("attr_c" in item):
+                                        report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + int(item["attr_c"])
+                                    else:
+                                        report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + 1
                                 else:
-                                    report_data[item["attr_l"]] = {"item_count": int(item["attr_c"]), "chars": {}}
+                                    if ("attr_c" in item):
+                                        report_data[item["attr_l"]] = {"item_count": int(item["attr_c"]), "chars": {}}
+                                    else:
+                                        report_data[item["attr_l"]] = {"item_count": 1, "chars": {}}
                                 if name in report_data[item["attr_l"]]["chars"]:
-                                    report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + int(item["attr_c"])
+                                    if ("attr_c" in item):
+                                        report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + int(item["attr_c"])
+                                    else:
+                                        report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + 1
                                 else:
-                                    report_data[item["attr_l"]]["chars"][name] = int(item["attr_c"])
+                                    if ("attr_c" in item):
+                                        report_data[item["attr_l"]]["chars"][name] = int(item["attr_c"])
+                                    else:
+                                        report_data[item["attr_l"]]["chars"][name] = 1
                 except Exception as e:
                     current_app.logger.error(f"REPORT::ITEMS - ERROR PARSING CHARACTER {char_xml.id}")
                     current_app.logger.error(f"REPORT::ITEMS - {e}")

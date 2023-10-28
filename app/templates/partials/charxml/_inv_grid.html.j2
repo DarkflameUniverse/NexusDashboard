@@ -11,7 +11,7 @@
     data-placement="left"
     title="{% include 'partials/charxml/_item_tooltip.html.j2' %}"
   >
-  {% if inv_item.attr_c != "1" %}
+  {% if 'attr_c' in inv_item %}
     <span class="inventory-count text-bold">
       {%if inv_item.attr_c|int > 999 %}
         +999
