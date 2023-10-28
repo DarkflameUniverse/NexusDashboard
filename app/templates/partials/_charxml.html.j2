@@ -11,9 +11,11 @@
       <div class="col text-right">
         U-Score: {{ character_json.obj.char.attr_ls }}
       </div>
-      <div class="col">
-        Level: {{ character_json.obj.lvl.attr_l }}
-      </div>
+      {% if "lvl" in character_json.obj. %}
+        <div class="col">
+          Level: {{ character_json.obj.lvl.attr_l }}
+        </div>
+      {% endif %}
     </div>
     <br/>
     <div class="row">
