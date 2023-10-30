@@ -16,6 +16,16 @@ CONFIG_LINK_TITLE = ""
 CONFIG_LINK_HREF = ""
 CONFIG_LINK_TEXT = ""
 
+# Recaptcha settings
+ENABLE_RECAPTCHA = False
+# To generate recaptcha public and private keys, go to https://www.google.com/recaptcha/admin/create
+# Recaptcha setup assumes are are using a domain to access Nexus Dashboard
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+# This really depends on your visual preferences
+# Unfortunately I don't think the dark blends well with shade of the background, and the other input boxes being all white
+RECAPTCHA_DATA_ATTRS = {'theme': 'white'}
+
 # Flask settings
 CSRF_ENABLED = True
 

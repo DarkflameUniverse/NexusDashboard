@@ -327,6 +327,26 @@ flask db upgrade
 Once all of the above is complete, you can run the site with the command
 `flask run` however bare in mind that this is a development version of the site, at the moment running a production version of the site on Windows is not supported.
 
+# Optional Configuration
+
+There are options in `settings.py` that are not required to use, but can be useful.
+
+### Config Link
+
+The `CONFIG_LINK` setting enables a link in the 'about' page that you can customize to your liking. It is recommended to use this to point to a url that hosts the `boot.cfg` configuration file needed for users to connect their game clients to your game server. 
+- `CONFIG_LINK_TITLE` is bold text before the link, used to reference what the link is. For example, you could make it say 'boot.cfg'
+- `CONFIG_LINK_HREF` is the url (for example, to the `boot.cfg` file either on the same server or an external link).
+- `CONFIG_LINK_TEXT` is the text of the link to that url, such as 'Download'.
+
+### reCAPTCHA
+
+reCAPTCHA is a service that can provide an additional layer of security when accounts are created. It is useful for deterring spam account creation. It isn't enabled by default because it requires external configuration to register your site with Google's reCAPTCHA service.
+
+To configure reCAPTCHA, visit the [reCAPTCHA admin console](https://www.google.com/recaptcha/admin) to register your site (select Challenge (v2) for recaptcha type) and save the site key and secret key somewhere safe. You can then put them in the public and private key fields.
+- `ENABLE_RECAPTCHA` enables reCAPTCHA when set to `True`
+- `RECAPTCHA_PUBLIC_KEY` and `RECAPTCHA_PRIVATE_KEY` are the 'site key' and 'secret key' you can create with Google's reCAPTCHA service.
+
+
 # Development
 
 Please use [Editor Config](https://editorconfig.org/) to maintain a consistent coding style between different editors and different contributors.

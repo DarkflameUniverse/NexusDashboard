@@ -31,7 +31,7 @@ def validate_play_key(form, field):
     Returns:
         None, raises ValidationError if failed
     """
-    # jank to get the fireign key that we need back into the field
+    # jank to get the foreign key that we need back into the field
     if current_app.config["REQUIRE_PLAY_KEY"]:
         field.data = PlayKey.key_is_valid(key_string=field.data)
     return
@@ -82,6 +82,10 @@ class CustomRegisterForm(FlaskForm):
         validators.EqualTo('password', message='Passwords did not match'),
         validators.length(max=40, message="The maximum length of the password is 40 characters due to game client limitations")
     ])
+
+    # Use recaptcha if config enables recaptcha
+    if current_app.config["ENABLE_RECAPTCHA"]:
+        recaptcha = RecaptchaField()
 
     invite_token = HiddenField('Token')
 
