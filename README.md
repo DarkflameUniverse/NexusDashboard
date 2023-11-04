@@ -229,6 +229,29 @@ flask db upgrade
 Once all of the above is complete, you can run the site with the command
 `gunicorn -b :8000 -w 4 wsgi:app`
 
+To run the server non-interactively, a systemctl service can be created:
+`/etc/systemd/system/gunicorn.service`
+```
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+Type=notify
+# the specific user that our service will run as
+User=root
+Group=root
+WorkingDirectory=/PATH/TO/NexusDashboard
+ExecStart=/usr/local/bin/gunicorn -b :8000 -w4 wsgi:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## Manual Windows Setup
 
 While a lot of the setup on Windows is the same a lot of it can be completed with GUI interfaces and requires installing things from websites instead of the command line.
