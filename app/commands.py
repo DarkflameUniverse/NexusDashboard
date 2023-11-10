@@ -5,7 +5,7 @@ import string
 import datetime
 from flask_user import current_app
 from app import db
-from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC, Mail
+from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC, Mail, CharacterXML
 import pathlib
 import zlib
 from wand import image
@@ -179,6 +179,17 @@ def load_property(zone, player):
                 rw=1
             )
             new_prop_content.save()
+
+@click.command("remove_buffs")
+@with_appcontext
+def remove_buffs():
+    """Clears all buff from all characters"""
+    chars = CharacterXML.query.all()
+    for char in chars:
+        character_xml = ET.XML(character_data.xml_data.replace("\"stt=", "\" stt="))
+        dest = character_xml.find(".//buff...")
+        dest.remove(character_xml.find(".//buff"))
+        character_data.save()
 
 
 @click.command("gen_image_cache")
