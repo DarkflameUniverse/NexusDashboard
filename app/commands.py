@@ -186,10 +186,10 @@ def remove_buffs():
     """Clears all buff from all characters"""
     chars = CharacterXML.query.all()
     for char in chars:
-        character_xml = ET.XML(character_data.xml_data.replace("\"stt=", "\" stt="))
+        character_xml = ET.XML(char.xml_data.replace("\"stt=", "\" stt="))
         dest = character_xml.find(".//buff...")
         dest.remove(character_xml.find(".//buff"))
-        character_data.save()
+        char.save()
 
 
 @click.command("gen_image_cache")
