@@ -15,7 +15,7 @@ from multiprocessing import Pool
 from functools import partial
 from sqlalchemy import func
 import time
-
+import xml.etree.ElementTree as ET
 
 @click.command("init_db")
 @click.argument('drop_tables', nargs=1)
