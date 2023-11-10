@@ -188,7 +188,8 @@ def remove_buffs():
     for char in chars:
         character_xml = ET.XML(char.xml_data.replace("\"stt=", "\" stt="))
         dest = character_xml.find(".//buff...")
-        dest.remove(character_xml.find(".//buff"))
+        if dest:
+            dest.remove(character_xml.find(".//buff"))
         char.save()
 
 
