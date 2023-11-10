@@ -187,11 +187,13 @@ def remove_buffs():
     chars = CharacterXML.query.all()
     for char in chars:
         character_xml = ET.XML(char.xml_data.replace("\"stt=", "\" stt="))
-        dest = character_xml.find(".//buff...")
+        dest = character_xml.find(".//dest")
         if dest:
-            dest.remove(character_xml.find(".//buff"))
+            buff = character_xml.find(".//buff")
+            if buff:
+                dest.remove(buff)
+        char.xml_data = ET.tostring(character_xml)
         char.save()
-
 
 @click.command("gen_image_cache")
 def gen_image_cache():
