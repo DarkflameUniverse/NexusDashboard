@@ -19,7 +19,8 @@ from app.commands import (
     load_property,
     gen_image_cache,
     gen_model_cache,
-    fix_clone_ids
+    fix_clone_ids,
+    remove_buffs
 )
 from app.models import Account, AccountInvitation, AuditLog
 
@@ -95,6 +96,7 @@ def create_app():
     app.cli.add_command(gen_image_cache)
     app.cli.add_command(gen_model_cache)
     app.cli.add_command(fix_clone_ids)
+    app.cli.add_command(remove_buffs)
 
     register_logging(app)
     register_settings(app)
