@@ -10,6 +10,7 @@ from app.luclient import translate_from_locale
 import xmltodict
 import xml.etree.ElementTree as ET
 import json
+from xml.dom import minidom
 
 
 character_blueprint = Blueprint('characters', __name__)
@@ -238,7 +239,7 @@ def upload(id):
         flash("You accept all consequences from these actions", "danger")
         log_audit(f"Updated {character_data.id}'s xml data")
         return redirect(url_for('characters.view', id=id))
-    form.char_xml.data = ET.tostring(ET.indent(ET.XML(character_data.xml_data)), encoding='unicode')
+    form.char_xml.data = minidom.parseString(character_data.xml_data).toprettyxml(indent="   ")
     return render_template("character/upload.html.j2", form=form)
 
 
