@@ -9,10 +9,22 @@
 {% endblock content_before %}
 
 {% block content %}
-  <h3 style="color: orange;">PROCEED WITH CAUTION</h3>
+  <style>
+      .blink {
+          animation: blinker .5s linear infinite;
+          color: red;
+          font-family: sans-serif;
+      }
+      @keyframes blinker {
+          50% {
+              opacity: 0;
+          }
+      }
+  </style>
+  <h3 class="text-center blink">PROCEED WITH CAUTION</h3>
   <form method=post>
     {{ form.csrf_token }}
-    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" style="width: 20rem;">
+    <div class="card shadow-sm mx-auto pb-3 bg-dark border-primary" >
       <div class="card-body">
         {{ helper.render_field(form.char_xml) }}
         {{ helper.render_submit_field(form.submit) }}

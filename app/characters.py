@@ -238,7 +238,7 @@ def upload(id):
         flash("You accept all consequences from these actions", "danger")
         log_audit(f"Updated {character_data.id}'s xml data")
         return redirect(url_for('characters.view', id=id))
-    form.char_xml.data = character_data.xml_data
+    form.char_xml.data = ET.tostring(ET.indent(ET.XML(character_data.xml_data)), encoding='unicode')
     return render_template("character/upload.html.j2", form=form)
 
 
