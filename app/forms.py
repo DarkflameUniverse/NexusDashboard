@@ -34,13 +34,11 @@ def validate_play_key(form, field):
         field.data = PlayKey.key_is_valid(key_string=field.data)
     return
 
-def validate_recaptcha(form, field):
-    current_app.logger.info("start validating with recaptcha")
-    if current_app.config["RECAPTCHA_ENABLE"]:
-        current_app.logger.info("validating with recaptcha")
-        return Recaptcha()
-    current_app.logger.info("skipping validating with recaptcha")
-    return True
+class CustomRecaptcha(Recaptcha):
+    def __call__(self, form, field):
+        if not current_app.config.get("RECAPTCHA_ENABLE", False):
+            return True
+        return super(CustomRecaptcha, self).__call__(form, field)
 
 
 class CustomUserManager(UserManager):
@@ -57,12 +55,12 @@ class CustomRegisterForm(RegisterForm):
         ]
     )
     recaptcha = RecaptchaField(
-        validators=[validate_recaptcha]
+        validators=[CustomRecaptcha()]
     )
 
 class CustomLoginForm(LoginForm):
     recaptcha = RecaptchaField(
-        validators=[validate_recaptcha]
+        validators=[CustomRecaptcha()]
     )
 
 class CreatePlayKeyForm(FlaskForm):
