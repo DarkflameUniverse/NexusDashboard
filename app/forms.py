@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.recaptcha import RecaptchaField
 from flask import current_app
 
 from flask_user.forms import (
@@ -84,6 +85,10 @@ class CustomRegisterForm(FlaskForm):
     ])
 
     invite_token = HiddenField('Token')
+    
+    # Use recaptcha if config enables recaptcha
+    if current_app.config["ENABLE_RECAPTCHA"]:
+        recaptcha = RecaptchaField()
 
     submit = SubmitField('Register')
 

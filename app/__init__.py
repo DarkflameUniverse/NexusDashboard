@@ -204,19 +204,23 @@ def register_settings(app):
     # Load environment specific settings
     app.config['TESTING'] = False
     app.config['DEBUG'] = False
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 2,
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+        "pool_use_lifo": True
+    }
 
-    # always pull these two from the env
     app.config['SECRET_KEY'] = os.getenv(
         'APP_SECRET_KEY',
         app.config['APP_SECRET_KEY']
-
     )
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
         'APP_DATABASE_URI',
         app.config['APP_DATABASE_URI']
     )
-
-    # try to get overides, otherwise just use what we have already
     app.config['USER_ENABLE_REGISTER'] = os.getenv(
         'USER_ENABLE_REGISTER',
         app.config['USER_ENABLE_REGISTER']
@@ -241,14 +245,6 @@ def register_settings(app):
         'USER_REQUIRE_INVITATION',
         app.config['USER_REQUIRE_INVITATION']
     )
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 2,
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_use_lifo": True
-    }
     app.config['MAIL_SERVER'] = os.getenv(
         'MAIL_SERVER',
         app.config['MAIL_SERVER']
@@ -310,6 +306,41 @@ def register_settings(app):
     app.config['CACHE_LOCATION'] = os.getenv(
         'CACHE_LOCATION',
         app.config['CACHE_LOCATION']
+    )
+
+    # Recaptcha settings
+    if "RECAPTCHA_ENABLE" not in app.config:
+        app.config['RECAPTCHA_ENABLE'] = False
+    app.config['RECAPTCHA_ENABLE'] = os.getenv(
+        'RECAPTCHA_ENABLE',
+        app.config['RECAPTCHA_ENABLE']
+    )
+    if "RECAPTCHA_PUBLIC_KEY" not in app.config:
+        app.config['RECAPTCHA_PUBLIC_KEY'] = ''
+    app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv(
+        'RECAPTCHA_PUBLIC_KEY',
+        app.config['RECAPTCHA_PUBLIC_KEY']
+    )
+    if "RECAPTCHA_PRIVATE_KEY" not in app.config:
+        app.config['RECAPTCHA_PRIVATE_KEY'] = ''
+    app.config['RECAPTCHA_PRIVATE_KEY'] = os.getenv(
+        'RECAPTCHA_PRIVATE_KEY',
+        app.config['RECAPTCHA_PRIVATE_KEY']
+    )
+    # Optional
+    app.config['RECAPTCHA_API_SERVER'] = os.getenv(
+        'RECAPTCHA_API_SERVER',
+        app.config['RECAPTCHA_API_SERVER']
+    )
+    app.config['RECAPTCHA_PARAMETERS'] = os.getenv(
+        'RECAPTCHA_PARAMETERS',
+        app.config['RECAPTCHA_PARAMETERS']
+    )
+    if "RECAPTCHA_DATA_ATTRS" not in app.config:
+        app.config['RECAPTCHA_DATA_ATTRS'] = {'theme': 'white', 'size': 'invisible'}
+    app.config['RECAPTCHA_DATA_ATTRS'] = os.getenv(
+        'RECAPTCHA_DATA_ATTRS',
+        app.config['RECAPTCHA_DATA_ATTRS']
     )
 
 
