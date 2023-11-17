@@ -60,7 +60,12 @@
 
     {# Remember me #}
     {% if user_manager.USER_ENABLE_REMEMBER_ME %}
-    {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
+        {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
+    {% endif %}
+
+    {# recaptcha #}
+    {% if config.RECAPTCHA_ENABLE %}
+        {{ render_field(form.recaptcha, tabindex=250) }}
     {% endif %}
 
     {# Submit button #}

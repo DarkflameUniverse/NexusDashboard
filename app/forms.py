@@ -1,18 +1,15 @@
-from flask_wtf import FlaskForm
-from flask_wtf.recaptcha import RecaptchaField
+from flask_wtf import FlaskForm, Recaptcha, RecaptchaField
 from flask import current_app
 
 from flask_user.forms import (
     unique_email_validator,
-    password_validator,
-    unique_username_validator
+    LoginForm,
+    RegisterForm
 )
 from flask_user import UserManager
 from wtforms.widgets import TextArea, NumberInput
 from wtforms import (
     StringField,
-    HiddenField,
-    PasswordField,
     BooleanField,
     SubmitField,
     validators,
@@ -37,35 +34,21 @@ def validate_play_key(form, field):
         field.data = PlayKey.key_is_valid(key_string=field.data)
     return
 
+def validate_recaptcha(form, field):
+    current_app.logger.info("start validating with recaptcha")
+    if current_app.config["RECAPTCHA_ENABLE"]:
+        current_app.logger.info("validating with recaptcha")
+        return Recaptcha()
+    current_app.logger.info("skipping validating with recaptcha")
+    return True
+
 
 class CustomUserManager(UserManager):
     def customize(self, app):
         self.RegisterFormClass = CustomRegisterForm
+        self.LoginFormClass = CustomLoginForm
 
-
-class CustomRegisterForm(FlaskForm):
-    """Registration form"""
-    next = HiddenField()
-    reg_next = HiddenField()
-
-    # Login Info
-    email = StringField(
-        'E-Mail',
-        validators=[
-            Optional(),
-            validators.Email('Invalid email address'),
-            unique_email_validator,
-        ]
-    )
-
-    username = StringField(
-        'Username',
-        validators=[
-            DataRequired(),
-            unique_username_validator,
-        ]
-    )
-
+class CustomRegisterForm(RegisterForm):
     play_key_id = StringField(
         'Play Key',
         validators=[
@@ -73,25 +56,14 @@ class CustomRegisterForm(FlaskForm):
             validate_play_key,
         ]
     )
+    recaptcha = RecaptchaField(
+        validators=[validate_recaptcha]
+    )
 
-    password = PasswordField('Password', validators=[
-        DataRequired(),
-        password_validator,
-        validators.length(max=40, message="The maximum length of the password is 40 characters due to game client limitations")
-    ])
-    retype_password = PasswordField('Retype Password', validators=[
-        validators.EqualTo('password', message='Passwords did not match'),
-        validators.length(max=40, message="The maximum length of the password is 40 characters due to game client limitations")
-    ])
-
-    invite_token = HiddenField('Token')
-    
-    # Use recaptcha if config enables recaptcha
-    if current_app.config["ENABLE_RECAPTCHA"]:
-        recaptcha = RecaptchaField()
-
-    submit = SubmitField('Register')
-
+class CustomLoginForm(LoginForm):
+    recaptcha = RecaptchaField(
+        validators=[validate_recaptcha]
+    )
 
 class CreatePlayKeyForm(FlaskForm):
 

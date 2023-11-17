@@ -328,20 +328,21 @@ def register_settings(app):
         app.config['RECAPTCHA_PRIVATE_KEY']
     )
     # Optional
-    app.config['RECAPTCHA_API_SERVER'] = os.getenv(
-        'RECAPTCHA_API_SERVER',
-        app.config['RECAPTCHA_API_SERVER']
-    )
-    app.config['RECAPTCHA_PARAMETERS'] = os.getenv(
-        'RECAPTCHA_PARAMETERS',
-        app.config['RECAPTCHA_PARAMETERS']
-    )
-    if "RECAPTCHA_DATA_ATTRS" not in app.config:
-        app.config['RECAPTCHA_DATA_ATTRS'] = {'theme': 'white', 'size': 'invisible'}
-    app.config['RECAPTCHA_DATA_ATTRS'] = os.getenv(
-        'RECAPTCHA_DATA_ATTRS',
-        app.config['RECAPTCHA_DATA_ATTRS']
-    )
+    if "RECAPTCHA_API_SERVER" in app.config:
+        app.config['RECAPTCHA_API_SERVER'] = os.getenv(
+            'RECAPTCHA_API_SERVER',
+            app.config['RECAPTCHA_API_SERVER']
+        )
+    if "RECAPTCHA_PARAMETERS" in app.config:
+        app.config['RECAPTCHA_PARAMETERS'] = os.getenv(
+            'RECAPTCHA_PARAMETERS',
+            app.config['RECAPTCHA_PARAMETERS']
+        )
+    if "RECAPTCHA_DATA_ATTRS" in app.config:
+        app.config['RECAPTCHA_DATA_ATTRS'] = os.getenv(
+            'RECAPTCHA_DATA_ATTRS',
+            app.config['RECAPTCHA_DATA_ATTRS']
+        )
 
 
 
