@@ -15,8 +15,9 @@
         {% include 'partials/_character.html.j2' %}
       {% endwith %}
     </div>
-    <div class="col-sm">
-      {% include 'partials/_charxml.html.j2'%}
+    <div class="col-sm" id="charxml">
+      Loading Character Data 
+      {% include 'partials/_loading.html' %}
     </div>
   </div>
 {% endblock content %}
@@ -32,3 +33,14 @@
     {% endfor %}
   </div>
 {% endblock content_after %}
+
+{% block js %}
+  {{ super() }}
+  <script>
+    fetch({{ url_for("characters.chardata", id=character_data.id)|tojson }})
+        .then(response => response.text())
+        .then(text => {
+          setInnerHTML(document.getElementById("charxml"), text);
+        })
+  </script>
+{% endblock js %}

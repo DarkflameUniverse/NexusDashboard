@@ -100,6 +100,88 @@ def view(id):
         character_json=character_json
     )
 
+@character_blueprint.route('/chardata/<id>', methods=['GET'])
+@login_required
+def chardata(id):
+
+    character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
+
+    if character_data == {}:
+        abort(404)
+        return
+
+    if current_user.gm_level < 3:
+        if character_data.account_id and character_data.account_id != current_user.id:
+            abort(403)
+            return
+    character_json = xmltodict.parse(
+        CharacterXML.query.filter(
+            CharacterXML.id == id
+        ).first().xml_data.replace("\"stt=", "\" stt="),
+        attr_prefix="attr_"
+    )
+
+    # print json for reference
+    # with open("errorchar.json", "a") as file:
+    #     file.write(
+    #         json.dumps(character_json, indent=4)
+    #     )
+
+    # stupid fix for jinja parsing
+    character_json["obj"]["inv"]["holdings"] = character_json["obj"]["inv"].pop("items")
+    # sort by items slot index
+    if type(character_json["obj"]["inv"]["holdings"]["in"]) == list:
+        for inv in character_json["obj"]["inv"]["holdings"]["in"]:
+                if "i" in inv.keys() and type(inv["i"]) == list:
+                    inv["i"] = sorted(inv["i"], key=lambda i: int(i['attr_s']))
+
+    return render_template(
+        'partials/_charxml.html.j2',
+        character_data=character_data,
+        character_json=character_json
+    )
+
+@character_blueprint.route('/inventory/<id>/<inventory_id>', methods=['GET'])
+@login_required
+def inventory(id, inventory_id):
+    
+    character_data = CharacterInfo.query.filter(CharacterInfo.id == id).first()
+
+    if character_data == {}:
+        abort(404)
+        return
+
+    if current_user.gm_level < 3:
+        if character_data.account_id and character_data.account_id != current_user.id:
+            abort(403)
+            return
+    character_json = xmltodict.parse(
+        CharacterXML.query.filter(
+            CharacterXML.id == id
+        ).first().xml_data.replace("\"stt=", "\" stt="),
+        attr_prefix="attr_"
+    )
+
+    # print json for reference
+    # with open("errorchar.json", "a") as file:
+    #     file.write(
+    #         json.dumps(character_json, indent=4)
+    #     )
+
+    # stupid fix for jinja parsing
+    character_json["obj"]["inv"]["holdings"] = character_json["obj"]["inv"].pop("items")
+    # sort by items slot index
+    if type(character_json["obj"]["inv"]["holdings"]["in"]) == list:
+        for inv in character_json["obj"]["inv"]["holdings"]["in"]:
+                if "i" in inv.keys() and type(inv["i"]) == list:
+                    inv["i"] = sorted(inv["i"], key=lambda i: int(i['attr_s']))
+    for inventory in character_json["obj"]["inv"]["holdings"]["in"]:
+        if inventory["attr_t"] == inventory_id:
+            return render_template(
+                'partials/charxml/_inventory.html.j2',
+                inventory=inventory
+            )
+    return "No Items in Inventory", 404
 
 @character_blueprint.route('/view_xml/<id>', methods=['GET'])
 @login_required

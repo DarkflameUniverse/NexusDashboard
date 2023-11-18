@@ -1,0 +1,9 @@
+{% if inventory.i is iterable and (inventory.i is not string and inventory.i is not mapping) %}
+    {% for inv_item in inventory.i %}
+        {% include 'partials/charxml/_inv_grid.html.j2' %}
+    {% endfor %}
+{% else %}
+    {% with inv_item=inventory.i %}
+        {% include 'partials/charxml/_inv_grid.html.j2' %}
+    {% endwith %}
+{% endif %}

@@ -114,99 +114,33 @@
         <div class="tab-content mt-3" id="nav-invContent">
           <div class="tab-pane fade show active" id="nav-items" role="tabpanel" aria-labelledby="nav-items-tab">
             {# Inv ID 0 - Index: 0 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "0" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
           <div class="tab-pane fade" id="nav-vault" role="tabpanel" aria-labelledby="nav-vault-tab">
             {# Inv ID 1 - Index: 1 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "1" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
           <div class="tab-pane fade" id="nav-vault-models" role="tabpanel" aria-labelledby="nav-vault-models-tab">
             {# Inv ID 14 - Index: 10 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "14" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
           <div class="tab-pane fade" id="nav-bricks" role="tabpanel" aria-labelledby="nav-bricks-tab">
             {# Inv ID 2 - Index: 2 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "2" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
           <div class="tab-pane fade" id="nav-models" role="tabpanel" aria-labelledby="nav-models-tab">
             {# Inv ID 5 - Index: 6 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "5" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
           <div class="tab-pane fade" id="nav-behaviors" role="tabpanel" aria-labelledby="nav-behaviors-tab">
             {# Inv ID 7 - Index: 8 #}
-            {% for item in character_json.obj.inv.holdings.in %}
-              {% if item.attr_t == "7" %}
-                {% if item.i is iterable and (item.i is not string and item.i is not mapping) %}
-                  {% for inv_item in item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endfor %}
-                {% else %}
-                  {% with inv_item=item.i %}
-                    {% include 'partials/charxml/_inv_grid.html.j2' %}
-                  {% endwith %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            Loading Inventory 
+            {% include 'partials/_loading.html' %}
           </div>
         </div>
       </div>
@@ -265,3 +199,40 @@
     </div>
   </div>
 </div>
+<script>
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=0)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-items"), text);
+      })
+
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=1)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-vault"), text);
+      })
+
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=14)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-vault-models"), text);
+      })
+
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=2)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-bricks"), text);
+      })
+
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=5)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-models"), text);
+      })
+
+  fetch({{ url_for("characters.inventory", id=character_data.id, inventory_id=7)|tojson }})
+      .then(response => response.text())
+      .then(text => {
+        setInnerHTML(document.getElementById("nav-behaviors"), text);
+      })
+</script>
