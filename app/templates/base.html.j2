@@ -96,7 +96,7 @@
     })
     function setInnerHTML(elm, html) {
       elm.innerHTML = html;
-      
+      $("body").tooltip({ selector: '[data-toggle=tooltip]' });
       Array.from(elm.querySelectorAll("script"))
         .forEach( oldScriptEl => {
           const newScriptEl = document.createElement("script");
@@ -109,6 +109,7 @@
           newScriptEl.appendChild(scriptText);
           
           oldScriptEl.parentNode.replaceChild(newScriptEl, oldScriptEl);
+          
       });
     }
   </script>

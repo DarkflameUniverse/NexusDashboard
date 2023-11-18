@@ -17,7 +17,7 @@
     <span class="inventory-count text-bold">
       {%if inv_item.attr_c|int > 999 %}
         +999
-      {% else %}
+      {% elif inv_item.attr_c|int > 1 %}
         {{ inv_item.attr_c }}
       {% endif %}
     </span>
