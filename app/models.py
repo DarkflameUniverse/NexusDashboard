@@ -4,7 +4,7 @@ from flask_user import UserMixin
 from wtforms import ValidationError
 
 import logging
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import OperationalError, StatementError
 from sqlalchemy.types import JSON
@@ -15,7 +15,7 @@ import string
 
 # retrying query to work around python trash collector
 # killing connections of other gunicorn workers
-class RetryingQuery(BaseQuery):
+class RetryingQuery(Query):
     __retry_count__ = 3
 
     def __init__(self, *args, **kwargs):

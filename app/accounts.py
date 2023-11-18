@@ -19,15 +19,11 @@ from app.models import (
     db,
     Friends
 )
-from app.schemas import AccountSchema
 from app import gm_level, log_audit
 from app.forms import EditGMLevelForm, EditEmailForm
 from sqlalchemy import or_
 
 accounts_blueprint = Blueprint('accounts', __name__)
-
-account_schema = AccountSchema()
-
 
 @accounts_blueprint.route('/', methods=['GET'])
 @login_required

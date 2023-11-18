@@ -5,7 +5,6 @@ from flask_assets import Environment
 from webassets import Bundle
 import time
 from app.models import db, migrate, PlayKey
-from app.schemas import ma
 from app.forms import CustomUserManager
 from flask_user import user_registered, current_user, user_logged_in
 from flask_wtf.csrf import CSRFProtect
@@ -128,8 +127,6 @@ def register_extensions(app):
     """
     db.init_app(app)
     migrate.init_app(app, db)
-    ma.init_app(app)
-
     scheduler.init_app(app)
     scheduler.start()
 

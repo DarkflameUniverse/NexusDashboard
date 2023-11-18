@@ -2,15 +2,11 @@ from flask import render_template, Blueprint, send_from_directory
 from flask_user import current_user, login_required
 
 from app.models import Account, CharacterInfo, ActivityLog
-from app.schemas import AccountSchema, CharacterInfoSchema
 
 import datetime
 import time
 
 main_blueprint = Blueprint('main', __name__)
-
-account_schema = AccountSchema()
-char_info_schema = CharacterInfoSchema()
 
 
 @main_blueprint.route('/', methods=['GET'])

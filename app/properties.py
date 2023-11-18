@@ -13,7 +13,6 @@ from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import time
 from app.models import Property, db, UGC, CharacterInfo, PropertyContent, Account, Mail
-from app.schemas import PropertySchema
 from app import gm_level, log_audit
 from app.luclient import query_cdclient
 from app.forms import RejectPropertyForm
@@ -23,9 +22,6 @@ import app.pylddlib as ldd
 import pathlib
 
 property_blueprint = Blueprint('properties', __name__)
-
-property_schema = PropertySchema()
-
 
 @property_blueprint.route('/', methods=['GET'])
 @login_required

@@ -3,7 +3,6 @@ from flask_user import login_required, current_user
 from datatables import ColumnDT, DataTables
 import time
 from app.models import CharacterInfo, CharacterXML, Account, db
-from app.schemas import CharacterInfoSchema
 from app.forms import RescueForm, CharXMLUploadForm
 from app import gm_level, log_audit
 from app.luclient import translate_from_locale
@@ -14,9 +13,6 @@ from xml.dom import minidom
 
 
 character_blueprint = Blueprint('characters', __name__)
-
-character_schema = CharacterInfoSchema()
-
 
 @character_blueprint.route('/', methods=['GET'])
 @login_required
