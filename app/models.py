@@ -7,7 +7,6 @@ import logging
 from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import mysql
 from sqlalchemy.exc import OperationalError, StatementError
-from sqlalchemy.types import JSON
 from time import sleep
 import random
 import string
@@ -1018,7 +1017,7 @@ class Reports(db.Model):
     __tablename__ = 'reports'
 
     data = db.Column(
-        JSON(),
+        mysql.MEDIUMBLOB(),
         nullable=False
     )
 

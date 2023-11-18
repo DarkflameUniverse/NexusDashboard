@@ -4,8 +4,7 @@ from app.models import CharacterInfo, Account, CharacterXML, Reports
 from app.luclient import get_lot_name
 from app import gm_level, scheduler
 from sqlalchemy.orm import load_only
-import datetime
-import xmltodict
+import xmltodict, gzip, json, datetime
 
 reports_blueprint = Blueprint('reports', __name__)
 
@@ -44,6 +43,8 @@ def index():
 @gm_level(3)
 def items_by_date(date):
     data = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "items").first().data
+    data = gzip.decompress(data)
+    data = json.loads(data.decode('utf-8'))
     return render_template('reports/items/by_date.html.j2', data=data, date=date)
 
 
@@ -62,6 +63,8 @@ def items_graph(start, end):
     datasets = []
     # get stuff ready
     for entry in entries:
+        entry.data = gzip.decompress(entry.data)
+        entry.data = json.loads(entry.data.decode('utf-8'))
         labels.append(entry.date.strftime("%m/%d/%Y"))
         for key in entry.data:
             items[key] = get_lot_name(key)
@@ -104,6 +107,8 @@ def items_graph(start, end):
 @gm_level(3)
 def currency_by_date(date):
     data = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "currency").first().data
+    data = gzip.decompress(data)
+    data = json.loads(data.decode('utf-8'))
     return render_template('reports/currency/by_date.html.j2', data=data, date=date)
 
 
@@ -121,6 +126,8 @@ def currency_graph(start, end):
     datasets = []
     # get stuff ready
     for entry in entries:
+        entry.data = gzip.decompress(entry.data)
+        entry.data = json.loads(entry.data.decode('utf-8'))
         labels.append(entry.date.strftime("%m/%d/%Y"))
     for character in characters:
         data = []
@@ -155,6 +162,8 @@ def currency_graph(start, end):
 @gm_level(3)
 def uscore_by_date(date):
     data = Reports.query.filter(Reports.date == date).filter(Reports.report_type == "uscore").first().data
+    data = gzip.decompress(data)
+    data = json.loads(data.decode('utf-8'))
     return render_template('reports/uscore/by_date.html.j2', data=data, date=date)
 
 
@@ -172,6 +181,8 @@ def uscore_graph(start, end):
     datasets = []
     # get stuff ready
     for entry in entries:
+        entry.data = gzip.decompress(entry.data)
+        entry.data = json.loads(entry.data.decode('utf-8'))
         labels.append(entry.date.strftime("%m/%d/%Y"))
     for character in characters:
         data = []
@@ -260,7 +271,7 @@ def gen_item_report():
                     current_app.logger.error(f"REPORT::ITEMS - {e}")
 
             new_report = Reports(
-                data=report_data,
+                data=gzip.compress(json.dumps(report_data).encode('utf-8')),
                 report_type="items",
                 date=date
             )
@@ -308,7 +319,7 @@ def gen_currency_report():
                     current_app.logger.error(f"REPORT::CURRENCY - {e}")
 
             new_report = Reports(
-                data=report_data,
+                data=gzip.compress(json.dumps(report_data).encode('utf-8')),
                 report_type="currency",
                 date=date
             )
@@ -356,7 +367,7 @@ def gen_uscore_report():
                     current_app.logger.error(f"REPORT::U-SCORE - {e}")
 
             new_report = Reports(
-                data=report_data,
+                data=gzip.compress(json.dumps(report_data).encode('utf-8')),
                 report_type="uscore",
                 date=date
             )
