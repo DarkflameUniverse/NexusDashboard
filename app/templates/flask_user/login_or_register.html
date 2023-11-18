@@ -29,6 +29,11 @@
     {{ render_checkbox_field(login_form.remember_me, tabindex=130) }}
     {% endif %}
 
+    {# recaptcha #}
+    {% if config.RECAPTCHA_ENABLE %}
+        {{ form.recaptcha }}
+    {% endif %}
+
     {# Submit button #}
     {{ render_submit_field(login_form.submit, tabindex=180) }}
 </form>
@@ -61,6 +66,11 @@
 
     {% if user_manager.USER_REQUIRE_RETYPE_PASSWORD %}
         {{ render_field(register_form.retype_password, tabindex=240) }}
+    {% endif %}
+
+    {# recaptcha #}
+    {% if config.RECAPTCHA_ENABLE %}
+        {{ register_form.recaptcha }}
     {% endif %}
 
     {{ render_submit_field(register_form.submit, tabindex=280) }}

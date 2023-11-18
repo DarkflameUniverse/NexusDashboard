@@ -47,6 +47,11 @@
         {{ render_field(form.retype_password, tabindex=240) }}
     {% endif %}
 
+    {# recaptcha #}
+    {% if config.RECAPTCHA_ENABLE %}
+        {{ render_field(form.recaptcha, tabindex=250) }}
+    {% endif %}
+
     {{ render_submit_field(form.submit, tabindex=280) }}
 </form>
 

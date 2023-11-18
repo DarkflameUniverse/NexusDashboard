@@ -61,3 +61,13 @@ USER_AFTER_LOGOUT_ENDPOINT = "main.index"
 
 # Option will be removed once this feature is full implemeted
 ENABLE_CHAR_XML_UPLOAD = False
+
+# Recaptcha settings
+# See: https://flask-wtf.readthedocs.io/en/1.2.x/form/#recaptcha
+RECAPTCHA_ENABLE = False
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+# Optional
+# RECAPTCHA_API_SERVER = ''
+# RECAPTCHA_PARAMETERS = ''
+RECAPTCHA_DATA_ATTRS = {'theme': 'white', 'size': 'invisible'}
