@@ -98,7 +98,7 @@ docker run -d \
 
 ### Environmental Variables
 
-Please Reference `app/settings_exmaple.py` to see all the variables
+Please Reference `app/settings_example.py` to see all the variables
 
   * Required:
     * APP_SECRET_KEY (Must be provided)
