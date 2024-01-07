@@ -22,17 +22,17 @@ from app.models import PlayKey
 
 
 def validate_play_key(form, field):
-    """Validates a field for a valid phone number
+    """Validates a field for a valid play kyey
     Args:
         form: REQUIRED, the field's parent form
         field: REQUIRED, the field with data
     Returns:
         None, raises ValidationError if failed
     """
-    # jank to get the fireign key that we need back into the field
+    # jank to get the foreign key that we need back into the field
     if current_app.config["REQUIRE_PLAY_KEY"]:
         field.data = PlayKey.key_is_valid(key_string=field.data)
-    return
+    return True
 
 class CustomRecaptcha(Recaptcha):
     def __call__(self, form, field):
@@ -49,10 +49,7 @@ class CustomUserManager(UserManager):
 class CustomRegisterForm(RegisterForm):
     play_key_id = StringField(
         'Play Key',
-        validators=[
-            Optional(),
-            validate_play_key,
-        ]
+        validators=[validate_play_key]
     )
     recaptcha = RecaptchaField(
         validators=[CustomRecaptcha()]
