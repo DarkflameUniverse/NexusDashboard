@@ -252,6 +252,9 @@ def get():
         # Delete
         # </a>
 
+        if not current_app.config["USER_ENABLE_EMAIL"]:
+            account["2"] = '''N/A'''
+
         if account["4"]:
             account["4"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
         else:
@@ -267,20 +270,11 @@ def get():
         else:
             account["6"] = '''<h2 class="far fa-check-square text-success"></h2>'''
 
-        if current_app.config["USER_ENABLE_EMAIL"]:
-            if account["8"]:
-                account["8"] = '''<h2 class="far fa-check-square text-success"></h2>'''
-            else:
-                account["8"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
+        if not current_app.config["USER_ENABLE_EMAIL"]:
+            account["8"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
+        elif account["8"]:
+            account["8"] = '''<h2 class="far fa-check-square text-success"></h2>'''
         else:
-            # shift columns to fill in gap of 2
-            account["2"] = account["3"]
-            account["3"] = account["4"]
-            account["4"] = account["5"]
-            account["5"] = account["6"]
-            account["6"] = account["7"]
-            # remove last two columns
-            del account["7"]
-            del account["8"]
+            account["8"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
 
     return data
