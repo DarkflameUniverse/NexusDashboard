@@ -4,7 +4,7 @@ import random
 import string
 import datetime
 from flask_user import current_app
-from app import db
+from app import db, luclient
 from app.models import Account, PlayKey, CharacterInfo, Property, PropertyContent, UGC, Mail, CharacterXML
 import pathlib
 import zlib
@@ -281,3 +281,41 @@ def find_or_create_account(name, email, password, gm_level=9):
         db.session.add(play_key)
         db.session.commit()
     return  # account
+
+@click.command("find_missing_commendation_items")
+@with_appcontext
+def find_missing_commendation_items():
+    data = dict()
+    lots = set()
+    reward_items = luclient.query_cdclient("Select reward_item1 from Missions;")
+    for reward_item in reward_items:
+        lots.add(reward_item[0])
+    reward_items = luclient.query_cdclient("Select reward_item2 from Missions;")
+    for reward_item in reward_items:
+        lots.add(reward_item[0])
+    reward_items = luclient.query_cdclient("Select reward_item3 from Missions;")
+    for reward_item in reward_items:
+        lots.add(reward_item[0])
+    reward_items = luclient.query_cdclient("Select reward_item4 from Missions;")
+    for reward_item in reward_items:
+        lots.add(reward_item[0])
+    lots.remove(0)
+    lots.remove(-1)
+
+    for lot in lots:
+        itemcompid = luclient.query_cdclient(
+            "Select component_id from ComponentsRegistry where component_type = 11 and id = ?;",
+            [lot],
+            one=True
+        )[0]
+        
+        itemcomp = luclient.query_cdclient(
+            "Select commendationLOT, commendationCost from ItemComponent where id = ?;",
+            [itemcompid],
+            one=True
+        )
+        if itemcomp[0] is None or itemcomp[1] is None:
+            data[lot] = {"name": luclient.get_lot_name(lot)}
+    print(data)
+
+

@@ -19,7 +19,8 @@ from app.commands import (
     gen_image_cache,
     gen_model_cache,
     fix_clone_ids,
-    remove_buffs
+    remove_buffs,
+    find_missing_commendation_items
 )
 from app.models import Account, AccountInvitation, AuditLog
 
@@ -96,6 +97,7 @@ def create_app():
     app.cli.add_command(gen_model_cache)
     app.cli.add_command(fix_clone_ids)
     app.cli.add_command(remove_buffs)
+    app.cli.add_command(find_missing_commendation_items)
 
     register_logging(app)
     register_settings(app)
