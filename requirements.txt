@@ -10,7 +10,7 @@ Flask-User==1.0.2.2
 Flask-WTF==1.2.1
 gunicorn==21.2.0
 libsass==0.21.0
-PyMySQL==1.0.2
+PyMySQL==1.1.1
 SQLAlchemy==2.0.23
 sqlalchemy-datatables==2.0.1
 Wand==0.6.7
