@@ -116,7 +116,7 @@
       </div>
     {% endif %}
 
-    {% if account_data.play_key and current_user.gm_level > 3 and config.REQUIRE_PLAY_KEY %}
+    {% if account_data.play_key and config.REQUIRE_PLAY_KEY %}
       <hr class="bg-primary"/>
       <div class="row">
         <div class="col text-center">
@@ -133,26 +133,28 @@
           {{ account_data.play_key.key_string }}
         </div>
       </div>
-      <div class="row">
-        <div class="col text-right">
-          Uses Left:
+      {% if current_user.gm_level > 3 %}
+        <div class="row">
+          <div class="col text-right">
+            Uses Left:
+          </div>
+          <div class="col">
+            {{ account_data.play_key.key_uses }}
+          </div>
         </div>
-        <div class="col">
-          {{ account_data.play_key.key_uses }}
+        <div class="row">
+          <div class="col text-right">
+            Active:
+          </div>
+          <div class="col">
+            {% if account_data.active %}
+              <h5 class="far fa-check-square text-success"></h5>
+            {% else %}
+              <h5 class="far fa-times-circle text-danger"></h5>
+            {% endif %}
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col text-right">
-          Active:
-        </div>
-        <div class="col">
-          {% if account_data.active %}
-            <h5 class="far fa-check-square text-success"></h5>
-          {% else %}
-            <h5 class="far fa-times-circle text-danger"></h5>
-          {% endif %}
-        </div>
-      </div>
+      {% endif %}
     {% endif %}
 
     {% if current_user.id != account_data.id and current_user.gm_level > 3 %}
