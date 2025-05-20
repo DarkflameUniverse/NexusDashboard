@@ -11,7 +11,7 @@ Flask-WTF==1.2.1
 gunicorn==21.2.0
 libsass==0.21.0
 PyMySQL==1.0.2
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.41
 sqlalchemy-datatables==2.0.1
 Wand==0.6.7
 webassets==2.0
