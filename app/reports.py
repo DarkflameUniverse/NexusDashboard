@@ -5,6 +5,8 @@ from app.luclient import get_lot_name
 from app import gm_level, scheduler
 from sqlalchemy.orm import load_only
 import xmltodict, gzip, json, datetime
+from collections import OrderedDict
+import xml.etree.ElementTree as ET
 
 reports_blueprint = Blueprint('reports', __name__)
 
@@ -239,33 +241,21 @@ def gen_item_report():
             for char_xml in char_xmls:
                 name = CharacterInfo.query.filter(CharacterInfo.id == char_xml.id).first().name
                 try:
-                    character_json = xmltodict.parse(
-                        char_xml.xml_data,
-                        attr_prefix="attr_"
-                    )
-                    for inv in character_json["obj"]["inv"]["items"]["in"]:
-                        if "i" in inv.keys() and type(inv["i"]) == list and (int(inv["attr_t"]) == 0 or int(inv["attr_t"]) == 1):
-                            for item in inv["i"]:
-                                if item["attr_l"] in report_data:
-                                    if ("attr_c" in item):
-                                        report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + int(item["attr_c"])
-                                    else:
-                                        report_data[item["attr_l"]]["item_count"] = report_data[item["attr_l"]]["item_count"] + 1
+                    xml_data = ET.fromstring(char_xml.xml_data)
+                    inventories = xml_data.findall(".//inv/items/in")
+                    for inv in inventories:
+                        if inv.attrib["t"] in ["0", "1"]:
+                            for item in inv.findall("i"):
+                                item_attr_l = item.attrib["l"]
+                                item_attr_c = int(item.attrib["c"]) if "c" in item else 1
+                                if item_attr_l in report_data:
+                                    report_data[item_attr_l]["item_count"] = report_data[item_attr_l]["item_count"] + item_attr_c
                                 else:
-                                    if ("attr_c" in item):
-                                        report_data[item["attr_l"]] = {"item_count": int(item["attr_c"]), "chars": {}}
-                                    else:
-                                        report_data[item["attr_l"]] = {"item_count": 1, "chars": {}}
-                                if name in report_data[item["attr_l"]]["chars"]:
-                                    if ("attr_c" in item):
-                                        report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + int(item["attr_c"])
-                                    else:
-                                        report_data[item["attr_l"]]["chars"][name] = report_data[item["attr_l"]]["chars"][name] + 1
+                                    report_data[item_attr_l] = {"item_count": item_attr_c, "chars": {}}
+                                if name in report_data[item_attr_l]["chars"]:
+                                    report_data[item_attr_l]["chars"][name] = report_data[item_attr_l]["chars"][name] + item_attr_c
                                 else:
-                                    if ("attr_c" in item):
-                                        report_data[item["attr_l"]]["chars"][name] = int(item["attr_c"])
-                                    else:
-                                        report_data[item["attr_l"]]["chars"][name] = 1
+                                    report_data[item_attr_l]["chars"][name] = item_attr_c
                 except Exception as e:
                     current_app.logger.error(f"REPORT::ITEMS - ERROR PARSING CHARACTER {char_xml.id}")
                     current_app.logger.error(f"REPORT::ITEMS - {e}")
@@ -309,11 +299,9 @@ def gen_currency_report():
 
             for character in characters:
                 try:
-                    character_json = xmltodict.parse(
-                        character.xml_data,
-                        attr_prefix="attr_"
-                    )
-                    report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(character_json["obj"]["char"]["attr_cc"])
+                    xml_data = ET.fromstring(character.xml_data)
+                    char = xml_data.find(".//char")
+                    report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(char.attrib.get("cc"))
                 except Exception as e:
                     current_app.logger.error(f"REPORT::CURRENCY - ERROR PARSING CHARACTER {character.id}")
                     current_app.logger.error(f"REPORT::CURRENCY - {e}")
@@ -357,11 +345,9 @@ def gen_uscore_report():
 
             for character in characters:
                 try:
-                    character_json = xmltodict.parse(
-                        character.xml_data,
-                        attr_prefix="attr_"
-                    )
-                    report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(character_json["obj"]["char"]["attr_ls"])
+                    xml_data = ET.fromstring(character.xml_data)
+                    char = xml_data.find(".//char")
+                    report_data[CharacterInfo.query.filter(CharacterInfo.id == character.id).first().name] = int(char.attrib.get("ls"))
                 except Exception as e:
                     current_app.logger.error(f"REPORT::U-SCORE - ERROR PARSING CHARACTER {character.id}")
                     current_app.logger.error(f"REPORT::U-SCORE - {e}")
