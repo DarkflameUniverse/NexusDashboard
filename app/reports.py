@@ -247,7 +247,7 @@ def gen_item_report():
                         if inv.attrib["t"] in ["0", "1"]:
                             for item in inv.findall("i"):
                                 item_attr_l = item.attrib["l"]
-                                item_attr_c = int(item.attrib["c"]) if "c" in item else 1
+                                item_attr_c = int(item.attrib["c"]) if "c" in item.attrib else 1
                                 if item_attr_l in report_data:
                                     report_data[item_attr_l]["item_count"] = report_data[item_attr_l]["item_count"] + item_attr_c
                                 else:
