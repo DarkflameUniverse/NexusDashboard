@@ -4,7 +4,8 @@ from flask import current_app
 from flask_user.forms import (
     unique_email_validator,
     LoginForm,
-    RegisterForm
+    RegisterForm,
+    ChangePasswordForm
 )
 from flask_user import UserManager
 from wtforms.widgets import TextArea, NumberInput
@@ -14,12 +15,34 @@ from wtforms import (
     SubmitField,
     validators,
     IntegerField,
-    SelectField
+    SelectField,
+    PasswordField
 )
 
 from wtforms.validators import DataRequired, Optional
 from app.models import PlayKey
 
+def password_check(form, field):
+    """
+    Validates that the password does not contain a colon, is between 6 and 40 characters long and has an uppercase letter, lowercase letter and a number
+    """
+    error_msg = "Password must be between 6 and 40 characters long, contain a lowercase letter, an uppercase letter, a number, and cannot contain a colon"
+    password = field.data
+    pass_len = len(password)
+    if pass_len < 6:
+        raise validators.ValidationError(error_msg)
+    if ':' in password:
+        raise validators.ValidationError(error_msg)
+    if not any(c.islower() for c in password):
+        raise validators.ValidationError(error_msg)
+    if not any(c.isupper() for c in password):
+        raise validators.ValidationError(error_msg)
+    if not any(c.isdigit() for c in password):
+        raise validators.ValidationError(error_msg)
+    if pass_len > 40:
+        raise validators.ValidationError(error_msg)
+    return True
+    
 
 def validate_play_key(form, field):
     """Validates a field for a valid play kyey
@@ -45,6 +68,7 @@ class CustomUserManager(UserManager):
     def customize(self, app):
         self.RegisterFormClass = CustomRegisterForm
         self.LoginFormClass = CustomLoginForm
+        self.ChangePasswordFormClass = ColonlessChangePasswordForm
 
 class CustomRegisterForm(RegisterForm):
     play_key_id = StringField(
@@ -54,6 +78,10 @@ class CustomRegisterForm(RegisterForm):
     recaptcha = RecaptchaField(
         validators=[CustomRecaptcha()]
     )
+    password=PasswordField(
+		'Password',
+		validators=[DataRequired(), password_check]
+	)
 
 class CustomLoginForm(LoginForm):
     recaptcha = RecaptchaField(
@@ -193,3 +221,9 @@ class CharXMLUploadForm(FlaskForm):
     )
 
     submit = SubmitField('Submit')
+
+class ColonlessChangePasswordForm(ChangePasswordForm):
+    new_password = PasswordField(
+        'New Password',
+        validators=[validators.DataRequired(), password_check]
+    )
