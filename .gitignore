@@ -19,3 +19,6 @@ app/settings.py
 *.exe
 *.csv
 *.sql
+bin
+lib
+include
