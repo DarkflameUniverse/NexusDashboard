@@ -139,6 +139,7 @@ class Account(db.Model, UserMixin):
         unique=True
     )
 
+    # ND Exclusive
     email = db.Column(
         db.Unicode(255),
         nullable=True,
@@ -146,6 +147,7 @@ class Account(db.Model, UserMixin):
         unique=False
     )
 
+    # ND Exclusive
     email_confirmed_at = db.Column(db.DateTime())
 
     password = db.Column(
@@ -166,6 +168,7 @@ class Account(db.Model, UserMixin):
         server_default='0'
     )
 
+    # ND Exclusive
     active = db.Column(
         mysql.BOOLEAN,
         nullable=False,
@@ -215,7 +218,7 @@ class Account(db.Model, UserMixin):
         db.session.delete(self)
         db.session.commit()
 
-
+# ND Exclusive
 class AccountInvitation(db.Model):
     __tablename__ = 'account_invites'
     id = db.Column(db.Integer, primary_key=True)
@@ -456,14 +459,31 @@ class Leaderboard(db.Model):
         passive_deletes=True
     )
 
-    time = db.Column(
+    primaryScore = db.Column(
         mysql.BIGINT(unsigned=True),
         nullable=False,
         server_default='0'
     )
 
-    score = db.Column(
+    secondaryScore = db.Column(
         mysql.BIGINT(unsigned=True),
+        nullable=False,
+        server_default='0'
+    )
+    tertiaryScore = db.Column(
+        mysql.BIGINT(unsigned=True),
+        nullable=False,
+        server_default='0'
+    )
+
+    numWins = db.Column(
+        mysql.INTEGER(unsigned=True),
+        nullable=False,
+        server_default='0'
+    )   
+    
+    timesPlayed = db.Column(
+        mysql.INTEGER(unsigned=True),
         nullable=False,
         server_default='0'
     )
@@ -486,7 +506,7 @@ class Mail(db.Model):
     )
 
     sender_id = db.Column(
-        mysql.INTEGER,
+        mysql.BIGINT,
         nullable=False
     )
 
@@ -584,12 +604,15 @@ class PetNames(db.Model):
         mysql.TEXT,
         nullable=False
     )
+
+    # ND Exclusive
     approved = db.Column(
         mysql.INTEGER(unsigned=True),
         nullable=False,
         server_default='0'
     )
 
+    # ND Exclusive
     owner_id = db.Column(
         mysql.BIGINT,
         nullable=True
@@ -721,7 +744,7 @@ class Property(db.Model):
 class UGC(db.Model):
     __tablename__ = 'ugc'
     id = db.Column(
-        mysql.INTEGER,
+        mysql.BIGINT,
         primary_key=True
     )
     account_id = db.Column(
@@ -801,7 +824,7 @@ class PropertyContent(db.Model):
     )
 
     ugc_id = db.Column(
-        db.INT,
+        db.BIGINT,
         db.ForeignKey(UGC.id, ondelete='CASCADE'),
         nullable=True
     )
@@ -850,6 +873,39 @@ class PropertyContent(db.Model):
     rw = db.Column(
         mysql.FLOAT(),
         nullable=False,
+    )
+
+    model_name = db.Column(
+        mysql.TEXT,
+        nullable=False,
+        server_default=''
+    )
+
+    model_description = db.Column(
+        mysql.TEXT,
+        nullable=False,
+        server_default=''
+    )
+
+    behavior_1 = db.Column(
+        mysql.BIGINT(),
+        server_default='0'
+    )
+    behavior_2 = db.Column(
+        mysql.BIGINT(),
+        server_default='0'
+    )
+    behavior_3 = db.Column(
+        mysql.BIGINT(),
+        server_default='0'
+    )
+    behavior_4 = db.Column(
+        mysql.BIGINT(),
+        server_default='0'
+    )
+    behavior_5 = db.Column(
+        mysql.BIGINT(),
+        server_default='0'
     )
 
     def save(self):
@@ -956,7 +1012,7 @@ class BugReport(db.Model):
     )
 
     reporter_id = db.Column(
-        mysql.INTEGER(),
+        mysql.BIGINT,
         nullable=False,
         server_default='0'
     )
