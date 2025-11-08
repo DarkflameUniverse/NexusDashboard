@@ -79,9 +79,9 @@ class CustomRegisterForm(RegisterForm):
         validators=[CustomRecaptcha()]
     )
     password=PasswordField(
-		'Password',
-		validators=[DataRequired(), password_check]
-	)
+        'Password',
+        validators=[DataRequired(), password_check]
+    )
 
 class CustomLoginForm(LoginForm):
     recaptcha = RecaptchaField(
@@ -151,6 +151,15 @@ class ResolveBugReportForm(FlaskForm):
 
     submit = SubmitField('Submit')
 
+class LeaderboardsForm(FlaskForm):
+    activity = SelectField(
+        'Activity',
+        coerce=str,
+        choices=[],
+        validators=[validators.DataRequired()]
+    )
+
+    submit = SubmitField('Submit')
 
 class SendMailForm(FlaskForm):
 

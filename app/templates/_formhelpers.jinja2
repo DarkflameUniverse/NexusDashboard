@@ -1,15 +1,20 @@
-{% macro render_field(field, label=None, label_visible=true, right_url=None, right_label=None) -%}
+{% macro render_field(field, label=None, label_visible=true, right_url=None, right_label=None, submit_on_change=False) -%}
     <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
         {% if field.type != 'HiddenField' and label_visible %}
             {% if not label %}{% set label=field.label.text %}{% endif %}
             <label for="{{ field.id }}" class="control-label">{{ label|safe }}</label>
         {% endif %}
+        {% if submit_on_change %}
+        {{ field(class_='form-control', onchange='submitForm()', **kwargs) }}
+        {% else %}
         {{ field(class_='form-control', **kwargs) }}
+        {% endif %}
         {% if field.errors %}
             {% for e in field.errors %}
                 <p class="help-block text-danger">{{ e }}</p>
             {% endfor %}
         {% endif %}
+
     </div>
 {%- endmacro %}
  

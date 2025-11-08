@@ -175,6 +175,8 @@ def register_blueprints(app):
     app.register_blueprint(reports_blueprint, url_prefix='/reports')
     from .api import api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api')
+    from .leaderboards import leaderboards_blueprint
+    app.register_blueprint(leaderboards_blueprint, url_prefix='/leaderboards')
 
 
 def register_logging(app):
