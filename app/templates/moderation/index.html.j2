@@ -10,7 +10,7 @@
 
 {% block content_override %}
   <div class="mx-5">
-    <h4> Characters </h4>
+    <a id="characters" href="#characters"><h4> Characters </h4></a>
     <hr class="bg-primary"/>
     <table class="table table-dark table-striped table-bordered table-hover" id="character_table">
       <thead>
@@ -27,8 +27,14 @@
       <tbody></tbody>
     </table>
     <br/>
-    <h4> Pets </h4>
+    <a id="pets" href="#pets"><h4> Pets </h4></a>
     <hr class="bg-primary"/>
+    {% if pets_to_approve %}
+    <a role="button" class="btn btn-success btn btn-block"
+        href="{{ url_for('moderation.approve_pet', id='all') }}">
+        Approve all
+    </a>
+    {% endif %}
     <table class="table table-dark table-striped table-bordered table-hover" id="pet_table">
       <thead>
           <tr>
@@ -41,7 +47,7 @@
       <tbody></tbody>
     </table>
     <br/>
-    <h4> Properties </h4>
+    <a id="properties" href="#properties"><h4> Properties </h4></a>
     <hr class="bg-primary"/>
     <table class="table table-dark table-striped table-bordered table-hover" id="property_table">
       <thead>

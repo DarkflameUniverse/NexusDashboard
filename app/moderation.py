@@ -11,13 +11,24 @@ moderation_blueprint = Blueprint('moderation', __name__)
 @login_required
 @gm_level(3)
 def index(status):
-    return render_template('moderation/index.html.j2', status=status)
+    pets_to_approve = PetNames.query.filter(PetNames.approved == 1).count() > 0
+    return render_template('moderation/index.html.j2', status=status, pets_to_approve = pets_to_approve)
 
 
 @moderation_blueprint.route('/approve_pet/<id>', methods=['GET'])
 @login_required
 @gm_level(3)
 def approve_pet(id):
+
+    if "all" == id:
+        names = []
+        for pet in PetNames.query.filter(PetNames.approved == 1).all():
+            names.append(pet.pet_name)
+            pet.approved = 2
+            log_audit(f"Approved pet name {pet.pet_name} from {pet.owner_id}")
+            pet.save()
+        flash(f"Approved pets: {', '.join(names)}", "success")
+        return redirect(request.referrer if request.referrer else url_for("main.index"))
 
     pet_data = PetNames.query.filter(PetNames.id == id).first()
 
@@ -51,15 +62,14 @@ def get_pets(status="all"):
         ColumnDT(PetNames.pet_name),
         ColumnDT(PetNames.approved),
         ColumnDT(PetNames.owner_id),
+        ColumnDT(CharacterInfo.name),
     ]
 
-    query = None
-    if status == "approved":
-        query = db.session.query().select_from(PetNames).filter(PetNames.approved == 2)
-    elif status == "unapproved":
-        query = db.session.query().select_from(PetNames).filter(PetNames.approved == 1)
-    else:
-        query = db.session.query().select_from(PetNames)
+    query = db.session.query().select_from(PetNames).join(
+        CharacterInfo, CharacterInfo.id == PetNames.owner_id
+    )
+    if status in ["approved","unapproved"]:
+        query = query.filter(PetNames.approved == int(2 if status == "approved" else 1))
 
     params = request.args.to_dict()
 
@@ -109,7 +119,7 @@ def get_pets(status="all"):
                 pet_data["3"] = f"""
                     <a role="button" class="btn btn-primary btn btn-block"
                         href='{url_for('characters.view', id=pet_data["3"])}'>
-                        {CharacterInfo.query.filter(CharacterInfo.id==pet_data['3']).first().name}
+                        {pet_data["4"]}
                     </a>
                 """
             except Exception:

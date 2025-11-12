@@ -34,6 +34,16 @@ csrf_protect = CSRFProtect()
 scheduler = APScheduler()
 # db and migrate is instantiated in models.py
 
+class ReverseProxied(object):
+    # Adapted from https://wlog.viltstigen.se/articles/2021/09/13/flask-application-behind-a-reverse-proxy/
+    def __init__(self, app, script_name):
+        self.app = app
+        self.script_name = script_name
+
+    def __call__(self, environ, start_response):
+        environ['SCRIPT_NAME'] = self.script_name
+        return self.app(environ, start_response)
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -104,6 +114,11 @@ def create_app():
     register_extensions(app)
     register_blueprints(app)
     register_luclient_jinja_helpers(app)
+
+    if "SCRIPT_NAME" in app.config:
+        app.wsgi_app = ReverseProxied(app.wsgi_app, script_name = app.config["SCRIPT_NAME"])
+        app.config["ASSETS_URL"] = app.config["SCRIPT_NAME"] + "/static"
+        app.logger.info(f"Using SCRIPT_NAME={app.config['SCRIPT_NAME']}")
 
     # Extract the brickdb if it's not already extracted
     materials = pathlib.Path(f'{app.config["CACHE_LOCATION"]}Materials.xml')

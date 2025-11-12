@@ -71,3 +71,6 @@ RECAPTCHA_PRIVATE_KEY = ''
 # RECAPTCHA_API_SERVER = ''
 # RECAPTCHA_PARAMETERS = ''
 RECAPTCHA_DATA_ATTRS = {'theme': 'white', 'size': 'invisible'}
+
+# If you want to use under a virtual path of a reverse proxy.
+#SCRIPT_NAME = "/games/lego-universe/nexus-dashboard"
