@@ -16,6 +16,6 @@ SQLAlchemy==2.0.40
 sqlalchemy-datatables==2.0.1
 Wand==0.6.7
 webassets==2.0
-Werkzeug==3.0.1
+Werkzeug==3.1.5
 WTForms==3.0.0
 xmltodict==0.12.0
