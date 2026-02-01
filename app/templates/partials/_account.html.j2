@@ -210,12 +210,12 @@
           Delete Account
         </button>
       {% endif %}
-      </div>
-   {% endif %}
+    {% endif %}
+  </div>
 </div>
 
 {% if current_user.gm_level == 9 %}
-  {# delete Modal #}
+  {# delete Modal - positioned outside the card to not break grid layouts #}
   <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content bg-dark">

@@ -382,9 +382,11 @@ def get(status):
         """
 
         if character["4"]:
-            character["4"] = '''<h1 class="far fa-check-square text-danger"></h1>'''
+            character["4"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
+        elif character["3"]:
+            character["4"] = '''<h1 class="far fa-check-square text-success"></h1>'''
         else:
-            character["4"] = '''<h1 class="far fa-times-circle text-success"></h1>'''
+            character["4"] = '''<h1 class="far fa-times-circle text-muted"></h1>'''
 
         character["5"] = time.ctime(character["5"])
 

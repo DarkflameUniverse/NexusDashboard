@@ -10,6 +10,163 @@
 
 {% block content_override %}
   <div class="mx-5">
+    {% if status == 'all' %}
+    <div class="card bg-dark border-primary mb-4">
+      <div class="card-body py-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="card-title mb-1">Auto-Approval</h4>
+            <p class="text-muted mb-0">Automatically approve pending items on a schedule</p>
+          </div>
+          <div class="d-flex align-items-center">
+            {% if auto_approval_enabled %}
+            <form action="{{ url_for('moderation.set_auto_approval_interval') }}" method="POST" class="form-inline mr-4">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <label class="mr-2 text-muted">Every</label>
+              <input type="number" name="interval" value="{{ auto_approval_interval }}" 
+                     class="form-control form-control-lg bg-dark text-white border-primary" 
+                     style="width: 80px;" min="1" max="1440">
+              <label class="ml-2 mr-2 text-muted">minutes</label>
+              <button type="submit" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-save"></i>
+              </button>
+            </form>
+            {% endif %}
+            <div class="custom-control custom-switch" style="transform: scale(1.5); margin-right: 20px;">
+              <input type="checkbox" class="custom-control-input" id="autoApprovalToggle"
+                     {% if auto_approval_enabled %}checked{% endif %}
+                     onchange="window.location.href='{{ url_for('moderation.toggle_auto_approval') }}'">
+              <label class="custom-control-label" for="autoApprovalToggle"></label>
+            </div>
+            {% if auto_approval_enabled %}
+              <span class="badge badge-success" style="font-size: 1.2rem; padding: 0.5rem 1rem;">Enabled</span>
+            {% else %}
+              <span class="badge badge-secondary" style="font-size: 1.2rem; padding: 0.5rem 1rem;">Disabled</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if status == 'unapproved' %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group mr-2">
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApproveAll">
+            <i class="fas fa-check-double"></i> Approve All
+          </button>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#confirmApproveCharacters">Characters</button>
+          <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#confirmApprovePets">Pets</button>
+          <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#confirmApproveProperties">Properties</button>
+        </div>
+      </div>
+    </div>
+
+    {# Confirmation Modal: Approve All #}
+    <div class="modal fade" id="confirmApproveAll" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark border-primary">
+          <div class="modal-header border-primary">
+            <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-warning"></i> Confirm Bulk Approval</h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p class="lead">Are you sure you want to approve <strong>ALL</strong> pending items?</p>
+            <p class="text-muted">This will approve all characters, pets, and properties.</p>
+          </div>
+          <div class="modal-footer border-primary justify-content-center">
+            <a href="{{ url_for('moderation.approve_all') }}" class="btn btn-success btn-lg">
+              <i class="fas fa-check"></i> Yes, Approve All
+            </a>
+            <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Confirmation Modal: Characters #}
+    <div class="modal fade" id="confirmApproveCharacters" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark border-primary">
+          <div class="modal-header border-primary">
+            <h5 class="modal-title"><i class="fas fa-user text-info"></i> Confirm Approval</h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p class="lead">Approve all pending <strong>character names</strong>?</p>
+          </div>
+          <div class="modal-footer border-primary justify-content-center">
+            <a href="{{ url_for('moderation.approve_all_characters') }}" class="btn btn-success btn-lg">
+              <i class="fas fa-check"></i> Yes, Approve
+            </a>
+            <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Confirmation Modal: Pets #}
+    <div class="modal fade" id="confirmApprovePets" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark border-primary">
+          <div class="modal-header border-primary">
+            <h5 class="modal-title"><i class="fas fa-paw text-warning"></i> Confirm Approval</h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p class="lead">Approve all pending <strong>pet names</strong>?</p>
+          </div>
+          <div class="modal-footer border-primary justify-content-center">
+            <a href="{{ url_for('moderation.approve_all_pets') }}" class="btn btn-success btn-lg">
+              <i class="fas fa-check"></i> Yes, Approve
+            </a>
+            <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Confirmation Modal: Properties #}
+    <div class="modal fade" id="confirmApproveProperties" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark border-primary">
+          <div class="modal-header border-primary">
+            <h5 class="modal-title"><i class="fas fa-home text-success"></i> Confirm Approval</h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <p class="lead">Approve all pending <strong>properties</strong>?</p>
+          </div>
+          <div class="modal-footer border-primary justify-content-center">
+            <a href="{{ url_for('moderation.approve_all_properties') }}" class="btn btn-success btn-lg">
+              <i class="fas fa-check"></i> Yes, Approve
+            </a>
+            <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <h4> Characters </h4>
     <hr class="bg-primary"/>
     <table class="table table-dark table-striped table-bordered table-hover" id="character_table">

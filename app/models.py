@@ -1138,3 +1138,42 @@ class AuditLog(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+
+# Nexus Dashboard - Dashboard settings storage
+class DashboardSettings(db.Model):
+    __tablename__ = 'dashboard_settings'
+    key = db.Column(
+        db.String(64),
+        primary_key=True
+    )
+    value = db.Column(
+        mysql.TEXT,
+        nullable=True
+    )
+
+    @staticmethod
+    def get(key, default=None):
+        """Get a setting value by key."""
+        setting = DashboardSettings.query.filter_by(key=key).first()
+        return setting.value if setting else default
+
+    @staticmethod
+    def set(key, value):
+        """Set a setting value by key."""
+        setting = DashboardSettings.query.filter_by(key=key).first()
+        if setting:
+            setting.value = value
+        else:
+            setting = DashboardSettings(key=key, value=value)
+        db.session.add(setting)
+        db.session.commit()
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

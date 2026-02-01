@@ -82,7 +82,13 @@ def items_graph(start, end):
                         data.append(entry.data[key])
                 else:
                     data.append(0)
-            color = "#" + value.encode("utf-8").hex()[1:7]
+            # generate a color based on the value
+            color_hex = value.encode("utf-8").hex()
+            if len(color_hex) >= 7:
+                color = "#" + color_hex[1:7]
+            else:
+                color = "#" + (color_hex * 3)[:6]
+
             if max(data) > 10:
                 datasets.append({
                     "label": value,
@@ -138,7 +144,13 @@ def currency_graph(start, end):
                 data.append(entry.data[character.name])
             else:
                 data.append(0)
-        color = "#" + character.name.encode("utf-8").hex()[1:7]
+        # generate a color based on the character name
+        color_hex = character.name.encode("utf-8").hex()
+        if len(color_hex) >= 7:
+            color = "#" + color_hex[1:7]
+        else:
+            color = "#" + (color_hex * 3)[:6]
+
         if max(data) > 10000:
             datasets.append({
                 "label": character.name,
@@ -193,7 +205,13 @@ def uscore_graph(start, end):
                 data.append(entry.data[character.name])
             else:
                 data.append(0)
-        color = "#" + character.name.encode("utf-8").hex()[1:7]
+        # generate a color based on the character name
+        color_hex = character.name.encode("utf-8").hex()
+        if len(color_hex) >= 7:
+            color = "#" + color_hex[1:7]
+        else:
+            color = "#" + (color_hex * 3)[:6]
+
         if max(data) > 1000:
             datasets.append({
                 "label": character.name,

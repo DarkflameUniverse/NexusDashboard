@@ -79,11 +79,16 @@ def get_icon_lot(id):
         return redirect(url_for('luclient.unknown'))
 
     # find the asset from rendercomponent given the  component id
-    filename = query_cdclient(
+    filename_query = query_cdclient(
         'select icon_asset from RenderComponent where id = ?',
         [render_component_id],
         one=True
-    )[0]
+    )
+
+    if filename_query:
+        filename = filename_query[0]
+    else:
+        return redirect(url_for('luclient.unknown'))
 
     if filename:
         filename = filename.replace("..\\", "").replace("\\", "/")
@@ -109,11 +114,16 @@ def get_icon_lot(id):
 @login_required
 def get_icon_iconid(id):
 
-    filename = query_cdclient(
+    filename_query = query_cdclient(
         'select IconPath from Icons where IconID = ?',
         [id],
         one=True
-    )[0]
+    )
+
+    if filename_query:
+        filename = filename_query[0]
+    else:
+        return redirect(url_for('luclient.unknown'))
 
     filename = filename.replace("..\\", "").replace("\\", "/")
 
@@ -199,12 +209,12 @@ def get_cdclient():
     if cdclient is None:
         path = pathlib.Path(f"{current_app.config['CD_SQLITE_LOCATION']}cdclient.sqlite")
         if path.is_file():
-            cdclient = g._database = sqlite3.connect(f"{current_app.config['CD_SQLITE_LOCATION']}cdclient.sqlite")
+            cdclient = g._cdclient = sqlite3.connect(str(path))
             return cdclient
 
         path = pathlib.Path(f"{current_app.config['CD_SQLITE_LOCATION']}CDServer.sqlite")
         if path.is_file():
-            cdclient = g._database = sqlite3.connect(f"{current_app.config['CD_SQLITE_LOCATION']}CDServer.sqlite")
+            cdclient = g._cdclient = sqlite3.connect(str(path))
             return cdclient
 
     return cdclient
@@ -218,7 +228,11 @@ def query_cdclient(query, args=(), one=False):
         args    (list)      : List of args to place in query
         one     (bool)      : Return only on result or all results
     """
-    cur = get_cdclient().execute(query, args)
+    cdclient = get_cdclient()
+    if cdclient is None:
+        return None if one else []
+
+    cur = cdclient.execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
@@ -240,16 +254,20 @@ def translate_from_locale(trans_string):
     if not locale:
         locale_path = f"{current_app.config['CLIENT_LOCATION']}locale/locale.xml"
 
-        with open(locale_path, 'r') as file:
-            locale_data = file.read()
-        locale_xml = ET.XML(locale_data)
-        for item in locale_xml.findall('.//phrase'):
-            translation = ""
-            for translation_item in item.findall('.//translation'):
-                if translation_item.attrib["locale"] == "en_US":
-                    translation = translation_item.text
+        try:
+            with open(locale_path, 'r') as file:
+                locale_data = file.read()
+            locale_xml = ET.XML(locale_data)
+            for item in locale_xml.findall('.//phrase'):
+                translation = ""
+                for translation_item in item.findall('.//translation'):
+                    if translation_item.attrib["locale"] == "en_US":
+                        translation = translation_item.text
 
-            locale[item.attrib['id']] = translation
+                locale[item.attrib['id']] = translation
+        except (FileNotFoundError, ET.ParseError):
+            current_app.logger.warning(f"Could not load locale at {locale_path}")
+            return trans_string
 
     if trans_string in locale:
         return locale[trans_string]
@@ -268,7 +286,8 @@ def get_lot_name(lot_id):
             one=True
         )
         if intermed:
-            name = intermed[7] if (intermed[7] != "None" and intermed[7] != "" and intermed[7] is None) else intermed[1]
+            # use DisplayName if it exists, otherwise use name
+            name = intermed[7] if (intermed[7] not in ("None", "", None)) else intermed[1]
     return name
 
 
@@ -328,13 +347,13 @@ def register_luclient_jinja_helpers(app):
         if render_component_id:
             render_component_id = render_component_id[0]
 
-        rarity = query_cdclient(
+        rarity_query = query_cdclient(
             'select rarity from ItemComponent where id = ?',
             [render_component_id],
             one=True
         )
-        if rarity:
-            rarity = rarity[0]
+        if rarity_query:
+            rarity = rarity_query[0]
         return rarity
 
     @app.template_filter('get_lot_desc')
@@ -400,12 +419,12 @@ def register_luclient_jinja_helpers(app):
 
     @app.template_filter('query_cdclient')
     def jinja_query_cdclient(query, items):
-        print(query, items)
-        return query_cdclient(
+        res = query_cdclient(
             query,
             items,
             one=True
-        )[0]
+        )
+        return res[0] if res else None
 
     @app.template_filter('lu_translate')
     def lu_translate(to_translate):

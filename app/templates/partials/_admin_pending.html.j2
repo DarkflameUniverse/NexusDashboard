@@ -1,0 +1,49 @@
+{% if pending_items is defined and pending_counts is defined %}
+<div class="card bg-dark border-primary" style="height: 100%; display: flex; flex-direction: column;">
+  <div class="card-header bg-primary">
+    <h5 class="mb-0">
+      <i class="fas fa-tasks"></i> Pending Moderation
+      {% if pending_counts.total > 0 %}
+        <span class="badge badge-warning float-right">{{ pending_counts.total }}</span>
+      {% endif %}
+    </h5>
+  </div>
+  <div class="card-body" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;">
+    {% if pending_counts.total > 0 %}
+      <div class="mb-3">
+        <small class="text-muted">
+          {{ pending_counts.characters }} Characters &middot;
+          {{ pending_counts.pets }} Pets &middot;
+          {{ pending_counts.properties }} Properties
+        </small>
+      </div>
+      <ul class="list-group list-group-flush" style="overflow-y: auto; flex: 1; min-height: 0;">
+        {% for item in pending_items %}
+          <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+            <span>
+              {% if item.type == 'Character' %}
+                <i class="fas fa-user text-info"></i>
+              {% elif item.type == 'Pet' %}
+                <i class="fas fa-paw text-warning"></i>
+              {% else %}
+                <i class="fas fa-home text-success"></i>
+              {% endif %}
+              {{ item.name }}
+            </span>
+            <span class="badge badge-secondary">{{ item.type }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">
+        <i class="fas fa-check-circle text-success"></i> No pending items!
+      </p>
+    {% endif %}
+  </div>
+  <div class="card-footer">
+    <a href="{{ url_for('moderation.index', status='unapproved') }}" class="btn btn-primary btn-block">
+      <i class="fas fa-external-link-alt"></i> View All Unapproved Items
+    </a>
+  </div>
+</div>
+{% endif %}

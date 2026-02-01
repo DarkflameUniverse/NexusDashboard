@@ -19,3 +19,4 @@ webassets==2.0
 Werkzeug==3.0.1
 WTForms==3.0.0
 xmltodict==0.12.0
+python-dotenv
