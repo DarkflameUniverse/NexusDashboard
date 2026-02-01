@@ -303,18 +303,21 @@ def find_missing_commendation_items():
     lots.remove(-1)
 
     for lot in lots:
-        itemcompid = luclient.query_cdclient(
+        itemcompid_query = luclient.query_cdclient(
             "Select component_id from ComponentsRegistry where component_type = 11 and id = ?;",
             [lot],
             one=True
-        )[0]
-        
+        )
+        if not itemcompid_query:
+            continue
+        itemcompid = itemcompid_query[0]
+
         itemcomp = luclient.query_cdclient(
             "Select commendationLOT, commendationCost from ItemComponent where id = ?;",
             [itemcompid],
             one=True
         )
-        if itemcomp[0] is None or itemcomp[1] is None:
+        if not itemcomp or itemcomp[0] is None or itemcomp[1] is None:
             data[lot] = {"name": luclient.get_lot_name(lot)}
     print(data)
 

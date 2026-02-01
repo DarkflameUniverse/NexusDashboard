@@ -22,3 +22,5 @@ app/settings.py
 bin
 lib
 include
+test/
+.env

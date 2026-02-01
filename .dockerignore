@@ -3,3 +3,5 @@ credentials.py
 __pycache__/
 venv/
 .git/
+.env
+test/
