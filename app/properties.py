@@ -43,13 +43,13 @@ def approve(id):
     if property_data.mod_approved:
         property_data.rejection_reason = ""
 
-    if property_data.mod_approved:
-        message = f"""Approved Property
-            {property_data.name if property_data.name else query_cdclient(
+        zone_name_query = query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
                 [property_data.zone_id],
                 one=True
-            )[0]}
+            )
+        message = f"""Approved Property
+            {property_data.name if property_data.name else (zone_name_query[0] if zone_name_query else "Unknown Zone")}
             from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
         log_audit(message)
         flash(
@@ -57,12 +57,13 @@ def approve(id):
             "success"
         )
     else:
-        message = f"""Unapproved Property
-            {property_data.name if property_data.name else query_cdclient(
+        zone_name_query = query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
                 [property_data.zone_id],
                 one=True
-            )[0]}
+            )
+        message = f"""Unapproved Property
+            {property_data.name if property_data.name else (zone_name_query[0] if zone_name_query else "Unknown Zone")}
             from {CharacterInfo.query.filter(CharacterInfo.id==property_data.owner_id).first().name}"""
         log_audit(message)
         flash(
@@ -96,11 +97,12 @@ def reject(id):
 
     if form.validate_on_submit():
         char_name = CharacterInfo.query.filter(CharacterInfo.id == property_data.owner_id).first().name
-        zone_name = query_cdclient(
+        zone_name_query = query_cdclient(
             'select DisplayDescription from ZoneTable where zoneID = ?',
             [property_data.zone_id],
             one=True
-        )[0]
+        )
+        zone_name = zone_name_query[0] if zone_name_query else "Unknown Zone"
         property_data.mod_approved = False
         property_data.rejection_reason = form.rejection_reason.data
         message = f"""Rejected Property
@@ -247,11 +249,12 @@ def get(status="all"):
         """
 
         if property_data["4"] == "":
-            property_data["4"] = query_cdclient(
+            zone_desc_query = query_cdclient(
                 'select DisplayDescription from ZoneTable where zoneID = ?',
                 [property_data["13"]],
                 one=True
             )
+            property_data["4"] = zone_desc_query[0] if zone_desc_query else "Unknown Location"
 
         if property_data["6"] == 0:
             property_data["6"] = "Private"
@@ -263,16 +266,22 @@ def get(status="all"):
         property_data["8"] = time.ctime(property_data["8"])
         property_data["9"] = time.ctime(property_data["9"])
 
-        if not property_data["7"]:
+        if property_data["7"]:
+            # Approved
+            property_data["7"] = '''<h2 class="far fa-check-square text-success"></h2>'''
+        elif property_data["10"]:
+            # Rejected (has reason)
             property_data["7"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
         else:
-            property_data["7"] = '''<h2 class="far fa-check-square text-success"></h2>'''
+            # Pending/Unapproved
+            property_data["7"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
 
-        property_data["13"] = query_cdclient(
+        zone_desc_query = query_cdclient(
             'select DisplayDescription from ZoneTable where zoneID = ?',
             [property_data["13"]],
             one=True
         )
+        property_data["13"] = zone_desc_query[0] if zone_desc_query else "Unknown Location"
 
     return data
 
@@ -425,11 +434,15 @@ def decompress(data):
 def prebuilt(content, file_format, lod):
     # translate LOT to component id
     # we need to get a type of 2 for the render component to find the filename
-    render_component_id = query_cdclient(
+    render_component_query = query_cdclient(
         'select component_id from ComponentsRegistry where component_type = 2 and id = ?',
         [content.lot],
         one=True
-    )[0]
+    )
+    if not render_component_query:
+        return f"No render component for LOT {content.lot}"
+
+    render_component_id = render_component_query[0]
     # find the asset from rendercomponent given the component id
     filename = query_cdclient(
         'select render_asset from RenderComponent where id = ?',

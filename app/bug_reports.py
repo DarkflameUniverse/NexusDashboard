@@ -108,7 +108,7 @@ def get(status):
                     Resolve
                 </a>
             """
-            report["7"] = '''<h1 class="far fa-times-circle text-danger"></h1>'''
+            report["7"] = '''<h1 class="far fa-times-circle text-muted"></h1>'''
 
         if not report["1"]:
             report["1"] = "None"

@@ -70,6 +70,7 @@ def get_pets(status="all"):
         id = pet_data["0"]
         status = pet_data["2"]
         if status == 1:
+            # Awaiting moderation
             pet_data["0"] = f"""
             <div class="row">
                 <div class="col">
@@ -86,23 +87,25 @@ def get_pets(status="all"):
                 </div>
             </div>
             """
-            pet_data["2"] = "Awaiting Moderation"
+            pet_data["2"] = "<span class='text-muted'>Awaiting Moderation </span><h4 class='far fa-times-circle text-muted'></h4>"
         elif status == 2:
+            # Approved
             pet_data["0"] = f"""
                 <a role="button" class="btn btn-danger btn btn-block"
                     href='{url_for('moderation.reject_pet', id=id)}'>
                     Reject
                 </a>
             """
-            pet_data["2"] = "<span class='text-success'>Approved</span>"
+            pet_data["2"] = "<span class='text-success'>Approved </span><h4 class='far fa-check-square text-success'></h4>"
         elif status == 0:
+            # Rejected
             pet_data["0"] = f"""
                 <a role="button" class="btn btn-success btn btn-block"
                     href='{url_for('moderation.approve_pet', id=id)}'>
                     Approve
                 </a>
             """
-            pet_data["2"] = "<span class='text-danger'>Rejected</span>"
+            pet_data["2"] = "<span class='text-danger'>Rejected </span><h4 class='far fa-times-circle text-danger'></h4>"
 
         if pet_data["3"]:
             try:

@@ -256,25 +256,25 @@ def get():
             account["2"] = '''N/A'''
 
         if account["4"]:
-            account["4"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
-        else:
             account["4"] = '''<h2 class="far fa-check-square text-success"></h2>'''
+        else:
+            account["4"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
 
         if account["5"]:
-            account["5"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
-        else:
             account["5"] = '''<h2 class="far fa-check-square text-success"></h2>'''
+        else:
+            account["5"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
 
         if account["6"]:
-            account["6"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
-        else:
             account["6"] = '''<h2 class="far fa-check-square text-success"></h2>'''
+        else:
+            account["6"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
 
         if not current_app.config["USER_ENABLE_EMAIL"]:
             account["8"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
         elif account["8"]:
             account["8"] = '''<h2 class="far fa-check-square text-success"></h2>'''
         else:
-            account["8"] = '''<h2 class="far fa-times-circle text-danger"></h2>'''
+            account["8"] = '''<h2 class="far fa-times-circle text-muted"></h2>'''
 
     return data
