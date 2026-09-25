@@ -277,7 +277,9 @@
       this.xmldata = ''
     }
 
-    AddScene(file){
+    // placement: optional THREE.Matrix4 that places this model in the property. DLU stores player-built
+    // (UGC) models normalized around their own origin, with the position and rotation in properties_contents.
+    AddScene(file, placement = null){
       let lxfmlfile = new DBURLFile(file,file)
       this.xmldata = lxfmlfile.read()
 
@@ -305,7 +307,9 @@
           for (let j = 0; j < childnodes.length ;j++) {
             let childnode = childnodes[j]
             if (childnode.nodeName == 'Brick'){
-              this.Bricks.push(new Brick(childnode))
+              let brick = new Brick(childnode)
+              brick.placement = placement
+              this.Bricks.push(brick)
             }
           }
         }
@@ -531,9 +535,9 @@
       }
     }
 
-    LoadScene(filename){
+    LoadScene(filename, placement = null){
       if(this.database.initok){
-        this.scene.AddScene(filename)
+        this.scene.AddScene(filename, placement)
       }
     }
 
@@ -606,6 +610,11 @@
                 n12, n22, n32, n42,
                 n13, n23, n33, n43,
                 n14, n24 ,n34, n44);
+          }
+
+          // Move the brick from model space to its place on the property
+          if (bri.placement){
+            m.premultiply(bri.placement)
           }
 
           let decoCount = 0
@@ -1033,10 +1042,14 @@
 
 
   //Start
+  // Player-built models with the position and rotation stored for them in properties_contents
   let lxfml_file_list = [
     {% for model in content %}
       {% if model.lot == 14 %}
-        "{{url_for('properties.get_model', id=model.id, file_format='lxfml', lod=lod)}}"{{ ", " if not loop.last else "" }}
+        {
+          "url": "{{url_for('properties.get_model', id=model.id, file_format='lxfml', lod=lod)}}",
+          "pos": {{ model.pos[0]|tojson }}
+        }{{ ", " if not loop.last else "" }}
       {% endif %}
     {% endfor %}
   ]
@@ -1047,7 +1060,13 @@
       let converter = new Converter()
       converter.LoadDBURL(ldddburl)
       for (let i = 0; i < lxfml_file_list.length; i++) {
-        converter.LoadScene(lxfml_file_list[i])
+        let pos = lxfml_file_list[i].pos
+        let placement = new THREE.Matrix4().compose(
+          new THREE.Vector3(pos.x, pos.y, pos.z),
+          new THREE.Quaternion(pos.rx, pos.ry, pos.rz, pos.rw),
+          new THREE.Vector3(1, 1, 1)
+        )
+        converter.LoadScene(lxfml_file_list[i].url, placement)
       }
       converter.Export('test.webgl')
 
