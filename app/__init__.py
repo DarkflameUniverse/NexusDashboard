@@ -11,6 +11,16 @@ from flask_wtf.csrf import CSRFProtect
 from flask_apscheduler import APScheduler
 from app.luclient import register_luclient_jinja_helpers
 import pathlib
+import shutil
+import stat
+import tempfile
+from contextlib import contextmanager
+from zipfile import ZipFile
+try:
+    import fcntl
+except ImportError:  # Windows
+    fcntl = None
+    import msvcrt
 
 from app.commands import (
     init_db,
@@ -106,19 +116,88 @@ def create_app():
     register_luclient_jinja_helpers(app)
 
     # Extract the brickdb if it's not already extracted
-    materials = pathlib.Path(f'{app.config["CACHE_LOCATION"]}Materials.xml')
-    if not materials.is_file():
-        # unzip the brickdb, and remove the import after
-        from zipfile import ZipFile
-        with ZipFile(f"{app.config['CLIENT_LOCATION']}res/brickdb.zip","r") as zip_ref:
-            zip_ref.extractall(app.config["CACHE_LOCATION"])
-        del ZipFile
-        # copy over the brick primitives, and remove the import after
-        from shutil import copytree
-        copytree(f"{app.config['CLIENT_LOCATION']}res/brickprimitives", f"{app.config['CACHE_LOCATION']}brickprimitives")
-        del copytree
+    unpack_brick_cache(app.config["CLIENT_LOCATION"], app.config["CACHE_LOCATION"])
 
     return app
+
+
+BRICK_CACHE_MARKER = ".brickdb_unpacked"
+
+
+@contextmanager
+def _exclusive_lock(lock_path):
+    """Cross-process exclusive lock, held for the duration of the block."""
+    with open(lock_path, "a+b") as lock_file:
+        if fcntl is not None:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        else:  # Windows
+            lock_file.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
+                    break
+                except OSError:
+                    time.sleep(0.1)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            else:
+                lock_file.seek(0)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+
+
+def _make_owner_writable(path):
+    """Add owner write permission to a directory tree (copytree keeps source modes)."""
+    for root, dirs, files in os.walk(path):
+        for name in [root] + [os.path.join(root, d) for d in dirs]:
+            os.chmod(name, os.stat(name).st_mode | stat.S_IWUSR | stat.S_IXUSR)
+
+
+def unpack_brick_cache(client_location, cache_location):
+    """Unpack brickdb.zip and brickprimitives into the cache exactly once.
+
+    Several gunicorn workers run create_app() at the same time, so the
+    unpack is serialized with a file lock, extracted into a temporary
+    directory and moved into place, and only marked complete at the end.
+    A crashed or partial unpack is redone on the next start.
+    """
+    cache = pathlib.Path(cache_location)
+    marker = cache / BRICK_CACHE_MARKER
+    if marker.is_file():
+        return
+    cache.mkdir(parents=True, exist_ok=True)
+    with _exclusive_lock(cache / ".brickdb_unpack.lock"):
+        # another process may have finished while we waited for the lock
+        if marker.is_file():
+            return
+        tmp = pathlib.Path(tempfile.mkdtemp(prefix=".brickdb_tmp_", dir=cache))
+        try:
+            with ZipFile(f"{client_location}res/brickdb.zip", "r") as zip_ref:
+                zip_ref.extractall(tmp)
+            # copy file contents only: the client files are often read-only,
+            # and read-only directories can't be moved into place or cleaned up
+            shutil.copytree(
+                f"{client_location}res/brickprimitives",
+                tmp / "brickprimitives",
+                copy_function=shutil.copyfile
+            )
+            _make_owner_writable(tmp)
+            for entry in tmp.iterdir():
+                target = cache / entry.name
+                # leftovers from an older or interrupted unpack get replaced
+                if target.is_dir() and not target.is_symlink():
+                    _make_owner_writable(target)
+                    shutil.rmtree(target)
+                elif target.exists() or target.is_symlink():
+                    target.unlink()
+                os.replace(entry, target)
+        finally:
+            if tmp.exists():
+                _make_owner_writable(tmp)
+                shutil.rmtree(tmp)
+        marker.touch()
 
 
 def register_extensions(app):
