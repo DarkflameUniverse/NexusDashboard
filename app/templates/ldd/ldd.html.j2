@@ -533,11 +533,19 @@
 
     LoadScene(filename){
       if(this.database.initok){
+        // Each LXFML file is its own model with its own placement,
+        // so start from a fresh scene instead of accumulating bricks
+        this.scene = new Scene()
         this.scene.AddScene(filename)
       }
     }
 
-    Export(filename){
+    // Builds the meshes for the currently loaded LXFML scene.
+    // The brick transforms in a UGC LXFML are relative to the model's own origin,
+    // so the meshes are collected into a group which is then placed in the world
+    // using the position/rotation stored for the model (properties_contents).
+    Export(filename, positions = []){
+      let modelGroup = new THREE.Group()
       let allMaterials = new Materials(this.database.filelist['Materials.xml'].read())
       let invert = new Matrix3D()
       //invert.n33 = -1 //uncomment to invert the Z-Axis
@@ -717,14 +725,25 @@
             let mesh = new THREE.Mesh(geometry, materials);
             mesh.matrixAutoUpdate = false
             mesh.matrix = m
-            {% if not center %}
-              brick_pos.setFromMatrixPosition( m );
-            {% endif %}
-            scene.add(mesh);
+            modelGroup.add(mesh);
             // let vnh = new VertexNormalsHelper( mesh, 5 );
             // scene.add( vnh );
           }
         }
+      }
+
+      if (positions.length === 0) {
+        positions = [{x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, rw: 1}]
+      }
+      for (const [j, pos] of positions.entries()) {
+        let model = (j === 0) ? modelGroup : modelGroup.clone()
+        model.position.set(pos.x, pos.y, pos.z)
+        model.quaternion.set(pos.rx, pos.ry, pos.rz, pos.rw)
+        model.updateMatrixWorld(true)
+        scene.add(model)
+        {% if not center %}
+          new THREE.Box3().setFromObject(model).getCenter(brick_pos)
+        {% endif %}
       }
     }
   }
@@ -1036,7 +1055,10 @@
   let lxfml_file_list = [
     {% for model in content %}
       {% if model.lot == 14 %}
-        "{{url_for('properties.get_model', id=model.id, file_format='lxfml', lod=lod)}}"{{ ", " if not loop.last else "" }}
+        {
+          "url": "{{url_for('properties.get_model', id=model.id, file_format='lxfml', lod=lod)}}",
+          "pos": {{ model.pos|tojson }}
+        },
       {% endif %}
     {% endfor %}
   ]
@@ -1047,9 +1069,9 @@
       let converter = new Converter()
       converter.LoadDBURL(ldddburl)
       for (let i = 0; i < lxfml_file_list.length; i++) {
-        converter.LoadScene(lxfml_file_list[i])
+        converter.LoadScene(lxfml_file_list[i].url)
+        converter.Export('test.webgl', lxfml_file_list[i].pos)
       }
-      converter.Export('test.webgl')
 
     }
     else {
