@@ -1,3 +1,4 @@
+import re
 from flask import (
     render_template,
     Blueprint,
@@ -422,6 +423,17 @@ def decompress(data):
 		pos += length
 	return out
 
+def render_asset_basename(render_asset):
+    """Return the lowercase file name without extension of a client asset path.
+
+    render_asset paths in the cdclient mix separators: single backslashes
+    (mesh\\ftcommunityitems\\x.nif), escaped double backslashes, forward
+    slashes, or combinations of those, and mixed case.
+    """
+    name = re.split(r"[\\/]+", render_asset.strip())[-1]
+    return name.split(".")[0].lower()
+
+
 def prebuilt(content, file_format, lod):
     # translate LOT to component id
     # we need to get a type of 2 for the render component to find the filename
@@ -438,12 +450,10 @@ def prebuilt(content, file_format, lod):
     )
 
     # if we have a valie filename, coerce it
-    if filename:
-        filename = filename[0].split("\\\\")[-1].lower().split(".")[0]
-        if "/" in filename:
-            filename = filename.split("/")[-1].lower()
-    else:
-        return f"No filename for LOT {content.lot}"
+    if filename and filename[0]:
+        filename = render_asset_basename(filename[0])
+    if not filename:
+        abort(404)
 
     # if we just want the lxfml, fine t and return it
     lxfml = pathlib.Path(f'{current_app.config["CLIENT_LOCATION"]}res/BrickModels/{filename.split(".")[0]}.lxfml')
