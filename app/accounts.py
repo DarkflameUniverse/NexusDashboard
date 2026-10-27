@@ -17,11 +17,13 @@ from app.models import (
     BugReport,
     AccountInvitation,
     db,
-    Friends
+    Friends,
+    CommandLog,
+    CharacterXML
 )
 from app import gm_level, log_audit
 from app.forms import EditGMLevelForm, EditEmailForm
-from sqlalchemy import or_
+from sqlalchemy import or_, inspect, text, bindparam
 
 accounts_blueprint = Blueprint('accounts', __name__)
 
@@ -147,53 +149,112 @@ def mute(id, days=0):
 @gm_level(9)
 def delete(id):
     account = Account.query.filter(Account.id == id).first()
+    if account is None:
+        flash("Account not found", "danger")
+        return redirect(url_for("main.index"))
     message = f"Deleted Account ({account.id}){account.username}"
-    chars = CharacterInfo.query.filter(CharacterInfo.account_id == id).all()
-    for char in chars:
-        activities = ActivityLog.query.filter(
-            ActivityLog.character_id == char.id
-        ).all()
-        for activity in activities:
-            activity.delete()
-        lb_entries = Leaderboard.query.filter(
-            Leaderboard.character_id == char.id
-        ).all()
-        for lb_entry in lb_entries:
-            lb_entry.delete()
-        mails = Mail.query.filter(Mail.receiver_id == char.id).all()
-        for mail in mails:
-            mail.delete()
-        props = Property.query.filter(Property.owner_id == char.id).all()
-        for prop in props:
-            prop_contents = PropertyContent.query.filter(
-                PropertyContent.property_id == prop.id
-            ).all()
-            for prop_content in prop_contents:
-                if prop_content.lot == "14":
-                    UGC.query.filter(UGC.id == prop.ugc_id).first().delete()
-                prop_content.delete()
-            prop.delete()
-        friends = Friends.query.filter(
-            or_(Friends.player_id == char.id, Friends.friend_id == char.id)
-        ).all()
-        for friend in friends:
-            friend.delete()
-        char.delete()
-    # This is for GM stuff, it will be permnently delete logs
-    bugs = BugReport.query.filter(BugReport.resoleved_by_id == id).all()
-    for bug in bugs:
-        bug.delete()
-    audits = AuditLog.query.filter(AuditLog.account_id == id).all()
-    for audit in audits:
-        audit.delete()
-    invites = AccountInvitation.query.filter(
-        AccountInvitation.invited_by_user_id == id).all()
-    for invite in invites:
-        invite.delete()
-    account.delete()
+    try:
+        _delete_account_data(account)
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception(f"Failed to delete account {id}")
+        flash(f"Failed to delete Account ({account.id}){account.username}", "danger")
+        return redirect(url_for("accounts.view", id=id))
     flash(message, "danger")
     log_audit(message)
     return redirect(url_for("main.index"))
+
+
+def _bulk_delete(query):
+    # Bulk deletes bypass the ORM relationship handling, which would otherwise
+    # try to NULL out non-nullable foreign keys (e.g. ugc.character_id)
+    # instead of deleting the dependent rows.
+    query.delete(synchronize_session=False)
+
+
+def _delete_account_data(account):
+    """Delete an account and every row that references it or its characters.
+
+    The DLU schema uses ON DELETE RESTRICT for most of these foreign keys,
+    so dependents have to be removed explicitly, children first, and all
+    in one transaction so a failure leaves nothing half-deleted.
+    """
+    char_ids = [
+        c.id for c in CharacterInfo.query.with_entities(CharacterInfo.id)
+        .filter(CharacterInfo.account_id == account.id).all()
+    ]
+    clone_ids = [
+        c.prop_clone_id for c in CharacterInfo.query.with_entities(CharacterInfo.prop_clone_id)
+        .filter(CharacterInfo.account_id == account.id).all()
+    ]
+    existing_tables = set(inspect(db.engine).get_table_names())
+
+    if char_ids:
+        prop_ids = [
+            p.id for p in Property.query.with_entities(Property.id).filter(
+                or_(Property.owner_id.in_(char_ids), Property.clone_id.in_(clone_ids))
+            ).all()
+        ]
+        ugc_ids = [
+            u.id for u in UGC.query.with_entities(UGC.id).filter(
+                or_(UGC.account_id == account.id, UGC.character_id.in_(char_ids))
+            ).all()
+        ]
+        # property contents placed on this account's properties, or using its UGC models
+        content_filter = []
+        if prop_ids:
+            content_filter.append(PropertyContent.property_id.in_(prop_ids))
+        if ugc_ids:
+            content_filter.append(PropertyContent.ugc_id.in_(ugc_ids))
+        if content_filter:
+            _bulk_delete(PropertyContent.query.filter(or_(*content_filter)))
+        if prop_ids:
+            _bulk_delete(Property.query.filter(Property.id.in_(prop_ids)))
+        if "ugc_modular_build" in existing_tables:
+            db.session.execute(
+                text("DELETE FROM ugc_modular_build WHERE character_id IN :ids")
+                .bindparams(bindparam("ids", expanding=True)),
+                {"ids": char_ids}
+            )
+        if "ignore_list" in existing_tables:
+            db.session.execute(
+                text("DELETE FROM ignore_list WHERE player_id IN :ids OR ignored_player_id IN :ids")
+                .bindparams(bindparam("ids", expanding=True)),
+                {"ids": char_ids}
+            )
+        _bulk_delete(ActivityLog.query.filter(ActivityLog.character_id.in_(char_ids)))
+        _bulk_delete(Leaderboard.query.filter(Leaderboard.character_id.in_(char_ids)))
+        _bulk_delete(Mail.query.filter(Mail.receiver_id.in_(char_ids)))
+        _bulk_delete(CommandLog.query.filter(CommandLog.character_id.in_(char_ids)))
+        _bulk_delete(Friends.query.filter(
+            or_(Friends.player_id.in_(char_ids), Friends.friend_id.in_(char_ids))
+        ))
+        _bulk_delete(CharacterXML.query.filter(CharacterXML.id.in_(char_ids)))
+
+    # UGC can reference the account even without a (remaining) character
+    _bulk_delete(UGC.query.filter(
+        or_(UGC.account_id == account.id, UGC.character_id.in_(char_ids))
+        if char_ids else UGC.account_id == account.id
+    ))
+    if char_ids:
+        _bulk_delete(CharacterInfo.query.filter(CharacterInfo.id.in_(char_ids)))
+
+    if "player_cheat_detections" in existing_tables:
+        db.session.execute(
+            text("DELETE FROM player_cheat_detections WHERE account_id = :id"),
+            {"id": account.id}
+        )
+    if "accounts_rewardcodes" in existing_tables:
+        db.session.execute(
+            text("DELETE FROM accounts_rewardcodes WHERE account_id = :id"),
+            {"id": account.id}
+        )
+    # This is for GM stuff, it will be permnently delete logs
+    _bulk_delete(BugReport.query.filter(BugReport.resoleved_by_id == account.id))
+    _bulk_delete(AuditLog.query.filter(AuditLog.account_id == account.id))
+    _bulk_delete(AccountInvitation.query.filter(AccountInvitation.invited_by_user_id == account.id))
+    _bulk_delete(Account.query.filter(Account.id == account.id))
+    db.session.commit()
 
 
 @accounts_blueprint.route('/pass_reset/<id>', methods=['GET', 'POST'])
