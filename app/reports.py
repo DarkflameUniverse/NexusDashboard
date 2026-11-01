@@ -139,7 +139,7 @@ def currency_graph(start, end):
             else:
                 data.append(0)
         color = "#" + character.name.encode("utf-8").hex()[1:7]
-        if max(data) > 10000:
+        if data and max(data) > 10000:
             datasets.append({
                 "label": character.name,
                 "data": data,
@@ -194,7 +194,7 @@ def uscore_graph(start, end):
             else:
                 data.append(0)
         color = "#" + character.name.encode("utf-8").hex()[1:7]
-        if max(data) > 1000:
+        if data and max(data) > 1000:
             datasets.append({
                 "label": character.name,
                 "data": data,
