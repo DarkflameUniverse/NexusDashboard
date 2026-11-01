@@ -104,6 +104,11 @@ Please Reference `app/settings_example.py` to see all the variables
     * APP_SECRET_KEY (Must be provided)
     * APP_DATABASE_URI (Must be provided)
   * Everything else is optional and has defaults
+  * Property model viewer:
+    * COMPRESS_MODEL_RESPONSES (default `True`): gzip model and brick database files for browsers that support it
+    * CACHE_COMPRESSED_MODELS (default `False`): store a `.gz` copy next to each cached file instead of compressing on every request (uses more disk space, saves CPU)
+    * PROPERTY_VIEWER_LOAD_REDRAW (default `none`): property viewer redraw while models load; `none` draws once when all models have loaded, `interval` redraws periodically so models appear progressively
+    * PROPERTY_VIEWER_REDRAW_INTERVAL_MS (default `500`): minimum time between redraws while loading when PROPERTY_VIEWER_LOAD_REDRAW is `interval`
 
 ## Manual Linux Installation
 
