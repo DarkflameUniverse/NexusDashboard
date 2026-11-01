@@ -460,7 +460,7 @@ def download_model(id):
     if content.lot == 14:  # ugc model
         response, filename = ugc(content)
     else:  # prebuilt model
-        response, filename = prebuilt(content, "lxfml")
+        response, filename = prebuilt(content, "lxfml", 0)
 
     response.headers.set('Content-Type', 'attachment/xml')
     response.headers.set(
