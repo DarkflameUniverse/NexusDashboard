@@ -1,0 +1,167 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}Leaderboards{% endblock title %}
+{% block content_before %}Leaderboards{% endblock content_before %}
+
+{% block content %}
+  {% if message %}
+    <div class="row">
+      <div class="col text-center">
+        <h3>{{ message }}</h3>
+      </div>
+    </div>
+    <br/>
+  {% endif %}
+  <form id="activityForm" method=post>
+    <div>
+      {{ form.csrf_token }}
+      {{ helper.render_field(form.activity, submit_on_change=True) }}
+      {# HIDDEN helper.render_submit_field(form.submit) #}
+    </div>
+  </form>
+  <table class="table table-dark table-striped table-bordered table-hover" id="leaderboards_table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th id="score1">Best Time</th>
+            <th id="score2">hidden</th>
+            <th id="score3">hidden</th>
+            <th id="score4">hidden</th>
+            <th>Times played</th>
+            <th>Last played</th>
+            <th>something_here</th>
+            <th>name</th>
+            <th>game_id</th>
+            <th>Days ago</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock  %}
+
+{% block js %}
+  {{ super () }}
+  <script>
+    var categories = {
+      footrace_duration: {
+        ids: ["104","108","1901","1","44","47","49","53"],
+        columns: ["Best Time","hidden","hidden","hidden"],
+        format: ["time","hidden","hidden","hidden"],
+        sort: [[1,'asc']]
+      },
+      footrace_remainder: {
+        ids: ["46","48"],
+        columns: ["Best Time","hidden","hidden","hidden"],
+        format: ["time","hidden","hidden","hidden"],
+        sort: [[1,'desc']]
+      },
+      racetrack: {
+        ids: ["39","42","54","60"],
+        columns: ["Best Time","Best Lap","hidden","Wins"],
+        format: ["time","time","hidden","number"],
+        sort: [[1,'asc']]
+      },
+      points1: {
+        ids: ["1864"], // cannon cove
+        columns: ["Score","Streak","Accuracy","hidden"],
+        format: ["number","number","percent","hidden"],
+        sort: [[1,'desc']]
+      },
+      points2: {
+        ids: ["61"], // battle of nimbus station
+        columns: ["Wave","Time","hidden","hidden"],
+        format: ["number","time","hidden","hidden"],
+        sort: [[1,'desc'],[2,'asc']]
+      },
+      survival: {
+        ids: ["5"],
+        columns: ["Points","Time","hidden","hidden"],
+        format: ["number","time","hidden","hidden"],
+        sort: [[1,'desc']]
+      }
+    };
+    function toHHMMSS(value) {
+      // Borrowed from https://datatables.net/forums/discussion/54988/converting-time-in-seconds-to-format-hh-mm-ss
+      var sec_num = value; // don't forget the second param
+      var hours   = Math.floor(sec_num / 3600);
+      var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+      var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+      if (hours   < 10) {hours   = "0"+hours;}
+      if (minutes < 10) {minutes = "0"+minutes;}
+      if (seconds < 10) {seconds = "0"+seconds;}
+      return hours+':'+minutes+':'+seconds;
+    }
+    function render_value(data,type,row,meta) {
+      let format = "hidden"
+      let output = ""
+      let f = document.querySelector('[selected=""]');
+      if (f && f.hasAttribute("value")) {
+        let selected_id = f.value;
+        let col = meta.col;
+        for (let key in categories) {
+          if (categories[key]["ids"].includes(selected_id.toString())) {
+            format = categories[key]["format"][col-1]
+          }
+        }
+      };
+      switch(format) {
+        case "time":
+          output = toHHMMSS(data).slice(0, 12);
+          break;
+        case "percent":
+          output = Number(data).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+          break;
+        default:
+          //passthrough
+          output = data;
+      }
+      return output;
+    }
+
+    $(document).ready(function() {
+        let leaderboards_table = $('#leaderboards_table').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ordering": true,
+            "orderMulti": true,
+            "ajax": "{{ url_for('leaderboards.get', id=id) }}",
+            "columnDefs": [
+              { "searchable": false, "targets": [8] },
+              { "orderable": false, "targets": [7] }, // pretty date
+              { "visible": false, "targets": [2,3,7,8,9] },
+              { "render": function(data, type, row, meta) { return render_value(data,type,row,meta) }, "targets": [1,2,3]},
+            ]
+          });
+          // it might be null on the first load of the page.
+          let f = document.querySelector('[selected=""]');
+          if (f && f.hasAttribute("value")) {
+            let selected_id = f.value;
+            for (let key in categories) {
+              if (categories[key]["ids"].includes(selected_id.toString())) {
+                for (let i=0 ; i < 4 ; i++) {
+                  // reset column visible to true, but redraw=false, so we can change its heading
+                  leaderboards_table.column(i+1).visible(true,false);
+                  let heading = categories[key]["columns"][i];
+                  document.getElementById(`score${i+1}`).textContent = heading;
+                  leaderboards_table.column(i+1).visible(heading != "hidden",false);
+                }
+                let sortOrder = categories[key]["sort"]
+                let sortConfigObject = []
+                if (sortOrder) {
+                  leaderboards_table.order(sortOrder);
+                }
+              }
+            }
+            leaderboards_table.draw();
+          } else {
+            // select first entry so the submit will load the data formatting.
+            document.getElementById("activity").getElementsByTagName("option")[0].setAttribute("selected","");
+            document.getElementById("activityForm").submit();
+          }
+        });
+    function submitForm() {
+      document.getElementById("activityForm").submit();
+    }
+  </script>
+{% endblock %}
